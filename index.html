@@ -3,361 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Controle - App</title>
+    <title>Painel de Controle Avançado - App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: #f8fafc; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; transition: border-color 0.2s; }
-        .input-field:focus { outline: none; border-color: #3b82f6; }
-        .checkbox-toggle { appearance: none; width: 3rem; height: 1.5rem; background: #334155; border-radius: 9999px; position: relative; cursor: pointer; outline: none; transition: background-color 0.2s; }
+        body { background-color: #0b0f19; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-field { background: #0b0f19; border: 1px solid #1e293b; color: white; padding: 0.6rem 1rem; border-radius: 0.5rem; width: 100%; transition: all 0.2s; }
+        .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        
+        .checkbox-toggle { appearance: none; width: 3rem; height: 1.5rem; background: #1e293b; border-radius: 9999px; position: relative; cursor: pointer; outline: none; transition: background-color 0.2s; }
         .checkbox-toggle::after { content: ''; position: absolute; top: 0.125rem; left: 0.125rem; width: 1.25rem; height: 1.25rem; background: white; border-radius: 50%; transition: transform 0.2s; }
         .checkbox-toggle:checked { background: #3b82f6; }
         .checkbox-toggle:checked::after { transform: translateX(1.5rem); }
-        .btn-save { background: #2563eb; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
-        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        
+        .btn-save { background: #2563eb; color: white; padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35); background: #1d4ed8; }
         .btn-save:active { transform: translateY(0); }
-        .btn-save:disabled { background: #475569; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.6; }
+        .btn-save:disabled { background: #334155; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.5; }
         
         /* Toast notification */
-        #toast { position: fixed; bottom: -100px; right: 20px; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 0.5rem; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: bottom 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 50; }
+        #toast { position: fixed; bottom: -100px; right: 20px; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 0.5rem; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: bottom 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 100; display: flex; align-items: center; gap: 0.5rem; }
         #toast.show { bottom: 20px; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 font-sans">
+<body class="min-h-screen p-4 md:p-8">
 
     <!-- Tela de Login -->
-    <div id="login-screen" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl border border-slate-700 text-center">
+    <div id="login-screen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl border border-slate-800 text-center">
             <div class="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
-                <i class="fas fa-lock text-3xl"></i>
+                <i class="fas fa-shield-halved text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-bold mb-2">Painel Inteligente</h2>
-            <p class="text-slate-400 text-sm mb-6 font-medium">Acesso restrito ao proprietário para atualização do app.</p>
+            <h2 class="text-2xl font-bold mb-2">Painel de Administração</h2>
+            <p class="text-slate-400 text-sm mb-6 font-medium">Controle total e distribuição inteligente das diretrizes do app.</p>
             
-            <div id="domain-error-msg" class="hidden mb-4 p-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs rounded-lg text-left">
+            <div id="domain-error-msg" class="hidden mb-4 p-4 bg-red-950/80 border border-red-500/30 text-red-200 text-xs rounded-lg text-left">
                 <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Erro de Domínio Não Autorizado!</p>
                 <p class="mb-2">O Firebase bloqueou o login porque este site ainda não foi cadastrado como domínio confiável.</p>
                 <p class="font-semibold text-white">Como resolver:</p>
                 <ol class="list-decimal list-inside ml-1 mt-1 space-y-1 text-slate-300">
                     <li>Vá no painel do seu Firebase Console.</li>
                     <li>Acesse <strong class="text-white">Authentication</strong> ➔ <strong class="text-white">Settings</strong> ➔ <strong class="text-white">Authorized domains</strong>.</li>
-                    <li>Adicione o domínio: <code class="bg-slate-900 px-1 rounded text-yellow-400 font-mono">geilsonlabsprojects.github.io</code></li>
+                    <li>Adicione o domínio atual de hospedagem nas configurações.</li>
                 </ol>
             </div>
 
-            <button id="btn-login-google" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all mb-4">
+            <button id="btn-login-google" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all mb-4 shadow-lg">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google Logo">
                 Entrar com Conta Google
             </button>
-            <p class="text-xs text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 py-2 px-3 rounded-lg"><i class="fas fa-shield-alt mr-1"></i> Apenas o e-mail cadastrado poderá salvar alterações.</p>
+            <p class="text-xs text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 py-2.5 px-3 rounded-lg"><i class="fas fa-shield-alt mr-1"></i> Apenas o e-mail de administrador cadastrado possui acesso.</p>
         </div>
     </div>
 
     <!-- Conteúdo Principal do Painel -->
-    <div id="main-content" class="max-w-6xl mx-auto hidden">
+    <div id="main-content" class="max-w-7xl mx-auto hidden">
         <!-- Header -->
-        <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-slate-700 gap-4">
+        <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-slate-800 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
-                    <i class="fas fa-rocket text-blue-500"></i>Painel Inteligente do App
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 flex items-center gap-2">
+                    <i class="fas fa-sliders text-blue-500"></i> Painel Multicontrole Pro
                 </h1>
-                <p class="text-slate-400 mt-1">Gerenciamento no caminho: <code class="text-blue-300">/dados_app</code></p>
+                <p class="text-slate-400 mt-1">Status em tempo real das configurações de dados em <code class="text-blue-300">/dados_app</code></p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3">
-                <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1.5 rounded-full border border-amber-400/20">
                     <i class="fas fa-circle-notch fa-spin"></i> Conectando...
                 </div>
-                <div id="admin-badge" class="flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full border border-slate-700"></div>
-                <button id="btn-logout" class="bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-400 border border-slate-700 py-1 px-3 rounded-full text-sm transition-all">
+                <div id="admin-badge" class="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/50"></div>
+                <button id="btn-logout" class="bg-slate-900 hover:bg-red-950/60 text-slate-300 hover:text-red-400 border border-slate-800 py-1.5 px-4 rounded-full text-sm transition-all flex items-center gap-2">
                     <i class="fas fa-sign-out-alt"></i> Sair
                 </button>
             </div>
         </header>
 
-        <!-- Informativo -->
-        <div class="mb-8 p-4 bg-gradient-to-r from-blue-900/30 to-emerald-900/30 border border-blue-500/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="flex items-start gap-3">
-                <div class="p-3 bg-blue-500/20 text-blue-400 rounded-lg">
-                    <i class="fas fa-magic text-xl"></i>
-                </div>
+        <!-- Resumo Rápido -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between">
                 <div>
-                    <h3 class="font-bold text-blue-300 text-lg">Versão Dinâmica no Rodapé Ativada! 🚀</h3>
-                    <p class="text-sm text-slate-300">O app agora reflete a <strong>Version Name</strong> instantaneamente nas telas.</p>
+                    <span class="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Versão do Aplicativo</span>
+                    <span id="active-version-preview" class="text-2xl font-bold text-blue-400">v0.0.0</span>
+                </div>
+                <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg">
+                    <i class="fas fa-code-branch text-xl"></i>
                 </div>
             </div>
-            <div class="bg-blue-950/80 border border-blue-800 px-4 py-2 rounded-lg text-center self-stretch sm:self-auto flex flex-col justify-center">
-                <span class="text-xs text-slate-400 uppercase tracking-widest block font-semibold">Versão Atual Ativa</span>
-                <span id="active-version-preview" class="text-xl font-mono font-bold text-emerald-400">v0.0.0</span>
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Modo Manutenção</span>
+                    <span id="maintenance-status-preview" class="text-2xl font-bold text-amber-500">Inativo</span>
+                </div>
+                <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg">
+                    <i class="fas fa-tools text-xl"></i>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Mural de Avisos</span>
+                    <span id="mural-count-preview" class="text-2xl font-bold text-cyan-400">0 Cadastrados</span>
+                </div>
+                <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-lg">
+                    <i class="fas fa-newspaper text-xl"></i>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 font-semibold block uppercase tracking-wider">Avisos Ativos</span>
+                    <span id="alert-status-preview" class="text-2xl font-bold text-purple-400">Desativado</span>
+                </div>
+                <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg">
+                    <i class="fas fa-bell text-xl"></i>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
-            <div class="space-y-6">
-                <!-- 1. Atualizações -->
-                <section class="glass-card rounded-xl p-6 shadow-xl">
+            <!-- COLUNA DA ESQUERDA -->
+            <div class="space-y-8">
+                
+                <!-- 1. SISTEMA DE ATUALIZAÇÕES (EXPANDIDO) -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-blue-500">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-semibold flex items-center text-blue-400">
-                            <i class="fas fa-download w-8"></i> Sistema de Atualização
+                        <h2 class="text-xl font-semibold flex items-center text-blue-400 gap-2">
+                            <i class="fas fa-cloud-arrow-down"></i> Sistema de Atualização Inteligente
                         </h2>
+                        <span class="bg-blue-500/10 text-blue-400 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Configurações de Distribuição</span>
                     </div>
                     
                     <div class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Version Code (Número)</label>
-                                <input type="number" id="upd-code" class="input-field" placeholder="Ex: 25">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Version Code</label>
+                                <input type="number" id="upd-code" class="input-field font-mono" placeholder="Ex: 28">
                             </div>
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Version Name (Texto)</label>
-                                <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Version Name</label>
+                                <input type="text" id="upd-name" class="input-field font-mono" placeholder="Ex: 2.8.1" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Canal de Lançamento</label>
+                                <select id="upd-channel" class="input-field">
+                                    <option value="stable">Estável (Produção)</option>
+                                    <option value="beta">Beta Público</option>
+                                    <option value="alpha">Alpha Restrito</option>
+                                </select>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
-                                <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização!">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Título do Alerta</label>
+                                <input type="text" id="upd-title" class="input-field" placeholder="Nova versão disponível!">
                             </div>
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Texto do Botão de Ação</label>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Texto do Botão</label>
                                 <input type="text" id="upd-btn-text" class="input-field" placeholder="Baixar Agora">
                             </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Tamanho do APK (Ex: 15.4 MB)</label>
+                                <input type="text" id="upd-size" class="input-field" placeholder="18.5 MB">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Mínimo Android SDK Requerido</label>
+                                <input type="text" id="upd-min-sdk" class="input-field" placeholder="Android 8.0 (API 26)">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Porcentagem de Rollout (Liberação Gradual)</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" id="upd-rollout" min="0" max="100" class="w-full" oninput="this.nextElementSibling.innerText = this.value + '%'">
+                                    <span class="text-sm font-bold text-blue-400 w-12 text-right">100%</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1">Changelog (Novidades)</label>
-                            <textarea id="upd-desc" class="input-field h-24" placeholder="O que há de novo nesta versão?"></textarea>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Changelog (Novidades - Suporta Quebras de Linha)</label>
+                            <textarea id="upd-desc" class="input-field h-24 text-sm" placeholder="• Correção de bugs no carregamento&#10;• Nova aba do mural de avisos&#10;• Otimização de desempenho"></textarea>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta ou Loja)</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Link de Download (APK Direto, GDrive ou Play Store)</label>
                             <input type="url" id="upd-url" class="input-field" placeholder="https://...">
                         </div>
 
-                        <div class="flex flex-col gap-3 pt-2">
-                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                                <div>
-                                    <span class="font-medium">Ativar Popup de Atualização</span>
-                                    <p class="text-xs text-slate-400">Exibe a notificação de nova versão.</p>
+                        <!-- Opções extras avançadas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                                <span class="text-xs font-semibold block mb-1">Exibir Atualização</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-400">Ativa o popup</span>
+                                    <input type="checkbox" id="upd-show" class="checkbox-toggle">
                                 </div>
-                                <input type="checkbox" id="upd-show" class="checkbox-toggle">
                             </label>
 
-                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                                <div>
-                                    <span class="font-medium text-blue-300">Permitir Ignorar (Cancelável)</span>
-                                    <p class="text-xs text-slate-400">Usuário pode fechar o popup clicando fora.</p>
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                                <span class="text-xs font-semibold block mb-1">Permitir Ignorar</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-400">Pode fechar</span>
+                                    <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
                                 </div>
-                                <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
                             </label>
 
-                            <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
-                                <div>
-                                    <span class="font-medium text-red-400">Atualização Obrigatória (Forçar)</span>
-                                    <p class="text-xs text-slate-400">Trava a tela e obriga a baixar.</p>
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-red-950/20 rounded-lg border border-red-900/40">
+                                <span class="text-xs font-semibold text-red-300 block mb-1">Obrigatoriedade</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] text-red-400">Bloquear uso</span>
+                                    <input type="checkbox" id="upd-force" class="checkbox-toggle">
                                 </div>
-                                <input type="checkbox" id="upd-force" class="checkbox-toggle">
                             </label>
                         </div>
 
-                        <div class="pt-4 mt-4 border-t border-slate-700">
-                            <button onclick="saveData('update')" id="btn-save-update" class="btn-save w-full justify-center" disabled>
-                                <i class="fas fa-cloud-upload-alt"></i> Publicar Atualização
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                            <div>
+                                <span class="text-sm font-semibold">Exigir Wi-Fi para download</span>
+                                <p class="text-xs text-slate-400">Recomenda ou força o download apenas em redes sem fio.</p>
+                            </div>
+                            <input type="checkbox" id="upd-wifi" class="checkbox-toggle">
+                        </label>
+
+                        <div class="pt-2">
+                            <button onclick="saveData('update')" id="btn-save-update" class="btn-save w-full" disabled>
+                                <i class="fas fa-cloud-arrow-up"></i> Publicar Atualização e Sincronizar
                             </button>
                         </div>
                     </div>
                 </section>
 
-                <!-- 6. Mural de Recados -->
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-cyan-500">
+                <!-- 2. MURAL DE NOTÍCIAS AVANÇADO (MULTI-AVISO) -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-cyan-500">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold flex items-center text-cyan-400">
-                            <i class="fas fa-clipboard-list w-8"></i> Mural de Notícias
-                        </h2>
-                        <input type="checkbox" id="mural-enabled" class="checkbox-toggle">
+                        <div>
+                            <h2 class="text-xl font-semibold flex items-center text-cyan-400 gap-2">
+                                <i class="fas fa-clipboard-list"></i> Mural de Notícias (Multi-Avisos)
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Gerencie vários recados, defina urgência e data limite.</p>
+                        </div>
+                        <input type="checkbox" id="mural-enabled" class="checkbox-toggle" title="Habilitar/Desabilitar Mural no App">
                     </div>
-                    
-                    <div class="space-y-4">
+
+                    <!-- Formulário de Criar/Editar Recado -->
+                    <div class="bg-slate-900/60 rounded-lg p-4 border border-slate-800 mb-6 space-y-4">
+                        <h3 id="mural-form-title" class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1">
+                            <i class="fas fa-plus text-cyan-400"></i> Criar Novo Recado / Comunicado
+                        </h3>
+                        <input type="hidden" id="mural-edit-id">
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Título da Postagem</label>
-                                <input type="text" id="mural-title" class="input-field" placeholder="Boas Festas!">
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Título do Recado</label>
+                                <input type="text" id="mural-title" class="input-field" placeholder="Ex: Aviso Importante sobre Feriado">
                             </div>
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Autor / Assinatura</label>
-                                <input type="text" id="mural-author" class="input-field" placeholder="Direção">
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Autor / Emissor</label>
+                                <input type="text" id="mural-author" class="input-field" placeholder="Ex: Direção Geral">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Tag / Categoria</label>
+                                <select id="mural-category" class="input-field font-semibold text-cyan-400">
+                                    <option value="Aviso" class="text-cyan-400">Aviso Geral</option>
+                                    <option value="Urgente" class="text-red-400">🚨 Urgente</option>
+                                    <option value="Novidade" class="text-emerald-400">✨ Novidade</option>
+                                    <option value="Evento" class="text-purple-400">📅 Evento</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Tempo Ativo (Dias de expiração)</label>
+                                <input type="number" id="mural-expiry" class="input-field" placeholder="Ex: 7" value="7">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Cor de Destaque</label>
+                                <select id="mural-color" class="input-field">
+                                    <option value="blue">Azul Tecnológico</option>
+                                    <option value="red">Vermelho Intenso</option>
+                                    <option value="emerald">Verde Suave</option>
+                                    <option value="yellow">Amarelo Alerta</option>
+                                    <option value="purple">Roxo Elegante</option>
+                                </select>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1">Conteúdo do Mural</label>
-                            <textarea id="mural-content" class="input-field h-24" placeholder="Escreva o aviso completo aqui..."></textarea>
+                            <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Mensagem / Conteúdo do Comunicado</label>
+                            <textarea id="mural-content" class="input-field h-24 text-sm" placeholder="Escreva a mensagem completa aqui..."></textarea>
                         </div>
 
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">URL da Imagem (Opcional)</label>
-                            <input type="url" id="mural-image" class="input-field" placeholder="https://link-da-imagem.com/foto.jpg">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Link da Imagem (Opcional)</label>
+                                <input type="url" id="mural-image" class="input-field" placeholder="https://...">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 uppercase font-semibold">Botão de Ação / Link Adicional (Opcional)</label>
+                                <input type="url" id="mural-action-url" class="input-field" placeholder="https://...">
+                            </div>
                         </div>
 
-                        <button onclick="saveData('mural')" id="btn-save-mural" class="btn-save w-full justify-center !bg-cyan-600 hover:!bg-cyan-700" disabled>
-                            <i class="fas fa-thumbtack"></i> Fixar no Mural
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="saveMuralItem()" id="btn-save-mural" class="btn-save flex-1 !bg-cyan-600 hover:!bg-cyan-700" disabled>
+                                <i class="fas fa-thumbtack"></i> Fixar Comunicado no Mural
+                            </button>
+                            <button onclick="clearMuralForm()" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 rounded-lg text-sm transition font-medium">
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Recados Atuais (Sincronizados) -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Recados Atuais no Mural</h3>
+                        <div id="mural-items-container" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                            <!-- Inserido dinamicamente -->
+                            <div class="p-4 bg-slate-900/40 rounded-lg border border-slate-800 text-center text-slate-500 text-xs">
+                                Nenhum comunicado inserido ou carregado no mural.
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
 
-            <div class="space-y-6">
-                <!-- 2. Manutenção -->
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-amber-500">
+            <!-- COLUNA DA DIREITA -->
+            <div class="space-y-8">
+                
+                <!-- 3. MODO MANUTENÇÃO (AVANÇADO) -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-amber-500">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold flex items-center text-amber-400">
-                            <i class="fas fa-tools w-8"></i> Modo Manutenção
-                        </h2>
-                        <input type="checkbox" id="mnt-enabled" class="checkbox-toggle">
+                        <div>
+                            <h2 class="text-xl font-semibold flex items-center text-amber-400 gap-2">
+                                <i class="fas fa-gears"></i> Modo Manutenção
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Controle de acesso e indisponibilidade temporária.</p>
+                        </div>
+                        <input type="checkbox" id="mnt-enabled" class="checkbox-toggle" onchange="document.getElementById('maintenance-status-preview').innerText = this.checked ? 'Ativo ⚠️' : 'Inativo'; document.getElementById('maintenance-status-preview').className = this.checked ? 'text-2xl font-bold text-red-500' : 'text-2xl font-bold text-amber-500'">
                     </div>
                     
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Título da Tela</label>
-                            <input type="text" id="mnt-title" class="input-field" placeholder="Sistema em manutenção">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Mensagem para os usuários</label>
-                            <textarea id="mnt-msg" class="input-field h-20" placeholder="Voltaremos em breve com melhorias."></textarea>
-                        </div>
-                        <button onclick="saveData('maintenance')" id="btn-save-maintenance" class="btn-save w-full justify-center !bg-amber-600 hover:!bg-amber-700" disabled>
-                            <i class="fas fa-save"></i> Salvar Manutenção
-                        </button>
-                    </div>
-                </section>
-
-                <!-- 3. Mensagens e Avisos -->
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-purple-500">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold flex items-center text-purple-400">
-                            <i class="fas fa-bell w-8"></i> Avisos Globais
-                        </h2>
-                        <input type="checkbox" id="msg-enabled" class="checkbox-toggle">
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Título do Aviso</label>
-                            <input type="text" id="msg-title" class="input-field" placeholder="Aviso Importante">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Texto do Aviso</label>
-                            <textarea id="msg-text" class="input-field h-20" placeholder="Digite o recado para os usuários..."></textarea>
-                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Texto do Botão (Opcional)</label>
-                                <input type="text" id="msg-action-text" class="input-field" placeholder="Saber Mais">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Título de Alerta na Tela</label>
+                                <input type="text" id="mnt-title" class="input-field" placeholder="Ex: Servidores em Manutenção">
                             </div>
                             <div>
-                                <label class="block text-sm text-slate-400 mb-1">Link da Ação (Opcional)</label>
-                                <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Previsão de Retorno (Ex: 15:00h)</label>
+                                <input type="text" id="mnt-eta" class="input-field" placeholder="Ex: Hoje às 18:30h">
                             </div>
-                        </div>
-                        <button onclick="saveData('messages')" id="btn-save-messages" class="btn-save w-full justify-center !bg-purple-600 hover:!bg-purple-700" disabled>
-                            <i class="fas fa-paper-plane"></i> Enviar Aviso
-                        </button>
-                    </div>
-                </section>
-
-                <!-- 4. Sistema -->
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-emerald-500">
-                    <h2 class="text-xl font-semibold flex items-center text-emerald-400 mb-4">
-                        <i class="fas fa-cogs w-8"></i> Configurações do Sistema
-                    </h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Nome do Aplicativo</label>
-                            <input type="text" id="sys-name" class="input-field" placeholder="Meu App">
                         </div>
                         
-                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Mensagem Descritiva para os usuários</label>
+                            <textarea id="mnt-msg" class="input-field h-20 text-sm" placeholder="Ex: Estamos realizando uma manutenção preventiva para melhorar o desempenho e segurança do banco de dados. Obrigado pela paciência!"></textarea>
+                        </div>
+
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
                             <div>
-                                <span class="font-medium">Status do Servidor</span>
-                                <p class="text-xs text-slate-400">Desative para simular queda de servidor.</p>
+                                <span class="text-sm font-semibold text-amber-300">Liberar Administradores</span>
+                                <p class="text-xs text-slate-400">Contas autorizadas continuam com acesso livre para testes durante a manutenção.</p>
                             </div>
-                            <input type="checkbox" id="sys-status" class="checkbox-toggle">
+                            <input type="checkbox" id="mnt-bypass-admins" class="checkbox-toggle" checked>
                         </label>
 
-                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                            <div>
-                                <span class="font-medium text-emerald-300">Cadastro Aberto</span>
-                                <p class="text-xs text-slate-400">Permitir que novos alunos criem contas.</p>
-                            </div>
-                            <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
-                        </label>
-
-                        <button onclick="saveData('system')" id="btn-save-system" class="btn-save w-full justify-center !bg-emerald-600 hover:!bg-emerald-700" disabled>
-                            <i class="fas fa-check-circle"></i> Salvar Configurações
+                        <button onclick="saveData('maintenance')" id="btn-save-maintenance" class="btn-save w-full !bg-amber-600 hover:!bg-amber-700" disabled>
+                            <i class="fas fa-circle-check"></i> Salvar Estado de Manutenção
                         </button>
                     </div>
                 </section>
 
-                <!-- 5. Redes e Suporte -->
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-pink-500">
-                    <h2 class="text-xl font-semibold flex items-center text-pink-400 mb-4">
-                        <i class="fas fa-link w-8"></i> Redes Sociais e Contato
-                    </h2>
+                <!-- 4. AVISOS GLOBAIS / NOTIFICAÇÃO PUSH FICTÍCIA -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-purple-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-semibold flex items-center text-purple-400 gap-2">
+                                <i class="fas fa-bullhorn"></i> Alertas & Avisos Globais (In-App)
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Mostre banners suspensos instantâneos para os usuários logados.</p>
+                        </div>
+                        <input type="checkbox" id="msg-enabled" class="checkbox-toggle" onchange="document.getElementById('alert-status-preview').innerText = this.checked ? 'Ativado 🔔' : 'Desativado'; document.getElementById('alert-status-preview').className = this.checked ? 'text-2xl font-bold text-emerald-400' : 'text-2xl font-bold text-purple-400'">
+                    </div>
                     
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1"><i class="fab fa-whatsapp text-green-400"></i> WhatsApp de Suporte</label>
-                            <input type="text" id="link-wpp" class="input-field" placeholder="Ex: 5585999999999">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1"><i class="fab fa-instagram text-pink-400"></i> Link do Instagram</label>
-                            <input type="url" id="link-insta" class="input-field" placeholder="https://instagram.com/seuapp">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1"><i class="fas fa-globe text-blue-400"></i> Site Oficial</label>
-                            <input type="url" id="link-site" class="input-field" placeholder="https://seusite.com">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Título da Notificação</label>
+                                <input type="text" id="msg-title" class="input-field" placeholder="Atenção Usuários!">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Estilo Visual do Banner</label>
+                                <select id="msg-style" class="input-field">
+                                    <option value="info">Informação (Azul)</option>
+                                    <option value="warning">Aviso Importante (Amarelo)</option>
+                                    <option value="danger">Crítico / Urgente (Vermelho)</option>
+                                    <option value="success">Sucesso / Festivo (Verde)</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <button onclick="saveData('links')" id="btn-save-links" class="btn-save w-full justify-center !bg-pink-600 hover:!bg-pink-700" disabled>
-                            <i class="fas fa-share-alt"></i> Salvar Links
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Texto Curto do Alerta</label>
+                            <textarea id="msg-text" class="input-field h-20 text-sm" placeholder="Digite uma breve notificação que aparecerá para todos ao abrir o app..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Link de Redirecionamento (Opcional)</label>
+                                <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Texto do Botão</label>
+                                <input type="text" id="msg-action-text" class="input-field" placeholder="Ver detalhes">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                                <div>
+                                    <span class="text-xs font-bold uppercase tracking-wider block">Permitir fechar</span>
+                                    <p class="text-[10px] text-slate-400">Usuário pode ocultar o aviso.</p>
+                                </div>
+                                <input type="checkbox" id="msg-dismissible" class="checkbox-toggle" checked>
+                            </label>
+                            
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Máximo de Exibições por Usuário</label>
+                                <input type="number" id="msg-max-views" class="input-field" value="3" placeholder="Ex: 3">
+                            </div>
+                        </div>
+
+                        <button onclick="saveData('messages')" id="btn-save-messages" class="btn-save w-full !bg-purple-600 hover:!bg-purple-700" disabled>
+                            <i class="fas fa-paper-plane"></i> Propagar Alerta Geral
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 5. CONFIGURAÇÕES GERAIS DO SISTEMA -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-emerald-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-semibold flex items-center text-emerald-400 gap-2">
+                                <i class="fas fa-cubes"></i> Configurações do App & Sistema
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Gerenciamento operacional básico do ecossistema.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Nome do Aplicativo</label>
+                                <input type="text" id="sys-name" class="input-field" placeholder="Meu App">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">E-mail de Contato Principal</label>
+                                <input type="email" id="sys-admin-email" class="input-field" placeholder="adm@app.com">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                                <div>
+                                    <span class="font-semibold text-sm">Status do Servidor</span>
+                                    <p class="text-xs text-slate-400">Desative para simular queda geral.</p>
+                                </div>
+                                <input type="checkbox" id="sys-status" class="checkbox-toggle" checked>
+                            </label>
+
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                                <div>
+                                    <span class="font-semibold text-sm text-emerald-300">Cadastro Aberto</span>
+                                    <p class="text-xs text-slate-400">Permitir entrada de novos usuários.</p>
+                                </div>
+                                <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Limite de Tamanho de Anexos</label>
+                                <select id="sys-upload-limit" class="input-field">
+                                    <option value="5">5 MB por arquivo</option>
+                                    <option value="10">10 MB por arquivo</option>
+                                    <option value="25">25 MB por arquivo</option>
+                                    <option value="50">50 MB por arquivo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Manutenção de Dados (Histórico)</label>
+                                <select id="sys-cleanup-days" class="input-field">
+                                    <option value="30">Limpar logs após 30 dias</option>
+                                    <option value="90">Limpar logs após 90 dias</option>
+                                    <option value="never">Nunca limpar automaticamente</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="saveData('system')" id="btn-save-system" class="btn-save w-full !bg-emerald-600 hover:!bg-emerald-700" disabled>
+                            <i class="fas fa-check-circle"></i> Sincronizar Configurações Básicas
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 6. CONTATOS, LINKS E SUPORTE EXTENSIVO -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-l-4 border-l-pink-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-semibold flex items-center text-pink-400 gap-2">
+                                <i class="fas fa-hashtag"></i> Canais de Suporte e Integrações
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Links externos expostos na aba de suporte do app.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">
+                                    <i class="fab fa-whatsapp text-green-400 mr-1"></i> WhatsApp de Suporte
+                                </label>
+                                <input type="text" id="link-wpp" class="input-field font-mono" placeholder="Ex: 5585999999999">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">
+                                    <i class="fab fa-telegram text-sky-400 mr-1"></i> Canal ou Chat Telegram
+                                </label>
+                                <input type="url" id="link-telegram" class="input-field" placeholder="https://t.me/...">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">
+                                    <i class="fab fa-instagram text-pink-400 mr-1"></i> Instagram Corporativo
+                                </label>
+                                <input type="url" id="link-insta" class="input-field" placeholder="https://instagram.com/...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">
+                                    <i class="fab fa-youtube text-red-500 mr-1"></i> Canal de Tutoriais (YouTube)
+                                </label>
+                                <input type="url" id="link-youtube" class="input-field" placeholder="https://youtube.com/...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">
+                                <i class="fas fa-earth-americas text-blue-400 mr-1"></i> Landing Page / Site Oficial
+                            </label>
+                            <input type="url" id="link-site" class="input-field" placeholder="https://...">
+                        </div>
+
+                        <button onclick="saveData('links')" id="btn-save-links" class="btn-save w-full !bg-pink-600 hover:!bg-pink-700" disabled>
+                            <i class="fas fa-network-wired"></i> Salvar e Propagar Links
                         </button>
                     </div>
                 </section>
             </div>
         </div>
 
-        <!-- 8. NOVO MÓDULO: CONTROLE DE USUÁRIOS E APELIDOS (Ocupa as duas colunas) -->
-        <div class="grid grid-cols-1 gap-6 mb-8">
-            <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-teal-500">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-xl font-semibold flex items-center text-teal-400 gap-2">
-                            <i class="fas fa-users-cog"></i> 👥 Controle de Usuários (Apelidos & Acesso)
-                        </h2>
-                        <p class="text-sm text-slate-400">Bloqueie usuários de acessar o app e dê apelidos legíveis a cada UID.</p>
+        <!-- 7. CONTROLE INTELIGENTE DE USUÁRIOS (APELIDOS & CONTROLE DE ACESSO) -->
+        <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-teal-500 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-semibold flex items-center text-teal-400 gap-2">
+                        <i class="fas fa-user-gear"></i> Controle Centralizado de Usuários e Bloqueios
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Gerencie apelidos personalizados para cada UID e bloqueie temporária ou permanentemente o acesso ao app.</p>
+                </div>
+                
+                <!-- Adição Manual e Campo de Busca -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="user-search-input" oninput="filterUsersTable()" class="input-field text-sm pl-9 pr-4 min-w-[200px]" placeholder="Filtrar por nome/UID...">
                     </div>
-                    <!-- Adicionar Manualmente por UID -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input type="text" id="new-user-uid" class="input-field text-sm font-mono min-w-[280px]" placeholder="Digitar UID do Usuário (do Firebase)">
-                        <button onclick="addUserManually()" id="btn-add-user-manual" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition" disabled>
-                            <i class="fas fa-user-plus"></i> Gerenciar UID
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="new-user-uid" class="input-field text-xs font-mono min-w-[250px]" placeholder="Colar UID do Firebase">
+                        <button onclick="addUserManually()" id="btn-add-user-manual" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-semibold text-xs flex items-center gap-2 transition" disabled>
+                            <i class="fas fa-user-plus"></i> Registrar UID
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Painel de Regras do Firebase (Aviso Amigável para Auto-Leitura) -->
-                <div id="rules-help-box" class="hidden mb-6 p-4 bg-amber-950/40 border border-amber-500/20 rounded-xl">
-                    <div class="flex gap-3">
-                        <i class="fas fa-exclamation-circle text-amber-400 text-xl mt-0.5"></i>
-                        <div class="text-sm text-slate-300">
-                            <p class="font-bold text-amber-300 mb-1">Como Ativar Leitura Automática de Usuários:</p>
-                            <p class="mb-2">Para o painel listar os usuários cadastrados automaticamente, vá na aba <strong>Regras (Rules)</strong> do seu Realtime Database e altere a regra de <code>"usuarios"</code> para permitir que apenas seu e-mail leia a lista completa:</p>
-                            <pre class="bg-slate-950/80 p-3 rounded-lg text-yellow-400 font-mono text-xs overflow-x-auto leading-relaxed">
+            <!-- Ajuda de Regras do Firebase -->
+            <div id="rules-help-box" class="hidden mb-6 p-4 bg-amber-950/40 border border-amber-500/20 rounded-xl">
+                <div class="flex gap-3">
+                    <i class="fas fa-circle-exclamation text-amber-400 text-xl mt-0.5"></i>
+                    <div class="text-sm text-slate-300">
+                        <p class="font-bold text-amber-300 mb-1">Dica de Configuração Avançada (Realtime Database):</p>
+                        <p class="mb-2">Para habilitar a leitura automática em tempo real dos usuários que se cadastram no seu app, substitua a sua regra do nó <code>"usuarios"</code> para liberar apenas seu e-mail como leitor total:</p>
+                        <pre class="bg-slate-950/80 p-3 rounded-lg text-yellow-400 font-mono text-xs overflow-x-auto leading-relaxed">
 "usuarios": {
   ".read": "auth != null && auth.token.email === 'geilsomcarlos93@gmail.com'",
   "$uid": {
@@ -365,104 +611,111 @@
     ".write": "$uid === auth.uid"
   }
 }</pre>
-                            <p class="mt-2 text-xs text-slate-400"><i class="fas fa-info-circle"></i> Enquanto não alterar, você pode simplesmente adicionar os UIDs manualmente usando o campo acima!</p>
-                        </div>
+                        <p class="mt-1.5 text-xs text-slate-400">Enquanto as regras de segurança não forem alteradas, você pode adicionar e dar apelidos para usuários colando o UID deles acima!</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Tabela de Usuários -->
-                <div class="overflow-x-auto border border-slate-700 rounded-lg">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-800/60 border-b border-slate-700 text-slate-300 text-sm font-semibold">
-                                <th class="p-4">Apelido do Usuário</th>
-                                <th class="p-4">Código UID (Identificador único)</th>
-                                <th class="p-4 text-center">Status de Acesso</th>
-                                <th class="p-4 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="divide-y divide-slate-800 text-sm text-slate-200">
-                            <!-- Inserido dinamicamente via JS -->
-                            <tr>
-                                <td colspan="4" class="p-8 text-center text-slate-400">
-                                    <i class="fas fa-spinner fa-spin mr-2"></i> Buscando usuários cadastrados...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
+            <!-- Tabela Avançada de Usuários -->
+            <div class="overflow-x-auto border border-slate-800 rounded-lg">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <th class="p-4">Apelido do Usuário / Nome Amigável</th>
+                            <th class="p-4">Identificador Único (UID)</th>
+                            <th class="p-4 text-center">Status no Banco</th>
+                            <th class="p-4 text-center">Última Modificação</th>
+                            <th class="p-4 text-right">Ações Administrativas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body" class="divide-y divide-slate-800/60 text-sm text-slate-200">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-slate-400">
+                                <i class="fas fa-circle-notch fa-spin mr-2"></i> Inicializando fluxo de sincronização dos usuários...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-        <div class="grid grid-cols-1 gap-6">
-            <!-- 7. TERMOS DE USO (Lá Embaixo, Ocupando as duas colunas) -->
-            <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-indigo-500 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold flex items-center text-indigo-400">
-                        <i class="fas fa-file-contract w-8"></i> Gestão de Termos e Privacidade
+        <!-- 8. GESTÃO DE TERMOS DE USO E POLÍTICAS DE PRIVACIDADE -->
+        <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-indigo-500 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-semibold flex items-center text-indigo-400 gap-2">
+                        <i class="fas fa-file-signature"></i> Termos de Uso & Políticas de Privacidade
                     </h2>
+                    <p class="text-xs text-slate-400 mt-1">Altere o texto legal e decida o impacto nos dispositivos móveis ao salvar.</p>
                 </div>
-                
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">Digite o texto completo dos Termos e Condições aqui:</label>
-                        <textarea id="terms-content" class="input-field h-48 md:h-64 resize-y leading-relaxed font-mono text-sm" placeholder="Ex: Bem-vindo ao nosso aplicativo..."></textarea>
-                    </div>
-
-                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                        <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação no Aplicativo após salvar:</label>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <!-- Opção 1 -->
-                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
-                                    <p class="text-xs text-slate-400 leading-snug">O app exigirá que o usuário leia e concorde novamente ao ser aberto.</p>
-                                </div>
-                            </label>
-
-                            <!-- Opção 2 -->
-                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
-                                    <p class="text-xs text-slate-400 leading-snug">Mostra um alerta dizendo que os termos mudaram, sem forçar a leitura.</p>
-                                </div>
-                            </label>
-
-                            <!-- Opção 3 -->
-                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2" checked>
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Apenas Atualizar Texto</span>
-                                    <p class="text-xs text-slate-400 leading-snug">Atualiza silenciosamente lá na aba do app, ninguém será interrompido.</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <button onclick="saveData('terms')" id="btn-save-terms" class="btn-save w-full justify-center !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
-                        <i class="fas fa-file-signature"></i> Salvar e Aplicar Termos
-                    </button>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase">Versão do Documento</span>
+                    <input type="text" id="terms-version" class="input-field font-mono !py-1 !px-2 max-w-[80px] text-center" placeholder="v1.0" value="v1.0">
                 </div>
-            </section>
-        </div>
+            </div>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Documento de Acordo (Suporta quebras de linhas e formatação básica)</label>
+                    <textarea id="terms-content" class="input-field h-64 md:h-80 resize-y leading-relaxed font-mono text-xs text-slate-300" placeholder="Insira o texto dos Termos de Uso aqui..."></textarea>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800">
+                    <label class="block text-xs font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação Forçada após Salvamento:</label>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Opção 1 -->
+                        <label class="flex items-start cursor-pointer p-3 bg-slate-950/40 rounded-lg border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
+                            <div class="flex items-center h-5 mt-1">
+                                <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2">
+                            </div>
+                            <div class="ml-3">
+                                <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
+                                <p class="text-xs text-slate-400 leading-snug">Exige imediatamente que todos os usuários aceitem novamente para prosseguir no app.</p>
+                            </div>
+                        </label>
+
+                        <!-- Opção 2 -->
+                        <label class="flex items-start cursor-pointer p-3 bg-slate-950/40 rounded-lg border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
+                            <div class="flex items-center h-5 mt-1">
+                                <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2">
+                            </div>
+                            <div class="ml-3">
+                                <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
+                                <p class="text-xs text-slate-400 leading-snug">Informa em um banner discreto sobre as alterações, sem bloquear as telas do app.</p>
+                            </div>
+                        </label>
+
+                        <!-- Opção 3 -->
+                        <label class="flex items-start cursor-pointer p-3 bg-slate-950/40 rounded-lg border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
+                            <div class="flex items-center h-5 mt-1">
+                                <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2" checked>
+                            </div>
+                            <div class="ml-3">
+                                <span class="font-bold text-white text-sm block mb-1">Atualização Silenciosa</span>
+                                <p class="text-xs text-slate-400 leading-snug">Salva o texto de forma transparente na seção informativa das configurações do aplicativo.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="saveData('terms')" id="btn-save-terms" class="btn-save w-full !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
+                    <i class="fas fa-file-signature"></i> Salvar e Registrar Nova Versão dos Termos
+                </button>
+            </div>
+        </section>
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast"><i class="fas fa-check mr-2"></i> <span id="toast-msg">Salvo com sucesso!</span></div>
+    <div id="toast">
+        <i class="fas fa-check-circle text-lg"></i>
+        <span id="toast-msg">Salvo com sucesso!</span>
+    </div>
 
     <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, get, child, update, remove, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -492,9 +745,9 @@
         const activeVersionPreview = document.getElementById('active-version-preview');
         const domainErrorMsg = document.getElementById('domain-error-msg');
 
-        // Mapear usuários e dados de configurações salvos em dados_app/usuarios_config
         let loadedUserConfigs = {}; 
         let registeredUserUIDs = [];
+        let allMuralItems = {}; // Armazena múltiplos itens do mural
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -503,8 +756,8 @@
                     mainContent.classList.remove('hidden');
                     domainErrorMsg.classList.add('hidden');
                     
-                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400 animate-pulse"></i> ${user.displayName || 'Admin'}`;
-                    adminBadge.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
+                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400"></i> ${user.displayName || 'Admin'}`;
+                    adminBadge.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20";
                     
                     toggleActionButtons(false);
                     await loadData();
@@ -569,6 +822,7 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     
+                    // 1. Atualizações
                     if(data.update) {
                         document.getElementById('upd-code').value = data.update.versionCode || '';
                         document.getElementById('upd-name').value = data.update.versionName || '';
@@ -579,45 +833,86 @@
                         document.getElementById('upd-show').checked = data.update.showUpdate || false;
                         document.getElementById('upd-force').checked = data.update.forceUpdate || false;
                         document.getElementById('upd-cancellable').checked = data.update.cancellable !== false;
+                        
+                        // Novas opções avançadas de atualização
+                        document.getElementById('upd-channel').value = data.update.channel || 'stable';
+                        document.getElementById('upd-size').value = data.update.apkSize || '';
+                        document.getElementById('upd-min-sdk').value = data.update.minSdk || '';
+                        document.getElementById('upd-rollout').value = data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100;
+                        document.getElementById('upd-rollout').nextElementSibling.innerText = (data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100) + '%';
+                        document.getElementById('upd-wifi').checked = data.update.requireWifi || false;
+
                         activeVersionPreview.innerText = 'v' + (data.update.versionName || '0.0.0');
                     }
 
+                    // 2. Manutenção
                     if(data.maintenance) {
-                        document.getElementById('mnt-enabled').checked = data.maintenance.enabled || false;
+                        const mntActive = data.maintenance.enabled || false;
+                        document.getElementById('mnt-enabled').checked = mntActive;
                         document.getElementById('mnt-title').value = data.maintenance.title || '';
                         document.getElementById('mnt-msg').value = data.maintenance.message || '';
+                        document.getElementById('mnt-eta').value = data.maintenance.eta || '';
+                        document.getElementById('mnt-bypass-admins').checked = data.maintenance.bypassAdmins !== false;
+
+                        const previewEl = document.getElementById('maintenance-status-preview');
+                        previewEl.innerText = mntActive ? 'Ativo ⚠️' : 'Inativo';
+                        previewEl.className = mntActive ? 'text-2xl font-bold text-red-500' : 'text-2xl font-bold text-amber-500';
                     }
 
+                    // 3. Avisos Globais
                     if(data.messages) {
-                        document.getElementById('msg-enabled').checked = data.messages.enabled || false;
+                        const msgActive = data.messages.enabled || false;
+                        document.getElementById('msg-enabled').checked = msgActive;
                         document.getElementById('msg-title').value = data.messages.title || '';
                         document.getElementById('msg-text').value = data.messages.message || '';
                         document.getElementById('msg-action-text').value = data.messages.actionText || '';
                         document.getElementById('msg-action-url').value = data.messages.actionUrl || '';
+                        
+                        // Novas opções de aviso
+                        document.getElementById('msg-style').value = data.messages.bannerStyle || 'info';
+                        document.getElementById('msg-dismissible').checked = data.messages.dismissible !== false;
+                        document.getElementById('msg-max-views').value = data.messages.maxViews || 3;
+
+                        const alertPreview = document.getElementById('alert-status-preview');
+                        alertPreview.innerText = msgActive ? 'Ativado 🔔' : 'Desativado';
+                        alertPreview.className = msgActive ? 'text-2xl font-bold text-emerald-400' : 'text-2xl font-bold text-purple-400';
                     }
 
+                    // 4. Sistema
                     if(data.system) {
                         document.getElementById('sys-name').value = data.system.appName || '';
                         document.getElementById('sys-status').checked = data.system.serverStatus !== false;
                         document.getElementById('sys-reg').checked = data.system.allowRegistration !== false;
+                        
+                        // Novas opções de sistema
+                        document.getElementById('sys-admin-email').value = data.system.adminEmail || ALLOWED_EMAIL;
+                        document.getElementById('sys-upload-limit').value = data.system.uploadLimitMb || '10';
+                        document.getElementById('sys-cleanup-days').value = data.system.cleanupDays || 'never';
                     }
 
+                    // 5. Redes e Suporte
                     if(data.links) {
                         document.getElementById('link-wpp').value = data.links.whatsapp || '';
                         document.getElementById('link-insta').value = data.links.instagram || '';
                         document.getElementById('link-site').value = data.links.website || '';
+                        
+                        // Novas opções de redes
+                        document.getElementById('link-telegram').value = data.links.telegram || '';
+                        document.getElementById('link-youtube').value = data.links.youtube || '';
                     }
 
+                    // 6. Mural de Notícias (Multi-Avisos)
                     if(data.mural) {
                         document.getElementById('mural-enabled').checked = data.mural.enabled || false;
-                        document.getElementById('mural-title').value = data.mural.title || '';
-                        document.getElementById('mural-author').value = data.mural.author || '';
-                        document.getElementById('mural-content').value = data.mural.content || '';
-                        document.getElementById('mural-image').value = data.mural.imageUrl || '';
+                        // Carregar os itens de recados se existirem
+                        allMuralItems = data.mural.comunicados || {};
+                        renderMuralList();
                     }
 
+                    // 7. Termos
                     if(data.terms) {
                         document.getElementById('terms-content').value = data.terms.content || '';
+                        document.getElementById('terms-version').value = data.terms.version || 'v1.0';
                         const action = data.terms.updateAction || 'silent';
                         if(action === 'force') {
                             document.getElementById('terms-action-force').checked = true;
@@ -628,45 +923,190 @@
                         }
                     }
 
-                    // Carregar apelidos e bloqueios locais do nó de gerenciamento
                     loadedUserConfigs = data.usuarios_config || {};
 
                     statusEl.innerHTML = '<i class="fas fa-wifi"></i> Sincronizado com /dados_app';
-                    statusEl.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
+                    statusEl.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20";
                     
-                    // Atualiza a tabela de usuários
                     await fetchAndRenderUsers();
                 } else {
-                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sem dados salvos';
+                    statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Sem dados salvos';
                 }
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
-                statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Erro de Conexão';
-                statusEl.className = "flex items-center gap-2 text-sm font-medium text-red-400 bg-red-400/10 px-3 py-1 rounded-full border border-red-400/20";
+                statusEl.innerHTML = '<i class="fas fa-circle-xmark"></i> Erro de Conexão';
+                statusEl.className = "flex items-center gap-2 text-sm font-medium text-red-400 bg-red-400/10 px-3 py-1.5 rounded-full border border-red-400/20";
                 showToast("Erro ao carregar dados do Firebase.", true);
             }
         }
 
-        // Tenta buscar todos os UIDs registrados em /usuarios
+        // --- SISTEMA MULTI-MURAL ---
+        function renderMuralList() {
+            const container = document.getElementById('mural-items-container');
+            const items = Object.entries(allMuralItems);
+            
+            document.getElementById('mural-count-preview').innerText = `${items.length} Comunicado(s)`;
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 bg-slate-900/40 rounded-lg border border-slate-800 text-center text-slate-500 text-xs">
+                        Nenhum comunicado ativo no mural atualmente.
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            // Ordenar por data mais recente
+            items.sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+            items.forEach(([id, item]) => {
+                const date = new Date(item.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                
+                // Definir cor da borda de categoria
+                let catColorClass = "border-blue-500 text-blue-400 bg-blue-500/10";
+                if(item.category === "Urgente") catColorClass = "border-red-500 text-red-400 bg-red-500/10";
+                if(item.category === "Novidade") catColorClass = "border-emerald-500 text-emerald-400 bg-emerald-500/10";
+                if(item.category === "Evento") catColorClass = "border-purple-500 text-purple-400 bg-purple-500/10";
+
+                const card = document.createElement('div');
+                card.className = "p-4 bg-slate-950/60 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start gap-3 transition-all hover:bg-slate-900/40";
+                card.innerHTML = `
+                    <div class="flex-1 space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded border ${catColorClass}">${item.category || 'Geral'}</span>
+                            <span class="text-[11px] text-slate-500">${date}</span>
+                            ${item.daysActive ? `<span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Expira em: ${item.daysActive} dias</span>` : ''}
+                        </div>
+                        <h4 class="font-bold text-white text-base">${item.title}</h4>
+                        <p class="text-xs text-slate-300 font-semibold">Por: <span class="text-cyan-400">${item.author || 'Desconhecido'}</span></p>
+                        <p class="text-xs text-slate-400 leading-relaxed max-w-2xl">${item.content}</p>
+                        ${item.imageUrl ? `<a href="${item.imageUrl}" target="_blank" class="inline-block text-[11px] text-blue-400 hover:underline"><i class="fas fa-image mr-1"></i> Ver Imagem Anexa</a>` : ''}
+                        ${item.actionUrl ? `<a href="${item.actionUrl}" target="_blank" class="inline-block text-[11px] text-emerald-400 hover:underline ml-3"><i class="fas fa-link mr-1"></i> Ação do Botão</a>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2 self-end sm:self-center">
+                        <button onclick="editMuralItem('${id}')" class="p-2 bg-slate-800 hover:bg-cyan-650 hover:text-cyan-400 rounded-lg text-slate-400 text-xs transition" title="Editar Recado">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button onclick="deleteMuralItem('${id}')" class="p-2 bg-slate-800 hover:bg-red-950 hover:text-red-400 rounded-lg text-slate-400 text-xs transition" title="Excluir Recado">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.clearMuralForm = () => {
+            document.getElementById('mural-edit-id').value = '';
+            document.getElementById('mural-title').value = '';
+            document.getElementById('mural-author').value = '';
+            document.getElementById('mural-content').value = '';
+            document.getElementById('mural-image').value = '';
+            document.getElementById('mural-action-url').value = '';
+            document.getElementById('mural-category').value = 'Aviso';
+            document.getElementById('mural-expiry').value = '7';
+            document.getElementById('mural-color').value = 'blue';
+            
+            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-plus text-cyan-400"></i> Criar Novo Recado / Comunicado`;
+        }
+
+        window.editMuralItem = (id) => {
+            const item = allMuralItems[id];
+            if (!item) return;
+
+            document.getElementById('mural-edit-id').value = id;
+            document.getElementById('mural-title').value = item.title || '';
+            document.getElementById('mural-author').value = item.author || '';
+            document.getElementById('mural-content').value = item.content || '';
+            document.getElementById('mural-image').value = item.imageUrl || '';
+            document.getElementById('mural-action-url').value = item.actionUrl || '';
+            document.getElementById('mural-category').value = item.category || 'Aviso';
+            document.getElementById('mural-expiry').value = item.daysActive || '7';
+            document.getElementById('mural-color').value = item.cardColor || 'blue';
+
+            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-pen text-amber-400"></i> Editando Recado (${item.title})`;
+            document.getElementById('mural-title').focus();
+        }
+
+        window.saveMuralItem = async () => {
+            const id = document.getElementById('mural-edit-id').value;
+            const title = document.getElementById('mural-title').value.trim();
+            const author = document.getElementById('mural-author').value.trim();
+            const content = document.getElementById('mural-content').value.trim();
+            const imageUrl = document.getElementById('mural-image').value.trim();
+            const actionUrl = document.getElementById('mural-action-url').value.trim();
+            const category = document.getElementById('mural-category').value;
+            const daysActive = parseInt(document.getElementById('mural-expiry').value) || 7;
+            const cardColor = document.getElementById('mural-color').value;
+
+            if(!title || !content) {
+                window.showToast("Preencha ao menos o Título e Conteúdo do Recado!", true);
+                return;
+            }
+
+            const itemData = {
+                title,
+                author,
+                content,
+                imageUrl,
+                actionUrl,
+                category,
+                daysActive,
+                cardColor,
+                timestamp: id ? allMuralItems[id].timestamp : Date.now()
+            };
+
+            try {
+                if(id) {
+                    // Atualizar item existente
+                    await set(ref(db, `dados_app/mural/comunicados/${id}`), itemData);
+                    window.showToast("Recado atualizado com sucesso!");
+                } else {
+                    // Criar um novo item com UID automático
+                    const newRef = push(ref(db, `dados_app/mural/comunicados`));
+                    await set(newRef, itemData);
+                    window.showToast("Novo recado adicionado ao mural!");
+                }
+                
+                clearMuralForm();
+                await loadData();
+            } catch (error) {
+                console.error("Erro ao salvar mural:", error);
+                window.showToast("Não foi possível salvar o recado.", true);
+            }
+        }
+
+        window.deleteMuralItem = async (id) => {
+            if(!confirm("Tem certeza que deseja remover permanentemente este recado do mural?")) return;
+            try {
+                await remove(ref(db, `dados_app/mural/comunicados/${id}`));
+                window.showToast("Recado excluído com sucesso.");
+                await loadData();
+            } catch (error) {
+                console.error(error);
+                window.showToast("Erro ao excluir recado.", true);
+            }
+        }
+
+        // --- SISTEMA DE USUÁRIOS E BUSCA ---
         async function fetchAndRenderUsers() {
             const tableBody = document.getElementById('users-table-body');
             const helpBox = document.getElementById('rules-help-box');
             registeredUserUIDs = [];
             
             try {
-                // Tenta puxar do nó global "/usuarios"
                 const snapshot = await get(ref(db, 'usuarios'));
-                helpBox.classList.add('hidden'); // Se funcionou, esconde o tutorial de regras
+                helpBox.classList.add('hidden');
                 
                 if (snapshot.exists()) {
                     registeredUserUIDs = Object.keys(snapshot.val());
                 }
             } catch (err) {
-                console.warn("Sem permissão direta para listar /usuarios. Mostrando instrução de regras e usando modo híbrido.");
-                helpBox.classList.remove('hidden'); // Exibe tutorial de regras
+                console.warn("Permissões restritas detectadas para nó de usuários.");
+                helpBox.classList.remove('hidden');
             }
 
-            // Unir usuários cadastrados de /usuarios com os usuários já configurados em dados_app/usuarios_config
+            // Une cadastros dinâmicos com a lista personalizada carregada do painel
             const allUIDs = new Set([
                 ...registeredUserUIDs, 
                 ...Object.keys(loadedUserConfigs)
@@ -675,7 +1115,7 @@
             if (allUIDs.size === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="p-8 text-center text-slate-400">
+                        <td colspan="5" class="p-8 text-center text-slate-400">
                             Nenhum usuário gerenciado ou registrado ainda. Digite um UID acima para adicionar!
                         </td>
                     </tr>`;
@@ -684,33 +1124,36 @@
 
             tableBody.innerHTML = "";
             allUIDs.forEach(uid => {
-                const config = loadedUserConfigs[uid] || { apelido: "", bloqueado: false };
+                const config = loadedUserConfigs[uid] || { apelido: "", bloqueado: false, updatedAt: null };
                 const isBlocked = config.bloqueado === true;
                 const apelido = config.apelido || "";
+                const updatedTime = config.updatedAt ? new Date(config.updatedAt).toLocaleDateString('pt-BR') : 'Não modificado';
 
                 const row = document.createElement('tr');
-                row.className = "hover:bg-slate-800/40 transition";
+                row.className = "hover:bg-slate-900/50 transition user-row";
+                row.setAttribute('data-search', `${uid.toLowerCase()} ${apelido.toLowerCase()}`);
                 row.innerHTML = `
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2 font-medium !bg-slate-900 border-slate-700 max-w-[200px]" placeholder="Sem apelido">
-                            <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-300 p-1" title="Salvar Apelido">
-                                <i class="fas fa-save"></i>
+                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2.5 font-semibold text-xs !bg-slate-950 border-slate-800 max-w-[200px]" placeholder="Criar apelido">
+                            <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-300 p-1 bg-teal-500/10 hover:bg-teal-500/20 rounded transition" title="Salvar Apelido">
+                                <i class="fas fa-save text-xs"></i>
                             </button>
                         </div>
                     </td>
-                    <td class="p-4 font-mono text-xs text-slate-400 select-all">${uid}</td>
+                    <td class="p-4 font-mono text-[11px] text-slate-400 select-all">${uid}</td>
                     <td class="p-4 text-center">
-                        <span id="badge-${uid}" class="px-2 py-1 rounded-full text-xs font-bold ${isBlocked ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
-                            ${isBlocked ? 'Bloqueado' : 'Ativo'}
+                        <span id="badge-${uid}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${isBlocked ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
+                            ${isBlocked ? 'Acesso Bloqueado' : 'Acesso Ativo'}
                         </span>
                     </td>
+                    <td class="p-4 text-center text-[11px] text-slate-500 font-semibold">${updatedTime}</td>
                     <td class="p-4 text-right">
                         <div class="flex justify-end gap-2">
-                            <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-3 py-1 text-xs font-semibold rounded-lg transition-colors border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 text-white' : 'bg-red-600 border-red-500 hover:bg-red-700 text-white'}">
-                                <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-user-slash'} mr-1"></i> ${isBlocked ? 'Desbloquear' : 'Bloquear / Cortar'}
+                            <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-3 py-1.5 text-xs font-bold rounded-lg transition border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-950/20' : 'bg-red-650 border-red-500 hover:bg-red-700 text-white shadow-lg shadow-red-950/20'}">
+                                <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'} mr-1"></i> ${isBlocked ? 'Liberar' : 'Bloquear'}
                             </button>
-                            <button onclick="removeUserFromPanel('${uid}')" class="text-slate-400 hover:text-red-400 p-1 px-2" title="Remover do painel">
+                            <button onclick="removeUserFromPanel('${uid}')" class="text-slate-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition" title="Remover do painel">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -720,7 +1163,20 @@
             });
         }
 
-        // Adiciona um UID manualmente na lista do painel
+        window.filterUsersTable = () => {
+            const query = document.getElementById('user-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('.user-row');
+            
+            rows.forEach(row => {
+                const searchContent = row.getAttribute('data-search');
+                if(searchContent.includes(query)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
         window.addUserManually = async () => {
             const uidInput = document.getElementById('new-user-uid');
             const uid = uidInput.value.trim();
@@ -736,23 +1192,21 @@
             }
 
             try {
-                // Cria uma configuração inicial padrão sob dados_app/usuarios_config
                 await set(ref(db, `dados_app/usuarios_config/${uid}`), {
                     apelido: "",
                     bloqueado: false,
                     updatedAt: Date.now()
                 });
 
-                window.showToast("UID adicionado ao painel!");
+                window.showToast("UID registrado e monitorado!");
                 uidInput.value = "";
-                await loadData(); // Recarrega as informações
+                await loadData();
             } catch (err) {
                 console.error(err);
                 window.showToast("Erro ao registrar UID.", true);
             }
         }
 
-        // Atualiza o apelido do usuário
         window.updateNickname = async (uid) => {
             const nicknameVal = document.getElementById(`nickname-${uid}`).value.trim();
             try {
@@ -768,7 +1222,6 @@
             }
         }
 
-        // Alterna entre Bloqueado/Desbloqueado (Corta o acesso ao banco de dados no app)
         window.toggleUserBlock = async (uid, isCurrentlyBlocked) => {
             const newStatus = !isCurrentlyBlocked;
             try {
@@ -777,32 +1230,31 @@
                     updatedAt: Date.now()
                 });
                 
-                window.showToast(newStatus ? "Usuário BLOQUEADO com sucesso!" : "Usuário DESBLOQUEADO com sucesso!");
+                window.showToast(newStatus ? "Acesso do usuário BLOQUEADO!" : "Acesso do usuário REESTABELECIDO!");
                 await loadData();
             } catch (err) {
                 console.error(err);
-                window.showToast("Erro ao alterar acesso.", true);
+                window.showToast("Erro ao alterar acesso do usuário.", true);
             }
         }
 
-        // Remove um usuário da lista do painel
         window.removeUserFromPanel = async (uid) => {
-            if(!confirm("Tem certeza que deseja remover este usuário do painel? As configurações de bloqueio e apelido dele serão apagadas.")) return;
+            if(!confirm("Tem certeza que deseja remover este usuário das configurações? Dados de bloqueio e apelidos serão limpos.")) return;
             try {
                 await remove(ref(db, `dados_app/usuarios_config/${uid}`));
-                window.showToast("Usuário removido das configurações.");
+                window.showToast("Configuração limpa com sucesso.");
                 await loadData();
             } catch (err) {
                 console.error(err);
-                window.showToast("Erro ao remover usuário.", true);
+                window.showToast("Erro ao limpar dados do usuário.", true);
             }
         }
 
-        // Gravar as informações dentro do caminho correto
+        // --- GRAVAÇÃO DOS MÓDULOS DE DADOS ---
         window.saveData = async (section) => {
             const currentUser = auth.currentUser;
             if (!currentUser || currentUser.email !== ALLOWED_EMAIL) {
-                window.showToast("Ação não autorizada para este usuário.", true);
+                window.showToast("Sessão expirada ou não autorizada.", true);
                 return;
             }
 
@@ -820,6 +1272,13 @@
                         showUpdate: document.getElementById('upd-show').checked,
                         forceUpdate: document.getElementById('upd-force').checked,
                         cancellable: document.getElementById('upd-cancellable').checked,
+                        
+                        // Campos estendidos adicionados na nova versão
+                        channel: document.getElementById('upd-channel').value,
+                        apkSize: document.getElementById('upd-size').value,
+                        minSdk: document.getElementById('upd-min-sdk').value,
+                        rolloutPercentage: parseInt(document.getElementById('upd-rollout').value) || 100,
+                        requireWifi: document.getElementById('upd-wifi').checked,
                         updatedAt: Date.now()
                     };
                 } 
@@ -827,7 +1286,9 @@
                     dataToSave = {
                         enabled: document.getElementById('mnt-enabled').checked,
                         title: document.getElementById('mnt-title').value,
-                        message: document.getElementById('mnt-msg').value
+                        message: document.getElementById('mnt-msg').value,
+                        eta: document.getElementById('mnt-eta').value,
+                        bypassAdmins: document.getElementById('mnt-bypass-admins').checked
                     };
                 }
                 else if (section === 'messages') {
@@ -836,31 +1297,35 @@
                         title: document.getElementById('msg-title').value,
                         message: document.getElementById('msg-text').value,
                         actionText: document.getElementById('msg-action-text').value,
-                        actionUrl: document.getElementById('msg-action-url').value
+                        actionUrl: document.getElementById('msg-action-url').value,
+                        
+                        // Campos estendidos para customização do Banner
+                        bannerStyle: document.getElementById('msg-style').value,
+                        dismissible: document.getElementById('msg-dismissible').checked,
+                        maxViews: parseInt(document.getElementById('msg-max-views').value) || 3
                     };
                 }
                 else if (section === 'system') {
                     dataToSave = {
                         appName: document.getElementById('sys-name').value,
                         serverStatus: document.getElementById('sys-status').checked,
-                        allowRegistration: document.getElementById('sys-reg').checked
+                        allowRegistration: document.getElementById('sys-reg').checked,
+                        
+                        // Campos estendidos do sistema
+                        adminEmail: document.getElementById('sys-admin-email').value,
+                        uploadLimitMb: document.getElementById('sys-upload-limit').value,
+                        cleanupDays: document.getElementById('sys-cleanup-days').value
                     };
                 }
                 else if (section === 'links') {
                     dataToSave = {
                         whatsapp: document.getElementById('link-wpp').value,
                         instagram: document.getElementById('link-insta').value,
-                        website: document.getElementById('link-site').value
-                    };
-                }
-                else if (section === 'mural') {
-                    dataToSave = {
-                        enabled: document.getElementById('mural-enabled').checked,
-                        title: document.getElementById('mural-title').value,
-                        author: document.getElementById('mural-author').value,
-                        content: document.getElementById('mural-content').value,
-                        imageUrl: document.getElementById('mural-image').value,
-                        updatedAt: Date.now()
+                        website: document.getElementById('link-site').value,
+                        
+                        // Redes extras adicionadas na nova versão
+                        telegram: document.getElementById('link-telegram').value,
+                        youtube: document.getElementById('link-youtube').value
                     };
                 }
                 else if (section === 'terms') {
@@ -870,21 +1335,20 @@
 
                     dataToSave = {
                         content: document.getElementById('terms-content').value,
+                        version: document.getElementById('terms-version').value,
                         updateAction: action,
                         updatedAt: Date.now()
                     };
                 }
 
+                // Sincroniza apenas a parte correspondente no nó principal
                 await set(ref(db, `dados_app/${section}`), dataToSave);
-                window.showToast(`Módulo "${section}" salvo com sucesso!`);
-                
-                if (section === 'update') {
-                    activeVersionPreview.innerText = 'v' + (dataToSave.versionName || '0.0.0');
-                }
+                window.showToast(`Módulo "${section}" sincronizado com sucesso!`);
+                await loadData();
                 
             } catch (error) {
                 console.error("Erro ao salvar:", error);
-                window.showToast("Erro de permissão! Modificação bloqueada pelo banco de dados.", true);
+                window.showToast("Falha de gravação! Verifique as regras de escrita de banco.", true);
             }
         }
     </script>
