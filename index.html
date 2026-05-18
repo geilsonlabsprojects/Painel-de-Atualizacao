@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; focus:outline-none; focus:border-blue-500; transition: border-color 0.2s; }
+        .checkbox-toggle { appearance: none; width: 3rem; height: 1.5rem; background: #334155; border-radius: 9999px; position: relative; cursor: pointer; outline: none; transition: background-color 0.2s; }
+        .checkbox-toggle::after { content: ''; position: absolute; top: 0.125rem; left: 0.125rem; width: 1.25rem; height: 1.25rem; background: white; border-radius: 50%; transition: transform 0.2s; }
+        .checkbox-toggle:checked { background: #3b82f6; }
+        .checkbox-toggle:checked::after { transform: translateX(1.5rem); }
+        .btn-save { background: #2563eb; hover:background: #1d4ed8; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .btn-save:active { transform: translateY(0); }
+        
+        /* Toast notification */
+        #toast { position: fixed; bottom: -100px; right: 20px; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 0.5rem; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: bottom 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 50; }
+        #toast.show { bottom: 20px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 font-sans">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 pb-4 border-b border-slate-700">
+            <div>
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                    <i class="fas fa-rocket mr-2 text-blue-500"></i>Painel Inteligente do App
+                </h1>
+                <p class="text-slate-400 mt-1">Gerenciamento no caminho: <code class="text-blue-300">/dados_app</code></p>
+            </div>
+            <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                <i class="fas fa-circle-notch fa-spin"></i> Conectando...
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- 1. Atualizações -->
+            <section class="glass-card rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold flex items-center text-blue-400">
+                        <i class="fas fa-download w-8"></i> Sistema de Atualização
+                    </h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Version Code (Numérico)</label>
+                            <input type="number" id="upd-code" class="input-field" placeholder="Ex: 15">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Version Name</label>
+                            <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
+                        <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização disponível!">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Changelog (Novidades)</label>
+                        <textarea id="upd-desc" class="input-field h-24" placeholder="O que há de novo nesta versão?"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta)</label>
+                        <input type="url" id="upd-url" class="input-field" placeholder="https://...">
+                    </div>
+
+                    <div class="flex flex-col gap-3 pt-2">
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <div>
+                                <span class="font-medium">Ativar Popup de Atualização</span>
+                                <p class="text-xs text-slate-400">Avisa os usuários sobre a nova versão.</p>
+                            </div>
+                            <input type="checkbox" id="upd-show" class="checkbox-toggle">
+                        </label>
+
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
+                            <div>
+                                <span class="font-medium text-red-400">Atualização Obrigatória</span>
+                                <p class="text-xs text-slate-400">Bloqueia o app até o usuário atualizar.</p>
+                            </div>
+                            <input type="checkbox" id="upd-force" class="checkbox-toggle">
+                        </label>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-slate-700">
+                        <button onclick="saveData('update')" class="btn-save w-full justify-center">
+                            <i class="fas fa-cloud-upload-alt"></i> Publicar Atualização
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="space-y-6">
+                <!-- 2. Manutenção -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-amber-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold flex items-center text-amber-400">
+                            <i class="fas fa-tools w-8"></i> Modo Manutenção
+                        </h2>
+                        <input type="checkbox" id="mnt-enabled" class="checkbox-toggle">
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Título da Tela</label>
+                            <input type="text" id="mnt-title" class="input-field" placeholder="Sistema em manutenção">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Mensagem para os usuários</label>
+                            <textarea id="mnt-msg" class="input-field h-20" placeholder="Voltaremos em breve com melhorias."></textarea>
+                        </div>
+                        <button onclick="saveData('maintenance')" class="btn-save w-full justify-center !bg-amber-600 hover:!bg-amber-700">
+                            <i class="fas fa-save"></i> Salvar Manutenção
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 3. Mensagens e Avisos -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-purple-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold flex items-center text-purple-400">
+                            <i class="fas fa-bell w-8"></i> Avisos Globais
+                        </h2>
+                        <input type="checkbox" id="msg-enabled" class="checkbox-toggle">
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Título do Aviso</label>
+                            <input type="text" id="msg-title" class="input-field" placeholder="Aviso Importante">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Texto do Aviso</label>
+                            <textarea id="msg-text" class="input-field h-20" placeholder="Digite o recado para os usuários..."></textarea>
+                        </div>
+                        <button onclick="saveData('messages')" class="btn-save w-full justify-center !bg-purple-600 hover:!bg-purple-700">
+                            <i class="fas fa-paper-plane"></i> Enviar Aviso
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 4. Sistema -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-emerald-500">
+                    <h2 class="text-xl font-semibold flex items-center text-emerald-400 mb-4">
+                        <i class="fas fa-cogs w-8"></i> Configurações do Sistema
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Nome do Aplicativo</label>
+                            <input type="text" id="sys-name" class="input-field" placeholder="Meu App">
+                        </div>
+                        
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <div>
+                                <span class="font-medium">Status do Servidor</span>
+                                <p class="text-xs text-slate-400">Desative para simular queda de servidor.</p>
+                            </div>
+                            <input type="checkbox" id="sys-status" class="checkbox-toggle">
+                        </label>
+
+                        <button onclick="saveData('system')" class="btn-save w-full justify-center !bg-emerald-600 hover:!bg-emerald-700">
+                            <i class="fas fa-check-circle"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"><i class="fas fa-check mr-2"></i> <span id="toast-msg">Salvo com sucesso!</span></div>
+
+    <!-- Firebase SDK Modular -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Credenciais do seu Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGCjBbqtp_TvFeW7ySpLp0QmKjTsTn2Sw",
+            authDomain: "horarios-escolar-danisio.firebaseapp.com",
+            databaseURL: "https://horarios-escolar-danisio-default-rtdb.firebaseio.com",
+            projectId: "horarios-escolar-danisio",
+            storageBucket: "horarios-escolar-danisio.firebasestorage.app",
+            messagingSenderId: "348445793744",
+            appId: "1:348445793744:web:4ad8dd25f449c2c8416dd5",
+            measurementId: "G-YEXZVMKDPK"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Referência UI para monitorar a conexão
+        const statusEl = document.getElementById('connection-status');
+        
+        // Exibir pop-up de sucesso ou erro
+        window.showToast = (message, isError = false) => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Carregar dados iniciais a partir do nó /dados_app
+        async function loadData() {
+            try {
+                const dbRef = ref(db);
+                // Lendo diretamente de /dados_app para manter tudo sincronizado
+                const snapshot = await get(child(dbRef, 'dados_app'));
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // Preencher Update
+                    if(data.update) {
+                        document.getElementById('upd-code').value = data.update.versionCode || '';
+                        document.getElementById('upd-name').value = data.update.versionName || '';
+                        document.getElementById('upd-title').value = data.update.title || '';
+                        document.getElementById('upd-desc').value = data.update.description || '';
+                        document.getElementById('upd-url').value = data.update.apkUrl || '';
+                        document.getElementById('upd-show').checked = data.update.showUpdate || false;
+                        document.getElementById('upd-force').checked = data.update.forceUpdate || false;
+                    }
+
+                    // Preencher Maintenance
+                    if(data.maintenance) {
+                        document.getElementById('mnt-enabled').checked = data.maintenance.enabled || false;
+                        document.getElementById('mnt-title').value = data.maintenance.title || '';
+                        document.getElementById('mnt-msg').value = data.maintenance.message || '';
+                    }
+
+                    // Preencher Messages
+                    if(data.messages) {
+                        document.getElementById('msg-enabled').checked = data.messages.enabled || false;
+                        document.getElementById('msg-title').value = data.messages.title || '';
+                        document.getElementById('msg-text').value = data.messages.message || '';
+                    }
+
+                    // Preencher System
+                    if(data.system) {
+                        document.getElementById('sys-name').value = data.system.appName || '';
+                        document.getElementById('sys-status').checked = data.system.serverStatus !== false;
+                    }
+
+                    // Atualizar visualizador de status
+                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Conectado em /dados_app';
+                    statusEl.classList.replace('text-amber-400', 'text-emerald-400');
+                    statusEl.classList.replace('bg-amber-400/10', 'bg-emerald-400/10');
+                    statusEl.classList.replace('border-amber-400/20', 'border-emerald-400/20');
+                } else {
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Caminho não encontrado';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+                statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Erro de Conexão';
+                statusEl.classList.replace('text-amber-400', 'text-red-400');
+                showToast("Erro ao conectar ao banco de dados.", true);
+            }
+        }
+
+        // Gravar as informações dentro do caminho correto
+        window.saveData = async (section) => {
+            let dataToSave = {};
+            
+            try {
+                if (section === 'update') {
+                    dataToSave = {
+                        versionCode: parseInt(document.getElementById('upd-code').value) || 0,
+                        versionName: document.getElementById('upd-name').value,
+                        title: document.getElementById('upd-title').value,
+                        description: document.getElementById('upd-desc').value,
+                        apkUrl: document.getElementById('upd-url').value,
+                        showUpdate: document.getElementById('upd-show').checked,
+                        forceUpdate: document.getElementById('upd-force').checked,
+                        updatedAt: Date.now()
+                    };
+                } 
+                else if (section === 'maintenance') {
+                    dataToSave = {
+                        enabled: document.getElementById('mnt-enabled').checked,
+                        title: document.getElementById('mnt-title').value,
+                        message: document.getElementById('mnt-msg').value
+                    };
+                }
+                else if (section === 'messages') {
+                    dataToSave = {
+                        enabled: document.getElementById('msg-enabled').checked,
+                        title: document.getElementById('msg-title').value,
+                        message: document.getElementById('msg-text').value
+                    };
+                }
+                else if (section === 'system') {
+                    dataToSave = {
+                        appName: document.getElementById('sys-name').value,
+                        serverStatus: document.getElementById('sys-status').checked
+                    };
+                }
+
+                // Caminho atualizado apontando para a pasta /dados_app/<modulo> para garantir que não apague nada das turmas!
+                await set(ref(db, `dados_app/${section}`), dataToSave);
+                window.showToast(`Módulo "${section}" atualizado com sucesso!`);
+                
+            } catch (error) {
+                console.error("Erro ao salvar:", error);
+                window.showToast("Falha ao salvar. Verifique as regras de escrita do Firebase.", true);
+            }
+        }
+
+        // Inicializar leitura
+        loadData();
+    </script>
+</body>
+</html>
