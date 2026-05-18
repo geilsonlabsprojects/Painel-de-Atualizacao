@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
             <div class="space-y-6">
                 <!-- 1. Atualizações -->
@@ -329,68 +329,130 @@
                     </div>
                 </section>
             </div>
-            
-            <!-- 7. NOVA SEÇÃO: TERMOS DE USO (Lá Embaixo, Ocupando as duas colunas) -->
-            <div class="md:col-span-2">
-                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-indigo-500">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold flex items-center text-indigo-400">
-                            <i class="fas fa-file-contract w-8"></i> Gestão de Termos e Privacidade
+        </div>
+
+        <!-- 8. NOVO MÓDULO: CONTROLE DE USUÁRIOS E APELIDOS (Ocupa as duas colunas) -->
+        <div class="grid grid-cols-1 gap-6 mb-8">
+            <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-teal-500">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold flex items-center text-teal-400 gap-2">
+                            <i class="fas fa-users-cog"></i> 👥 Controle de Usuários (Apelidos & Acesso)
                         </h2>
+                        <p class="text-sm text-slate-400">Bloqueie usuários de acessar o app e dê apelidos legíveis a cada UID.</p>
                     </div>
-                    
-                    <div class="space-y-5">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-2">Digite o texto completo dos Termos e Condições aqui:</label>
-                            <textarea id="terms-content" class="input-field h-48 md:h-64 resize-y leading-relaxed font-mono text-sm" placeholder="Ex: Bem-vindo ao nosso aplicativo. Ao utilizar nossos serviços, você concorda com os seguintes termos..."></textarea>
-                        </div>
-
-                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
-                            <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação no Aplicativo após salvar:</label>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <!-- Opção 1 -->
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                    <div class="flex items-center h-5 mt-1">
-                                        <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
-                                    </div>
-                                    <div class="ml-3">
-                                        <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
-                                        <p class="text-xs text-slate-400 leading-snug">O app exigirá que o usuário leia e concorde novamente ao ser aberto.</p>
-                                    </div>
-                                </label>
-
-                                <!-- Opção 2 -->
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                    <div class="flex items-center h-5 mt-1">
-                                        <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
-                                    </div>
-                                    <div class="ml-3">
-                                        <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
-                                        <p class="text-xs text-slate-400 leading-snug">Mostra um alerta dizendo que os termos mudaram, sem forçar a leitura.</p>
-                                    </div>
-                                </label>
-
-                                <!-- Opção 3 -->
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
-                                    <div class="flex items-center h-5 mt-1">
-                                        <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2" checked>
-                                    </div>
-                                    <div class="ml-3">
-                                        <span class="font-bold text-white text-sm block mb-1">Apenas Atualizar Texto</span>
-                                        <p class="text-xs text-slate-400 leading-snug">Atualiza silenciosamente lá na aba do app, ninguém será interrompido.</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <button onclick="saveData('terms')" id="btn-save-terms" class="btn-save w-full justify-center !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
-                            <i class="fas fa-file-signature"></i> Salvar e Aplicar Termos
+                    <!-- Adicionar Manualmente por UID -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="text" id="new-user-uid" class="input-field text-sm font-mono min-w-[280px]" placeholder="Digitar UID do Usuário (do Firebase)">
+                        <button onclick="addUserManually()" id="btn-add-user-manual" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition" disabled>
+                            <i class="fas fa-user-plus"></i> Gerenciar UID
                         </button>
                     </div>
-                </section>
-            </div>
+                </div>
 
+                <!-- Painel de Regras do Firebase (Aviso Amigável para Auto-Leitura) -->
+                <div id="rules-help-box" class="hidden mb-6 p-4 bg-amber-950/40 border border-amber-500/20 rounded-xl">
+                    <div class="flex gap-3">
+                        <i class="fas fa-exclamation-circle text-amber-400 text-xl mt-0.5"></i>
+                        <div class="text-sm text-slate-300">
+                            <p class="font-bold text-amber-300 mb-1">Como Ativar Leitura Automática de Usuários:</p>
+                            <p class="mb-2">Para o painel listar os usuários cadastrados automaticamente, vá na aba <strong>Regras (Rules)</strong> do seu Realtime Database e altere a regra de <code>"usuarios"</code> para permitir que apenas seu e-mail leia a lista completa:</p>
+                            <pre class="bg-slate-950/80 p-3 rounded-lg text-yellow-400 font-mono text-xs overflow-x-auto leading-relaxed">
+"usuarios": {
+  ".read": "auth != null && auth.token.email === 'geilsomcarlos93@gmail.com'",
+  "$uid": {
+    ".read": "$uid === auth.uid",
+    ".write": "$uid === auth.uid"
+  }
+}</pre>
+                            <p class="mt-2 text-xs text-slate-400"><i class="fas fa-info-circle"></i> Enquanto não alterar, você pode simplesmente adicionar os UIDs manualmente usando o campo acima!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Usuários -->
+                <div class="overflow-x-auto border border-slate-700 rounded-lg">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800/60 border-b border-slate-700 text-slate-300 text-sm font-semibold">
+                                <th class="p-4">Apelido do Usuário</th>
+                                <th class="p-4">Código UID (Identificador único)</th>
+                                <th class="p-4 text-center">Status de Acesso</th>
+                                <th class="p-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-slate-800 text-sm text-slate-200">
+                            <!-- Inserido dinamicamente via JS -->
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-slate-400">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Buscando usuários cadastrados...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- 7. TERMOS DE USO (Lá Embaixo, Ocupando as duas colunas) -->
+            <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-indigo-500 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold flex items-center text-indigo-400">
+                        <i class="fas fa-file-contract w-8"></i> Gestão de Termos e Privacidade
+                    </h2>
+                </div>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">Digite o texto completo dos Termos e Condições aqui:</label>
+                        <textarea id="terms-content" class="input-field h-48 md:h-64 resize-y leading-relaxed font-mono text-sm" placeholder="Ex: Bem-vindo ao nosso aplicativo..."></textarea>
+                    </div>
+
+                    <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                        <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação no Aplicativo após salvar:</label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Opção 1 -->
+                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                <div class="flex items-center h-5 mt-1">
+                                    <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
+                                </div>
+                                <div class="ml-3">
+                                    <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
+                                    <p class="text-xs text-slate-400 leading-snug">O app exigirá que o usuário leia e concorde novamente ao ser aberto.</p>
+                                </div>
+                            </label>
+
+                            <!-- Opção 2 -->
+                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                <div class="flex items-center h-5 mt-1">
+                                    <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
+                                </div>
+                                <div class="ml-3">
+                                    <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
+                                    <p class="text-xs text-slate-400 leading-snug">Mostra um alerta dizendo que os termos mudaram, sem forçar a leitura.</p>
+                                </div>
+                            </label>
+
+                            <!-- Opção 3 -->
+                            <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                <div class="flex items-center h-5 mt-1">
+                                    <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2" checked>
+                                </div>
+                                <div class="ml-3">
+                                    <span class="font-bold text-white text-sm block mb-1">Apenas Atualizar Texto</span>
+                                    <p class="text-xs text-slate-400 leading-snug">Atualiza silenciosamente lá na aba do app, ninguém será interrompido.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="saveData('terms')" id="btn-save-terms" class="btn-save w-full justify-center !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
+                        <i class="fas fa-file-signature"></i> Salvar e Aplicar Termos
+                    </button>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -400,7 +462,7 @@
     <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -429,6 +491,10 @@
         const statusEl = document.getElementById('connection-status');
         const activeVersionPreview = document.getElementById('active-version-preview');
         const domainErrorMsg = document.getElementById('domain-error-msg');
+
+        // Mapear usuários e dados de configurações salvos em dados_app/usuarios_config
+        let loadedUserConfigs = {}; 
+        let registeredUserUIDs = [];
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -483,7 +549,8 @@
             document.getElementById('btn-save-system').disabled = disabled;
             document.getElementById('btn-save-links').disabled = disabled;
             document.getElementById('btn-save-mural').disabled = disabled;
-            document.getElementById('btn-save-terms').disabled = disabled; // Novo botão de termos
+            document.getElementById('btn-save-terms').disabled = disabled;
+            document.getElementById('btn-add-user-manual').disabled = disabled;
         }
 
         window.showToast = (message, isError = false) => {
@@ -549,11 +616,8 @@
                         document.getElementById('mural-image').value = data.mural.imageUrl || '';
                     }
 
-                    // Preencher a NOVA seção de Termos
                     if(data.terms) {
                         document.getElementById('terms-content').value = data.terms.content || '';
-                        
-                        // Checar qual opção está salva
                         const action = data.terms.updateAction || 'silent';
                         if(action === 'force') {
                             document.getElementById('terms-action-force').checked = true;
@@ -564,8 +628,14 @@
                         }
                     }
 
+                    // Carregar apelidos e bloqueios locais do nó de gerenciamento
+                    loadedUserConfigs = data.usuarios_config || {};
+
                     statusEl.innerHTML = '<i class="fas fa-wifi"></i> Sincronizado com /dados_app';
                     statusEl.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
+                    
+                    // Atualiza a tabela de usuários
+                    await fetchAndRenderUsers();
                 } else {
                     statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sem dados salvos';
                 }
@@ -577,6 +647,158 @@
             }
         }
 
+        // Tenta buscar todos os UIDs registrados em /usuarios
+        async function fetchAndRenderUsers() {
+            const tableBody = document.getElementById('users-table-body');
+            const helpBox = document.getElementById('rules-help-box');
+            registeredUserUIDs = [];
+            
+            try {
+                // Tenta puxar do nó global "/usuarios"
+                const snapshot = await get(ref(db, 'usuarios'));
+                helpBox.classList.add('hidden'); // Se funcionou, esconde o tutorial de regras
+                
+                if (snapshot.exists()) {
+                    registeredUserUIDs = Object.keys(snapshot.val());
+                }
+            } catch (err) {
+                console.warn("Sem permissão direta para listar /usuarios. Mostrando instrução de regras e usando modo híbrido.");
+                helpBox.classList.remove('hidden'); // Exibe tutorial de regras
+            }
+
+            // Unir usuários cadastrados de /usuarios com os usuários já configurados em dados_app/usuarios_config
+            const allUIDs = new Set([
+                ...registeredUserUIDs, 
+                ...Object.keys(loadedUserConfigs)
+            ]);
+
+            if (allUIDs.size === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-8 text-center text-slate-400">
+                            Nenhum usuário gerenciado ou registrado ainda. Digite um UID acima para adicionar!
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = "";
+            allUIDs.forEach(uid => {
+                const config = loadedUserConfigs[uid] || { apelido: "", bloqueado: false };
+                const isBlocked = config.bloqueado === true;
+                const apelido = config.apelido || "";
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-800/40 transition";
+                row.innerHTML = `
+                    <td class="p-4">
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2 font-medium !bg-slate-900 border-slate-700 max-w-[200px]" placeholder="Sem apelido">
+                            <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-300 p-1" title="Salvar Apelido">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="p-4 font-mono text-xs text-slate-400 select-all">${uid}</td>
+                    <td class="p-4 text-center">
+                        <span id="badge-${uid}" class="px-2 py-1 rounded-full text-xs font-bold ${isBlocked ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
+                            ${isBlocked ? 'Bloqueado' : 'Ativo'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-3 py-1 text-xs font-semibold rounded-lg transition-colors border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 text-white' : 'bg-red-600 border-red-500 hover:bg-red-700 text-white'}">
+                                <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-user-slash'} mr-1"></i> ${isBlocked ? 'Desbloquear' : 'Bloquear / Cortar'}
+                            </button>
+                            <button onclick="removeUserFromPanel('${uid}')" class="text-slate-400 hover:text-red-400 p-1 px-2" title="Remover do painel">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Adiciona um UID manualmente na lista do painel
+        window.addUserManually = async () => {
+            const uidInput = document.getElementById('new-user-uid');
+            const uid = uidInput.value.trim();
+
+            if (!uid) {
+                window.showToast("Por favor, cole um UID válido!", true);
+                return;
+            }
+
+            if (loadedUserConfigs[uid]) {
+                window.showToast("Este usuário já está na lista!", true);
+                return;
+            }
+
+            try {
+                // Cria uma configuração inicial padrão sob dados_app/usuarios_config
+                await set(ref(db, `dados_app/usuarios_config/${uid}`), {
+                    apelido: "",
+                    bloqueado: false,
+                    updatedAt: Date.now()
+                });
+
+                window.showToast("UID adicionado ao painel!");
+                uidInput.value = "";
+                await loadData(); // Recarrega as informações
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao registrar UID.", true);
+            }
+        }
+
+        // Atualiza o apelido do usuário
+        window.updateNickname = async (uid) => {
+            const nicknameVal = document.getElementById(`nickname-${uid}`).value.trim();
+            try {
+                await update(ref(db, `dados_app/usuarios_config/${uid}`), {
+                    apelido: nicknameVal,
+                    updatedAt: Date.now()
+                });
+                window.showToast("Apelido salvo com sucesso!");
+                await loadData();
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao salvar apelido.", true);
+            }
+        }
+
+        // Alterna entre Bloqueado/Desbloqueado (Corta o acesso ao banco de dados no app)
+        window.toggleUserBlock = async (uid, isCurrentlyBlocked) => {
+            const newStatus = !isCurrentlyBlocked;
+            try {
+                await update(ref(db, `dados_app/usuarios_config/${uid}`), {
+                    bloqueado: newStatus,
+                    updatedAt: Date.now()
+                });
+                
+                window.showToast(newStatus ? "Usuário BLOQUEADO com sucesso!" : "Usuário DESBLOQUEADO com sucesso!");
+                await loadData();
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao alterar acesso.", true);
+            }
+        }
+
+        // Remove um usuário da lista do painel
+        window.removeUserFromPanel = async (uid) => {
+            if(!confirm("Tem certeza que deseja remover este usuário do painel? As configurações de bloqueio e apelido dele serão apagadas.")) return;
+            try {
+                await remove(ref(db, `dados_app/usuarios_config/${uid}`));
+                window.showToast("Usuário removido das configurações.");
+                await loadData();
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao remover usuário.", true);
+            }
+        }
+
+        // Gravar as informações dentro do caminho correto
         window.saveData = async (section) => {
             const currentUser = auth.currentUser;
             if (!currentUser || currentUser.email !== ALLOWED_EMAIL) {
@@ -641,9 +863,8 @@
                         updatedAt: Date.now()
                     };
                 }
-                // SALVANDO A NOVA SEÇÃO DE TERMOS
                 else if (section === 'terms') {
-                    let action = 'silent'; // Padrão
+                    let action = 'silent';
                     if (document.getElementById('terms-action-force').checked) action = 'force';
                     if (document.getElementById('terms-action-notify').checked) action = 'notify';
 
