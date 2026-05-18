@@ -27,7 +27,7 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans">
 
-    <!-- Tela de Login (Modal se não estiver autenticado) -->
+    <!-- Tela de Login -->
     <div id="login-screen" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl border border-slate-700 text-center">
             <div class="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
@@ -36,7 +36,6 @@
             <h2 class="text-2xl font-bold mb-2">Painel Inteligente</h2>
             <p class="text-slate-400 text-sm mb-6 font-medium">Acesso restrito ao proprietário para atualização do app.</p>
             
-            <!-- Aviso de Erro de Domínio Não Autorizado (Oculto por padrão) -->
             <div id="domain-error-msg" class="hidden mb-4 p-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs rounded-lg text-left">
                 <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Erro de Domínio Não Autorizado!</p>
                 <p class="mb-2">O Firebase bloqueou o login porque este site ainda não foi cadastrado como domínio confiável.</p>
@@ -71,18 +70,14 @@
                 <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
                     <i class="fas fa-circle-notch fa-spin"></i> Conectando...
                 </div>
-                <!-- Status do Admin Logado -->
-                <div id="admin-badge" class="flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full border border-slate-700">
-                    <!-- Dinâmico via JS -->
-                </div>
-                <!-- Botão de Sair -->
+                <div id="admin-badge" class="flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full border border-slate-700"></div>
                 <button id="btn-logout" class="bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-400 border border-slate-700 py-1 px-3 rounded-full text-sm transition-all">
                     <i class="fas fa-sign-out-alt"></i> Sair
                 </button>
             </div>
         </header>
 
-        <!-- Informativo da Nova Funcionalidade Dinâmica -->
+        <!-- Informativo -->
         <div class="mb-8 p-4 bg-gradient-to-r from-blue-900/30 to-emerald-900/30 border border-blue-500/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-start gap-3">
                 <div class="p-3 bg-blue-500/20 text-blue-400 rounded-lg">
@@ -90,7 +85,7 @@
                 </div>
                 <div>
                     <h3 class="font-bold text-blue-300 text-lg">Versão Dinâmica no Rodapé Ativada! 🚀</h3>
-                    <p class="text-sm text-slate-300">O app agora reflete a <strong>Version Name</strong> instantaneamente nas telas de Perfil e Configurações sem necessidade de novas compilações.</p>
+                    <p class="text-sm text-slate-300">O app agora reflete a <strong>Version Name</strong> instantaneamente nas telas.</p>
                 </div>
             </div>
             <div class="bg-blue-950/80 border border-blue-800 px-4 py-2 rounded-lg text-center self-stretch sm:self-auto flex flex-col justify-center">
@@ -163,7 +158,7 @@
                             <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
                                 <div>
                                     <span class="font-medium text-red-400">Atualização Obrigatória (Forçar)</span>
-                                    <p class="text-xs text-slate-400">Trava a tela e obriga a baixar. Ignora regra de cima.</p>
+                                    <p class="text-xs text-slate-400">Trava a tela e obriga a baixar.</p>
                                 </div>
                                 <input type="checkbox" id="upd-force" class="checkbox-toggle">
                             </label>
@@ -334,6 +329,68 @@
                     </div>
                 </section>
             </div>
+            
+            <!-- 7. NOVA SEÇÃO: TERMOS DE USO (Lá Embaixo, Ocupando as duas colunas) -->
+            <div class="md:col-span-2">
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-indigo-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold flex items-center text-indigo-400">
+                            <i class="fas fa-file-contract w-8"></i> Gestão de Termos e Privacidade
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-2">Digite o texto completo dos Termos e Condições aqui:</label>
+                            <textarea id="terms-content" class="input-field h-48 md:h-64 resize-y leading-relaxed font-mono text-sm" placeholder="Ex: Bem-vindo ao nosso aplicativo. Ao utilizar nossos serviços, você concorda com os seguintes termos..."></textarea>
+                        </div>
+
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                            <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação no Aplicativo após salvar:</label>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <!-- Opção 1 -->
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                    <div class="flex items-center h-5 mt-1">
+                                        <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
+                                    </div>
+                                    <div class="ml-3">
+                                        <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
+                                        <p class="text-xs text-slate-400 leading-snug">O app exigirá que o usuário leia e concorde novamente ao ser aberto.</p>
+                                    </div>
+                                </label>
+
+                                <!-- Opção 2 -->
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                    <div class="flex items-center h-5 mt-1">
+                                        <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2">
+                                    </div>
+                                    <div class="ml-3">
+                                        <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
+                                        <p class="text-xs text-slate-400 leading-snug">Mostra um alerta dizendo que os termos mudaram, sem forçar a leitura.</p>
+                                    </div>
+                                </label>
+
+                                <!-- Opção 3 -->
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-800 rounded-lg border border-slate-600 hover:border-indigo-400 transition">
+                                    <div class="flex items-center h-5 mt-1">
+                                        <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-500 focus:ring-indigo-500 focus:ring-2" checked>
+                                    </div>
+                                    <div class="ml-3">
+                                        <span class="font-bold text-white text-sm block mb-1">Apenas Atualizar Texto</span>
+                                        <p class="text-xs text-slate-400 leading-snug">Atualiza silenciosamente lá na aba do app, ninguém será interrompido.</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button onclick="saveData('terms')" id="btn-save-terms" class="btn-save w-full justify-center !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
+                            <i class="fas fa-file-signature"></i> Salvar e Aplicar Termos
+                        </button>
+                    </div>
+                </section>
+            </div>
+
         </div>
     </div>
 
@@ -346,7 +403,6 @@
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Credenciais do seu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDGCjBbqtp_TvFeW7ySpLp0QmKjTsTn2Sw",
             authDomain: "horarios-escolar-danisio.firebaseapp.com",
@@ -358,7 +414,6 @@
             measurementId: "G-YEXZVMKDPK"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
@@ -366,7 +421,6 @@
 
         const ALLOWED_EMAIL = "geilsomcarlos93@gmail.com";
 
-        // Elementos DOM
         const loginScreen = document.getElementById('login-screen');
         const mainContent = document.getElementById('main-content');
         const btnLoginGoogle = document.getElementById('btn-login-google');
@@ -376,11 +430,9 @@
         const activeVersionPreview = document.getElementById('active-version-preview');
         const domainErrorMsg = document.getElementById('domain-error-msg');
 
-        // Monitorar autenticação
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 if (user.email === ALLOWED_EMAIL) {
-                    // Usuário é o administrador proprietário correto
                     loginScreen.classList.add('hidden');
                     mainContent.classList.remove('hidden');
                     domainErrorMsg.classList.add('hidden');
@@ -388,31 +440,25 @@
                     adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400 animate-pulse"></i> ${user.displayName || 'Admin'}`;
                     adminBadge.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
                     
-                    // Liberar botões de salvamento
                     toggleActionButtons(false);
                     await loadData();
                 } else {
-                    // E-mail inválido
                     alert(`Acesso negado!\nO e-mail "${user.email}" não tem permissão para gerenciar as configurações do aplicativo.`);
                     await signOut(auth);
                 }
             } else {
-                // Desconectado
                 loginScreen.classList.remove('hidden');
                 mainContent.classList.add('hidden');
                 toggleActionButtons(true);
             }
         });
 
-        // Login Popup do Google
         btnLoginGoogle.addEventListener('click', async () => {
             domainErrorMsg.classList.add('hidden');
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Erro no login:", error);
-                
-                // Tratar erro de domínio especificamente
                 if (error.code === 'auth/unauthorized-domain') {
                     domainErrorMsg.classList.remove('hidden');
                     window.showToast("Domínio não autorizado no Firebase!", true);
@@ -422,7 +468,6 @@
             }
         });
 
-        // Logout
         btnLogout.addEventListener('click', async () => {
             try {
                 await signOut(auth);
@@ -431,7 +476,6 @@
             }
         });
 
-        // Ativa/Desativa botões baseado em permissões
         function toggleActionButtons(disabled) {
             document.getElementById('btn-save-update').disabled = disabled;
             document.getElementById('btn-save-maintenance').disabled = disabled;
@@ -439,9 +483,9 @@
             document.getElementById('btn-save-system').disabled = disabled;
             document.getElementById('btn-save-links').disabled = disabled;
             document.getElementById('btn-save-mural').disabled = disabled;
+            document.getElementById('btn-save-terms').disabled = disabled; // Novo botão de termos
         }
 
-        // Exibir pop-up de sucesso ou erro
         window.showToast = (message, isError = false) => {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = message;
@@ -450,7 +494,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Carregar dados iniciais do nó /dados_app
         async function loadData() {
             try {
                 const dbRef = ref(db);
@@ -459,7 +502,6 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     
-                    // Preencher Update
                     if(data.update) {
                         document.getElementById('upd-code').value = data.update.versionCode || '';
                         document.getElementById('upd-name').value = data.update.versionName || '';
@@ -469,20 +511,16 @@
                         document.getElementById('upd-btn-text').value = data.update.buttonText || '';
                         document.getElementById('upd-show').checked = data.update.showUpdate || false;
                         document.getElementById('upd-force').checked = data.update.forceUpdate || false;
-                        document.getElementById('upd-cancellable').checked = data.update.cancellable !== false; // Padrão true
-
-                        // Atualiza dinamicamente no cabeçalho do painel
+                        document.getElementById('upd-cancellable').checked = data.update.cancellable !== false;
                         activeVersionPreview.innerText = 'v' + (data.update.versionName || '0.0.0');
                     }
 
-                    // Preencher Maintenance
                     if(data.maintenance) {
                         document.getElementById('mnt-enabled').checked = data.maintenance.enabled || false;
                         document.getElementById('mnt-title').value = data.maintenance.title || '';
                         document.getElementById('mnt-msg').value = data.maintenance.message || '';
                     }
 
-                    // Preencher Messages
                     if(data.messages) {
                         document.getElementById('msg-enabled').checked = data.messages.enabled || false;
                         document.getElementById('msg-title').value = data.messages.title || '';
@@ -491,21 +529,18 @@
                         document.getElementById('msg-action-url').value = data.messages.actionUrl || '';
                     }
 
-                    // Preencher System
                     if(data.system) {
                         document.getElementById('sys-name').value = data.system.appName || '';
                         document.getElementById('sys-status').checked = data.system.serverStatus !== false;
                         document.getElementById('sys-reg').checked = data.system.allowRegistration !== false;
                     }
 
-                    // Preencher Links
                     if(data.links) {
                         document.getElementById('link-wpp').value = data.links.whatsapp || '';
                         document.getElementById('link-insta').value = data.links.instagram || '';
                         document.getElementById('link-site').value = data.links.website || '';
                     }
 
-                    // Preencher Mural
                     if(data.mural) {
                         document.getElementById('mural-enabled').checked = data.mural.enabled || false;
                         document.getElementById('mural-title').value = data.mural.title || '';
@@ -514,7 +549,21 @@
                         document.getElementById('mural-image').value = data.mural.imageUrl || '';
                     }
 
-                    // Atualizar visualizador de status
+                    // Preencher a NOVA seção de Termos
+                    if(data.terms) {
+                        document.getElementById('terms-content').value = data.terms.content || '';
+                        
+                        // Checar qual opção está salva
+                        const action = data.terms.updateAction || 'silent';
+                        if(action === 'force') {
+                            document.getElementById('terms-action-force').checked = true;
+                        } else if(action === 'notify') {
+                            document.getElementById('terms-action-notify').checked = true;
+                        } else {
+                            document.getElementById('terms-action-silent').checked = true;
+                        }
+                    }
+
                     statusEl.innerHTML = '<i class="fas fa-wifi"></i> Sincronizado com /dados_app';
                     statusEl.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
                 } else {
@@ -528,7 +577,6 @@
             }
         }
 
-        // Gravar as informações dentro do caminho correto
         window.saveData = async (section) => {
             const currentUser = auth.currentUser;
             if (!currentUser || currentUser.email !== ALLOWED_EMAIL) {
@@ -593,11 +641,22 @@
                         updatedAt: Date.now()
                     };
                 }
+                // SALVANDO A NOVA SEÇÃO DE TERMOS
+                else if (section === 'terms') {
+                    let action = 'silent'; // Padrão
+                    if (document.getElementById('terms-action-force').checked) action = 'force';
+                    if (document.getElementById('terms-action-notify').checked) action = 'notify';
+
+                    dataToSave = {
+                        content: document.getElementById('terms-content').value,
+                        updateAction: action,
+                        updatedAt: Date.now()
+                    };
+                }
 
                 await set(ref(db, `dados_app/${section}`), dataToSave);
                 window.showToast(`Módulo "${section}" salvo com sucesso!`);
                 
-                // Se atualizou a versão, atualiza instantaneamente na pré-visualização do painel
                 if (section === 'update') {
                     activeVersionPreview.innerText = 'v' + (dataToSave.versionName || '0.0.0');
                 }
