@@ -101,20 +101,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <!-- 1. Atualizações -->
-            <section class="glass-card rounded-xl p-6 shadow-xl">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-semibold flex items-center text-blue-400">
-                        <i class="fas fa-download w-8"></i> Sistema de Atualização
-                    </h2>
-                </div>
-                
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Version Code (Numérico)</label>
-                            <input type="number" id="upd-code" class="input-field" placeholder="Ex: 15">
-                        </div>
+            <div class="space-y-6">
+                <!-- 1. Atualizações -->
+                <section class="glass-card rounded-xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold flex items-center text-blue-400">
+                            <i class="fas fa-download w-8"></i> Sistema de Atualização
+                        </h2>
+                    </div>
                         <div>
                             <label class="block text-sm text-slate-400 mb-1">Version Name</label>
                             <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
@@ -174,7 +168,45 @@
                         </button>
                     </div>
                 </div>
-            </section>
+                </section>
+
+                <!-- NOVO: 6. Mural de Recados -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-cyan-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold flex items-center text-cyan-400">
+                            <i class="fas fa-clipboard-list w-8"></i> Mural de Notícias
+                        </h2>
+                        <input type="checkbox" id="mural-enabled" class="checkbox-toggle">
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Título da Postagem</label>
+                                <input type="text" id="mural-title" class="input-field" placeholder="Boas Festas!">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Autor / Assinatura</label>
+                                <input type="text" id="mural-author" class="input-field" placeholder="Direção">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Conteúdo do Mural</label>
+                            <textarea id="mural-content" class="input-field h-24" placeholder="Escreva o aviso completo aqui..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">URL da Imagem (Opcional)</label>
+                            <input type="url" id="mural-image" class="input-field" placeholder="https://link-da-imagem.com/foto.jpg">
+                        </div>
+
+                        <button onclick="saveData('mural')" id="btn-save-mural" class="btn-save w-full justify-center !bg-cyan-600 hover:!bg-cyan-700" disabled>
+                            <i class="fas fa-thumbtack"></i> Fixar no Mural
+                        </button>
+                    </div>
+                </section>
+            </div>
 
             <div class="space-y-6">
                 <!-- 2. Manutenção -->
@@ -399,6 +431,7 @@
             document.getElementById('btn-save-messages').disabled = disabled;
             document.getElementById('btn-save-system').disabled = disabled;
             document.getElementById('btn-save-links').disabled = disabled;
+            document.getElementById('btn-save-mural').disabled = disabled;
         }
 
         // Exibir pop-up de sucesso ou erro
@@ -463,6 +496,15 @@
                         document.getElementById('link-wpp').value = data.links.whatsapp || '';
                         document.getElementById('link-insta').value = data.links.instagram || '';
                         document.getElementById('link-site').value = data.links.website || '';
+                    }
+
+                    // Preencher Mural
+                    if(data.mural) {
+                        document.getElementById('mural-enabled').checked = data.mural.enabled || false;
+                        document.getElementById('mural-title').value = data.mural.title || '';
+                        document.getElementById('mural-author').value = data.mural.author || '';
+                        document.getElementById('mural-content').value = data.mural.content || '';
+                        document.getElementById('mural-image').value = data.mural.imageUrl || '';
                     }
 
                     // Atualizar visualizador de status
@@ -532,6 +574,16 @@
                         whatsapp: document.getElementById('link-wpp').value,
                         instagram: document.getElementById('link-insta').value,
                         website: document.getElementById('link-site').value
+                    };
+                }
+                else if (section === 'mural') {
+                    dataToSave = {
+                        enabled: document.getElementById('mural-enabled').checked,
+                        title: document.getElementById('mural-title').value,
+                        author: document.getElementById('mural-author').value,
+                        content: document.getElementById('mural-content').value,
+                        imageUrl: document.getElementById('mural-image').value,
+                        updatedAt: Date.now()
                     };
                 }
 
