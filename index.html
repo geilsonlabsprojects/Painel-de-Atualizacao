@@ -9,14 +9,16 @@
     <style>
         body { background-color: #0f172a; color: #f8fafc; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-field { background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; focus:outline-none; focus:border-blue-500; transition: border-color 0.2s; }
+        .input-field { background: #0f172a; border: 1px solid #334155; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; width: 100%; transition: border-color 0.2s; }
+        .input-field:focus { outline: none; border-color: #3b82f6; }
         .checkbox-toggle { appearance: none; width: 3rem; height: 1.5rem; background: #334155; border-radius: 9999px; position: relative; cursor: pointer; outline: none; transition: background-color 0.2s; }
         .checkbox-toggle::after { content: ''; position: absolute; top: 0.125rem; left: 0.125rem; width: 1.25rem; height: 1.25rem; background: white; border-radius: 50%; transition: transform 0.2s; }
         .checkbox-toggle:checked { background: #3b82f6; }
         .checkbox-toggle:checked::after { transform: translateX(1.5rem); }
-        .btn-save { background: #2563eb; hover:background: #1d4ed8; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-save { background: #2563eb; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
         .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         .btn-save:active { transform: translateY(0); }
+        .btn-save:disabled { background: #475569; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.6; }
         
         /* Toast notification */
         #toast { position: fixed; bottom: -100px; right: 20px; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 0.5rem; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: bottom 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 50; }
@@ -25,19 +27,65 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans">
 
-    <div class="max-w-6xl mx-auto">
+    <!-- Tela de Login (Modal se não estiver autenticado) -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl border border-slate-700 text-center">
+            <div class="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
+                <i class="fas fa-lock text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Painel Inteligente</h2>
+            <p class="text-slate-400 text-sm mb-6 font-medium">Acesso restrito ao proprietário para atualização do app.</p>
+            
+            <button id="btn-login-google" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all mb-4">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google Logo">
+                Entrar com Conta Google
+            </button>
+            <p class="text-xs text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 py-2 px-3 rounded-lg"><i class="fas fa-shield-alt mr-1"></i> Apenas o e-mail cadastrado poderá salvar alterações.</p>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal do Painel -->
+    <div id="main-content" class="max-w-6xl mx-auto hidden">
         <!-- Header -->
-        <header class="flex items-center justify-between mb-8 pb-4 border-b border-slate-700">
+        <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-slate-700 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                    <i class="fas fa-rocket mr-2 text-blue-500"></i>Painel Inteligente do App
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
+                    <i class="fas fa-rocket text-blue-500"></i>Painel Inteligente do App
                 </h1>
                 <p class="text-slate-400 mt-1">Gerenciamento no caminho: <code class="text-blue-300">/dados_app</code></p>
             </div>
-            <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-                <i class="fas fa-circle-notch fa-spin"></i> Conectando...
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <div id="connection-status" class="flex items-center gap-2 text-sm font-medium text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                    <i class="fas fa-circle-notch fa-spin"></i> Conectando...
+                </div>
+                <!-- Status do Admin Logado -->
+                <div id="admin-badge" class="flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full border border-slate-700">
+                    <!-- Dinâmico via JS -->
+                </div>
+                <!-- Botão de Sair -->
+                <button id="btn-logout" class="bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-400 border border-slate-700 py-1 px-3 rounded-full text-sm transition-all">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
             </div>
         </header>
+
+        <!-- Informativo da Nova Funcionalidade Dinâmica -->
+        <div class="mb-8 p-4 bg-gradient-to-r from-blue-900/30 to-emerald-900/30 border border-blue-500/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <div class="p-3 bg-blue-500/20 text-blue-400 rounded-lg">
+                    <i class="fas fa-magic text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-blue-300 text-lg">Versão Dinâmica no Rodapé Ativada! 🚀</h3>
+                    <p class="text-sm text-slate-300">O app agora reflete a <strong>Version Name</strong> instantaneamente nas telas de Perfil e Configurações sem necessidade de novas compilações.</p>
+                </div>
+            </div>
+            <div class="bg-blue-950/80 border border-blue-800 px-4 py-2 rounded-lg text-center self-stretch sm:self-auto flex flex-col justify-center">
+                <span class="text-xs text-slate-400 uppercase tracking-widest block font-semibold">Versão Atual Ativa</span>
+                <span id="active-version-preview" class="text-xl font-mono font-bold text-emerald-400">v0.0.0</span>
+            </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -57,7 +105,7 @@
                         </div>
                         <div>
                             <label class="block text-sm text-slate-400 mb-1">Version Name</label>
-                            <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0">
+                            <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
                         </div>
                     </div>
                     
@@ -95,7 +143,7 @@
                     </div>
 
                     <div class="pt-4 mt-4 border-t border-slate-700">
-                        <button onclick="saveData('update')" class="btn-save w-full justify-center">
+                        <button onclick="saveData('update')" id="btn-save-update" class="btn-save w-full justify-center" disabled>
                             <i class="fas fa-cloud-upload-alt"></i> Publicar Atualização
                         </button>
                     </div>
@@ -121,7 +169,7 @@
                             <label class="block text-sm text-slate-400 mb-1">Mensagem para os usuários</label>
                             <textarea id="mnt-msg" class="input-field h-20" placeholder="Voltaremos em breve com melhorias."></textarea>
                         </div>
-                        <button onclick="saveData('maintenance')" class="btn-save w-full justify-center !bg-amber-600 hover:!bg-amber-700">
+                        <button onclick="saveData('maintenance')" id="btn-save-maintenance" class="btn-save w-full justify-center !bg-amber-600 hover:!bg-amber-700" disabled>
                             <i class="fas fa-save"></i> Salvar Manutenção
                         </button>
                     </div>
@@ -145,7 +193,7 @@
                             <label class="block text-sm text-slate-400 mb-1">Texto do Aviso</label>
                             <textarea id="msg-text" class="input-field h-20" placeholder="Digite o recado para os usuários..."></textarea>
                         </div>
-                        <button onclick="saveData('messages')" class="btn-save w-full justify-center !bg-purple-600 hover:!bg-purple-700">
+                        <button onclick="saveData('messages')" id="btn-save-messages" class="btn-save w-full justify-center !bg-purple-600 hover:!bg-purple-700" disabled>
                             <i class="fas fa-paper-plane"></i> Enviar Aviso
                         </button>
                     </div>
@@ -171,7 +219,7 @@
                             <input type="checkbox" id="sys-status" class="checkbox-toggle">
                         </label>
 
-                        <button onclick="saveData('system')" class="btn-save w-full justify-center !bg-emerald-600 hover:!bg-emerald-700">
+                        <button onclick="saveData('system')" id="btn-save-system" class="btn-save w-full justify-center !bg-emerald-600 hover:!bg-emerald-700" disabled>
                             <i class="fas fa-check-circle"></i> Salvar Configurações
                         </button>
                     </div>
@@ -187,6 +235,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Credenciais do seu Firebase
         const firebaseConfig = {
@@ -203,10 +252,74 @@
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // Referência UI para monitorar a conexão
+        const ALLOWED_EMAIL = "geilsomcarlos93@gmail.com";
+
+        // Elementos DOM
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const btnLoginGoogle = document.getElementById('btn-login-google');
+        const btnLogout = document.getElementById('btn-logout');
+        const adminBadge = document.getElementById('admin-badge');
         const statusEl = document.getElementById('connection-status');
-        
+        const activeVersionPreview = document.getElementById('active-version-preview');
+
+        // Monitorar autenticação
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                if (user.email === ALLOWED_EMAIL) {
+                    // Usuário é o administrador proprietário correto
+                    loginScreen.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    
+                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400 animate-pulse"></i> ${user.displayName || 'Admin'}`;
+                    adminBadge.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
+                    
+                    // Liberar botões de salvamento
+                    toggleActionButtons(false);
+                    await loadData();
+                } else {
+                    // E-mail inválido
+                    alert(`Acesso negado!\nO e-mail "${user.email}" não tem permissão para gerenciar as configurações do aplicativo.`);
+                    await signOut(auth);
+                }
+            } else {
+                // Desconectado
+                loginScreen.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+                toggleActionButtons(true);
+            }
+        });
+
+        // Login Popup do Google
+        btnLoginGoogle.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Erro no login:", error);
+                window.showToast("Falha ao autenticar com o Google.", true);
+            }
+        });
+
+        // Logout
+        btnLogout.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Erro no logout:", error);
+            }
+        });
+
+        // Ativa/Desativa botões baseado em permissões
+        function toggleActionButtons(disabled) {
+            document.getElementById('btn-save-update').disabled = disabled;
+            document.getElementById('btn-save-maintenance').disabled = disabled;
+            document.getElementById('btn-save-messages').disabled = disabled;
+            document.getElementById('btn-save-system').disabled = disabled;
+        }
+
         // Exibir pop-up de sucesso ou erro
         window.showToast = (message, isError = false) => {
             const toast = document.getElementById('toast');
@@ -216,11 +329,10 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Carregar dados iniciais a partir do nó /dados_app
+        // Carregar dados iniciais do nó /dados_app
         async function loadData() {
             try {
                 const dbRef = ref(db);
-                // Lendo diretamente de /dados_app para manter tudo sincronizado
                 const snapshot = await get(child(dbRef, 'dados_app'));
                 
                 if (snapshot.exists()) {
@@ -235,6 +347,9 @@
                         document.getElementById('upd-url').value = data.update.apkUrl || '';
                         document.getElementById('upd-show').checked = data.update.showUpdate || false;
                         document.getElementById('upd-force').checked = data.update.forceUpdate || false;
+
+                        // Atualiza dinamicamente no cabeçalho do painel
+                        activeVersionPreview.innerText = 'v' + (data.update.versionName || '0.0.0');
                     }
 
                     // Preencher Maintenance
@@ -258,23 +373,27 @@
                     }
 
                     // Atualizar visualizador de status
-                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Conectado em /dados_app';
-                    statusEl.classList.replace('text-amber-400', 'text-emerald-400');
-                    statusEl.classList.replace('bg-amber-400/10', 'bg-emerald-400/10');
-                    statusEl.classList.replace('border-amber-400/20', 'border-emerald-400/20');
+                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Sincronizado com /dados_app';
+                    statusEl.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
                 } else {
-                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Caminho não encontrado';
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Sem dados salvos';
                 }
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
                 statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Erro de Conexão';
-                statusEl.classList.replace('text-amber-400', 'text-red-400');
-                showToast("Erro ao conectar ao banco de dados.", true);
+                statusEl.className = "flex items-center gap-2 text-sm font-medium text-red-400 bg-red-400/10 px-3 py-1 rounded-full border border-red-400/20";
+                showToast("Erro ao carregar dados do Firebase.", true);
             }
         }
 
         // Gravar as informações dentro do caminho correto
         window.saveData = async (section) => {
+            const currentUser = auth.currentUser;
+            if (!currentUser || currentUser.email !== ALLOWED_EMAIL) {
+                window.showToast("Ação não autorizada para este usuário.", true);
+                return;
+            }
+
             let dataToSave = {};
             
             try {
@@ -311,18 +430,19 @@
                     };
                 }
 
-                // Caminho atualizado apontando para a pasta /dados_app/<modulo> para garantir que não apague nada das turmas!
                 await set(ref(db, `dados_app/${section}`), dataToSave);
-                window.showToast(`Módulo "${section}" atualizado com sucesso!`);
+                window.showToast(`Módulo "${section}" salvo com sucesso!`);
+                
+                // Se atualizou a versão, atualiza instantaneamente na pré-visualização do painel
+                if (section === 'update') {
+                    activeVersionPreview.innerText = 'v' + (dataToSave.versionName || '0.0.0');
+                }
                 
             } catch (error) {
                 console.error("Erro ao salvar:", error);
-                window.showToast("Falha ao salvar. Verifique as regras de escrita do Firebase.", true);
+                window.showToast("Erro de permissão! Modificação bloqueada pelo banco de dados.", true);
             }
         }
-
-        // Inicializar leitura
-        loadData();
     </script>
 </body>
 </html>
