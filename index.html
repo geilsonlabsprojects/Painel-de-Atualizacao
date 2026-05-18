@@ -109,68 +109,75 @@
                             <i class="fas fa-download w-8"></i> Sistema de Atualização
                         </h2>
                     </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Version Name</label>
-                            <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
-                        </div>
-                    </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
-                            <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização!">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Version Code (Número)</label>
+                                <input type="number" id="upd-code" class="input-field" placeholder="Ex: 25">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Version Name (Texto)</label>
+                                <input type="text" id="upd-name" class="input-field" placeholder="Ex: 2.5.0" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
+                            </div>
                         </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
+                                <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização!">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Texto do Botão de Ação</label>
+                                <input type="text" id="upd-btn-text" class="input-field" placeholder="Baixar Agora">
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1">Texto do Botão de Ação</label>
-                            <input type="text" id="upd-btn-text" class="input-field" placeholder="Baixar Agora">
+                            <label class="block text-sm text-slate-400 mb-1">Changelog (Novidades)</label>
+                            <textarea id="upd-desc" class="input-field h-24" placeholder="O que há de novo nesta versão?"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta ou Loja)</label>
+                            <input type="url" id="upd-url" class="input-field" placeholder="https://...">
+                        </div>
+
+                        <div class="flex flex-col gap-3 pt-2">
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                                <div>
+                                    <span class="font-medium">Ativar Popup de Atualização</span>
+                                    <p class="text-xs text-slate-400">Exibe a notificação de nova versão.</p>
+                                </div>
+                                <input type="checkbox" id="upd-show" class="checkbox-toggle">
+                            </label>
+
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                                <div>
+                                    <span class="font-medium text-blue-300">Permitir Ignorar (Cancelável)</span>
+                                    <p class="text-xs text-slate-400">Usuário pode fechar o popup clicando fora.</p>
+                                </div>
+                                <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
+                            </label>
+
+                            <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
+                                <div>
+                                    <span class="font-medium text-red-400">Atualização Obrigatória (Forçar)</span>
+                                    <p class="text-xs text-slate-400">Trava a tela e obriga a baixar. Ignora regra de cima.</p>
+                                </div>
+                                <input type="checkbox" id="upd-force" class="checkbox-toggle">
+                            </label>
+                        </div>
+
+                        <div class="pt-4 mt-4 border-t border-slate-700">
+                            <button onclick="saveData('update')" id="btn-save-update" class="btn-save w-full justify-center" disabled>
+                                <i class="fas fa-cloud-upload-alt"></i> Publicar Atualização
+                            </button>
                         </div>
                     </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Changelog (Novidades)</label>
-                        <textarea id="upd-desc" class="input-field h-24" placeholder="O que há de novo nesta versão?"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta ou Loja)</label>
-                        <input type="url" id="upd-url" class="input-field" placeholder="https://...">
-                    </div>
-
-                    <div class="flex flex-col gap-3 pt-2">
-                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                            <div>
-                                <span class="font-medium">Ativar Popup de Atualização</span>
-                                <p class="text-xs text-slate-400">Exibe a notificação de nova versão.</p>
-                            </div>
-                            <input type="checkbox" id="upd-show" class="checkbox-toggle">
-                        </label>
-
-                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-                            <div>
-                                <span class="font-medium text-blue-300">Permitir Ignorar (Cancelável)</span>
-                                <p class="text-xs text-slate-400">Usuário pode fechar o popup clicando fora.</p>
-                            </div>
-                            <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
-                        </label>
-
-                        <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
-                            <div>
-                                <span class="font-medium text-red-400">Atualização Obrigatória (Forçar)</span>
-                                <p class="text-xs text-slate-400">Trava a tela e obriga a baixar. Ignora regra de cima.</p>
-                            </div>
-                            <input type="checkbox" id="upd-force" class="checkbox-toggle">
-                        </label>
-                    </div>
-
-                    <div class="pt-4 mt-4 border-t border-slate-700">
-                        <button onclick="saveData('update')" id="btn-save-update" class="btn-save w-full justify-center" disabled>
-                            <i class="fas fa-cloud-upload-alt"></i> Publicar Atualização
-                        </button>
-                    </div>
-                </div>
                 </section>
 
-                <!-- NOVO: 6. Mural de Recados -->
+                <!-- 6. Mural de Recados -->
                 <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-cyan-500">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xl font-semibold flex items-center text-cyan-400">
