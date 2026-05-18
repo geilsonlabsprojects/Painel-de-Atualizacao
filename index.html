@@ -36,6 +36,18 @@
             <h2 class="text-2xl font-bold mb-2">Painel Inteligente</h2>
             <p class="text-slate-400 text-sm mb-6 font-medium">Acesso restrito ao proprietário para atualização do app.</p>
             
+            <!-- Aviso de Erro de Domínio Não Autorizado (Oculto por padrão) -->
+            <div id="domain-error-msg" class="hidden mb-4 p-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs rounded-lg text-left">
+                <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Erro de Domínio Não Autorizado!</p>
+                <p class="mb-2">O Firebase bloqueou o login porque este site ainda não foi cadastrado como domínio confiável.</p>
+                <p class="font-semibold text-white">Como resolver:</p>
+                <ol class="list-decimal list-inside ml-1 mt-1 space-y-1 text-slate-300">
+                    <li>Vá no painel do seu Firebase Console.</li>
+                    <li>Acesse <strong class="text-white">Authentication</strong> ➔ <strong class="text-white">Settings</strong> ➔ <strong class="text-white">Authorized domains</strong>.</li>
+                    <li>Adicione o domínio: <code class="bg-slate-900 px-1 rounded text-yellow-400 font-mono">geilsonlabsprojects.github.io</code></li>
+                </ol>
+            </div>
+
             <button id="btn-login-google" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all mb-4">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google Logo">
                 Entrar com Conta Google
@@ -109,9 +121,15 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
-                        <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização disponível!">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Título do Popup</label>
+                            <input type="text" id="upd-title" class="input-field" placeholder="Nova atualização!">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Texto do Botão de Ação</label>
+                            <input type="text" id="upd-btn-text" class="input-field" placeholder="Baixar Agora">
+                        </div>
                     </div>
 
                     <div>
@@ -120,7 +138,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta)</label>
+                        <label class="block text-sm text-slate-400 mb-1">Link do APK (URL direta ou Loja)</label>
                         <input type="url" id="upd-url" class="input-field" placeholder="https://...">
                     </div>
 
@@ -128,15 +146,23 @@
                         <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
                             <div>
                                 <span class="font-medium">Ativar Popup de Atualização</span>
-                                <p class="text-xs text-slate-400">Avisa os usuários sobre a nova versão.</p>
+                                <p class="text-xs text-slate-400">Exibe a notificação de nova versão.</p>
                             </div>
                             <input type="checkbox" id="upd-show" class="checkbox-toggle">
                         </label>
 
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <div>
+                                <span class="font-medium text-blue-300">Permitir Ignorar (Cancelável)</span>
+                                <p class="text-xs text-slate-400">Usuário pode fechar o popup clicando fora.</p>
+                            </div>
+                            <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
+                        </label>
+
                         <label class="flex items-center justify-between cursor-pointer p-3 bg-red-900/20 rounded-lg border border-red-900/50">
                             <div>
-                                <span class="font-medium text-red-400">Atualização Obrigatória</span>
-                                <p class="text-xs text-slate-400">Bloqueia o app até o usuário atualizar.</p>
+                                <span class="font-medium text-red-400">Atualização Obrigatória (Forçar)</span>
+                                <p class="text-xs text-slate-400">Trava a tela e obriga a baixar. Ignora regra de cima.</p>
                             </div>
                             <input type="checkbox" id="upd-force" class="checkbox-toggle">
                         </label>
@@ -193,6 +219,16 @@
                             <label class="block text-sm text-slate-400 mb-1">Texto do Aviso</label>
                             <textarea id="msg-text" class="input-field h-20" placeholder="Digite o recado para os usuários..."></textarea>
                         </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Texto do Botão (Opcional)</label>
+                                <input type="text" id="msg-action-text" class="input-field" placeholder="Saber Mais">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-1">Link da Ação (Opcional)</label>
+                                <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
+                            </div>
+                        </div>
                         <button onclick="saveData('messages')" id="btn-save-messages" class="btn-save w-full justify-center !bg-purple-600 hover:!bg-purple-700" disabled>
                             <i class="fas fa-paper-plane"></i> Enviar Aviso
                         </button>
@@ -219,8 +255,42 @@
                             <input type="checkbox" id="sys-status" class="checkbox-toggle">
                         </label>
 
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <div>
+                                <span class="font-medium text-emerald-300">Cadastro Aberto</span>
+                                <p class="text-xs text-slate-400">Permitir que novos alunos criem contas.</p>
+                            </div>
+                            <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
+                        </label>
+
                         <button onclick="saveData('system')" id="btn-save-system" class="btn-save w-full justify-center !bg-emerald-600 hover:!bg-emerald-700" disabled>
                             <i class="fas fa-check-circle"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 5. Redes e Suporte -->
+                <section class="glass-card rounded-xl p-6 shadow-xl border-t-4 border-t-pink-500">
+                    <h2 class="text-xl font-semibold flex items-center text-pink-400 mb-4">
+                        <i class="fas fa-link w-8"></i> Redes Sociais e Contato
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1"><i class="fab fa-whatsapp text-green-400"></i> WhatsApp de Suporte</label>
+                            <input type="text" id="link-wpp" class="input-field" placeholder="Ex: 5585999999999">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1"><i class="fab fa-instagram text-pink-400"></i> Link do Instagram</label>
+                            <input type="url" id="link-insta" class="input-field" placeholder="https://instagram.com/seuapp">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1"><i class="fas fa-globe text-blue-400"></i> Site Oficial</label>
+                            <input type="url" id="link-site" class="input-field" placeholder="https://seusite.com">
+                        </div>
+
+                        <button onclick="saveData('links')" id="btn-save-links" class="btn-save w-full justify-center !bg-pink-600 hover:!bg-pink-700" disabled>
+                            <i class="fas fa-share-alt"></i> Salvar Links
                         </button>
                     </div>
                 </section>
@@ -265,6 +335,7 @@
         const adminBadge = document.getElementById('admin-badge');
         const statusEl = document.getElementById('connection-status');
         const activeVersionPreview = document.getElementById('active-version-preview');
+        const domainErrorMsg = document.getElementById('domain-error-msg');
 
         // Monitorar autenticação
         onAuthStateChanged(auth, async (user) => {
@@ -273,6 +344,7 @@
                     // Usuário é o administrador proprietário correto
                     loginScreen.classList.add('hidden');
                     mainContent.classList.remove('hidden');
+                    domainErrorMsg.classList.add('hidden');
                     
                     adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400 animate-pulse"></i> ${user.displayName || 'Admin'}`;
                     adminBadge.className = "flex items-center gap-2 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20";
@@ -295,11 +367,19 @@
 
         // Login Popup do Google
         btnLoginGoogle.addEventListener('click', async () => {
+            domainErrorMsg.classList.add('hidden');
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Erro no login:", error);
-                window.showToast("Falha ao autenticar com o Google.", true);
+                
+                // Tratar erro de domínio especificamente
+                if (error.code === 'auth/unauthorized-domain') {
+                    domainErrorMsg.classList.remove('hidden');
+                    window.showToast("Domínio não autorizado no Firebase!", true);
+                } else {
+                    window.showToast("Falha ao autenticar com o Google.", true);
+                }
             }
         });
 
@@ -318,6 +398,7 @@
             document.getElementById('btn-save-maintenance').disabled = disabled;
             document.getElementById('btn-save-messages').disabled = disabled;
             document.getElementById('btn-save-system').disabled = disabled;
+            document.getElementById('btn-save-links').disabled = disabled;
         }
 
         // Exibir pop-up de sucesso ou erro
@@ -345,8 +426,10 @@
                         document.getElementById('upd-title').value = data.update.title || '';
                         document.getElementById('upd-desc').value = data.update.description || '';
                         document.getElementById('upd-url').value = data.update.apkUrl || '';
+                        document.getElementById('upd-btn-text').value = data.update.buttonText || '';
                         document.getElementById('upd-show').checked = data.update.showUpdate || false;
                         document.getElementById('upd-force').checked = data.update.forceUpdate || false;
+                        document.getElementById('upd-cancellable').checked = data.update.cancellable !== false; // Padrão true
 
                         // Atualiza dinamicamente no cabeçalho do painel
                         activeVersionPreview.innerText = 'v' + (data.update.versionName || '0.0.0');
@@ -364,12 +447,22 @@
                         document.getElementById('msg-enabled').checked = data.messages.enabled || false;
                         document.getElementById('msg-title').value = data.messages.title || '';
                         document.getElementById('msg-text').value = data.messages.message || '';
+                        document.getElementById('msg-action-text').value = data.messages.actionText || '';
+                        document.getElementById('msg-action-url').value = data.messages.actionUrl || '';
                     }
 
                     // Preencher System
                     if(data.system) {
                         document.getElementById('sys-name').value = data.system.appName || '';
                         document.getElementById('sys-status').checked = data.system.serverStatus !== false;
+                        document.getElementById('sys-reg').checked = data.system.allowRegistration !== false;
+                    }
+
+                    // Preencher Links
+                    if(data.links) {
+                        document.getElementById('link-wpp').value = data.links.whatsapp || '';
+                        document.getElementById('link-insta').value = data.links.instagram || '';
+                        document.getElementById('link-site').value = data.links.website || '';
                     }
 
                     // Atualizar visualizador de status
@@ -404,8 +497,10 @@
                         title: document.getElementById('upd-title').value,
                         description: document.getElementById('upd-desc').value,
                         apkUrl: document.getElementById('upd-url').value,
+                        buttonText: document.getElementById('upd-btn-text').value,
                         showUpdate: document.getElementById('upd-show').checked,
                         forceUpdate: document.getElementById('upd-force').checked,
+                        cancellable: document.getElementById('upd-cancellable').checked,
                         updatedAt: Date.now()
                     };
                 } 
@@ -420,13 +515,23 @@
                     dataToSave = {
                         enabled: document.getElementById('msg-enabled').checked,
                         title: document.getElementById('msg-title').value,
-                        message: document.getElementById('msg-text').value
+                        message: document.getElementById('msg-text').value,
+                        actionText: document.getElementById('msg-action-text').value,
+                        actionUrl: document.getElementById('msg-action-url').value
                     };
                 }
                 else if (section === 'system') {
                     dataToSave = {
                         appName: document.getElementById('sys-name').value,
-                        serverStatus: document.getElementById('sys-status').checked
+                        serverStatus: document.getElementById('sys-status').checked,
+                        allowRegistration: document.getElementById('sys-reg').checked
+                    };
+                }
+                else if (section === 'links') {
+                    dataToSave = {
+                        whatsapp: document.getElementById('link-wpp').value,
+                        instagram: document.getElementById('link-insta').value,
+                        website: document.getElementById('link-site').value
                     };
                 }
 
