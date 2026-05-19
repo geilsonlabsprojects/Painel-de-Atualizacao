@@ -304,23 +304,23 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Rollout (Liberação Gradual)</label>
                                 <div class="flex items-center gap-2 mt-1">
-                                    <input type="range" id="upd-rollout" min="0" max="100" class="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="this.nextElementSibling.innerText = this.value + '%'">
-                                    <span class="text-xs font-black text-blue-450 w-12 text-right">100%</span>
-                                </div>
+                                <input type="range" id="upd-rollout" min="0" max="100" class="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="this.nextElementSibling.innerText = this.value + '%'">
+                                <span class="text-xs font-black text-blue-450 w-12 text-right">100%</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Changelog (Novidades - Suporta Linhas Múltiplas)</label>
-                            <textarea id="upd-desc" class="input-field h-24 text-sm" placeholder="• Correção de bugs no carregamento&#10;• Nova aba do mural de avisos&#10;• Otimização de desempenho"></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Changelog (Novidades - Suporta Linhas Múltiplas)</label>
+                        <textarea id="upd-desc" class="input-field h-24 text-sm" placeholder="• Correção de bugs no carregamento&#10;• Nova aba do mural de avisos&#10;• Otimização de desempenho"></textarea>
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Link de Download (APK Direto ou Google Play)</label>
-                            <input type="url" id="upd-url" class="input-field" placeholder="https://...">
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Link de Download (APK Direto ou Google Play)</label>
+                        <input type="url" id="upd-url" class="input-field" placeholder="https://...">
+                    </div>
 
-                        <!-- Opções extras avançadas -->
+                    <!-- Opções extras avançadas -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/40 rounded-xl border border-slate-800">
                                 <span class="text-xs font-bold block mb-1">Exibir Alerta</span>
@@ -816,35 +816,35 @@
                         </label>
 
                         <!-- Opção 2 -->
-                        <label class="flex items-start cursor-pointer p-3.5 bg-slate-955 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
-                            <div class="flex items-center h-5 mt-1">
-                                <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2">
-                            </div>
-                            <div class="ml-3">
-                                <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
-                                <p class="text-xs text-slate-400 leading-snug">Informa em um banner discreto sobre as alterações, sem bloquear as telas do app.</p>
-                            </div>
-                        </label>
+                    <button onclick="saveData('terms')" id="btn-save-terms" class="btn-dynamic w-full !bg-indigo-600 hover:!bg-indigo-750 py-3 text-lg" disabled>
+                        <i class="fas fa-file-signature"></i> Salvar e Registrar Nova Versão dos Termos
+                    </button>
+                </div>
+            </section>
 
-                        <!-- Opção 3 -->
-                        <label class="flex items-start cursor-pointer p-3.5 bg-slate-955 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
-                            <div class="flex items-center h-5 mt-1">
-                                <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2" checked>
-                            </div>
-                            <div class="ml-3">
-                                <span class="font-bold text-white text-sm block mb-1">Atualização Silenciosa</span>
-                                <p class="text-xs text-slate-400 leading-snug">Salva o texto de forma transparente na seção informativa das configurações do aplicativo.</p>
-                            </div>
-                        </label>
+            <!-- 9. APRESENTAÇÃO DO PORTAL DE DOWNLOAD -->
+            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-fuchsia-500 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold flex items-center text-fuchsia-400 gap-2">
+                            <i class="fas fa-globe"></i> Apresentação do Portal de Download
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Configure o texto de apresentação gigante (ex: os 6 pilares de recursos) que será exibido apenas na página de download do aplicativo.</p>
                     </div>
                 </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Texto de Apresentação Completo</label>
+                        <textarea id="portal-content" class="input-field h-64 md:h-80 resize-y leading-relaxed text-sm text-slate-300" placeholder="O Portal Escolar Premium é agora uma plataforma completa...&#10;&#10;1. Gestão Inteligente de Horários&#10;..."></textarea>
+                    </div>
 
-                <button onclick="saveData('terms')" id="btn-save-terms" class="btn-dynamic w-full !bg-indigo-600 hover:!bg-indigo-750 py-3 text-lg" disabled>
-                    <i class="fas fa-file-signature"></i> Salvar e Registrar Nova Versão dos Termos
-                </button>
-            </div>
-        </section>
-    </div>
+                    <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-750 py-3 text-lg" disabled>
+                        <i class="fas fa-save"></i> Sincronizar Apresentação do Portal
+                    </button>
+                </div>
+            </section>
+        </div>
 
     <!-- Toast Notification -->
     <div id="toast">
@@ -992,6 +992,7 @@
             document.getElementById('btn-save-links').disabled = disabled;
             document.getElementById('btn-save-mural').disabled = disabled;
             document.getElementById('btn-save-terms').disabled = disabled;
+            document.getElementById('btn-save-portal').disabled = disabled;
             document.getElementById('btn-add-user-manual').disabled = disabled;
             document.getElementById('btn-neutralize-mural').disabled = disabled;
         }
@@ -1110,6 +1111,11 @@
                         } else {
                             document.getElementById('terms-action-silent').checked = true;
                         }
+                    }
+
+                    // 8. Portal de Download
+                    if(data.portal) {
+                        document.getElementById('portal-content').value = data.portal.content || '';
                     }
 
                     loadedUserConfigs = data.usuarios_config || {};
@@ -1606,6 +1612,12 @@
                         content: document.getElementById('terms-content').value,
                         version: document.getElementById('terms-version').value,
                         updateAction: action,
+                        updatedAt: Date.now()
+                    };
+                }
+                else if (section === 'portal') {
+                    dataToSave = {
+                        content: document.getElementById('portal-content').value,
                         updatedAt: Date.now()
                     };
                 }
