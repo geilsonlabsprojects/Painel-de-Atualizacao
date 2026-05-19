@@ -149,7 +149,7 @@
     </div>
 
     <!-- Ecrã de Login -->
-    <div id="login-screen" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="login-screen" class="fixed inset-0 bg-slate-955 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="glass-card max-w-md w-full rounded-2xl p-8 shadow-2xl border border-slate-850 text-center">
             <div class="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
                 <i class="fas fa-shield-halved text-3xl"></i>
@@ -161,7 +161,7 @@
                 <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Erro de Domínio Não Autorizado!</p>
                 <p class="mb-2">O Firebase bloqueou o login porque este domínio não está registado como fidedigno.</p>
                 <p class="font-semibold text-white">Como resolver:</p>
-                <ol class="list-decimal list-inside ml-1 mt-1 space-y-1 text-slate-350">
+                <ol class="list-decimal list-inside ml-1 mt-1 space-y-1 text-slate-355">
                     <li>Aceda ao seu painel do Firebase Console.</li>
                     <li>Vá a <strong class="text-white">Authentication</strong> ➔ <strong class="text-white">Settings</strong> ➔ <strong class="text-white">Authorized domains</strong>.</li>
                     <li>Adicione o domínio desta página para autorizar a autenticação.</li>
@@ -179,7 +179,7 @@
     <!-- Conteúdo Principal do Painel -->
     <div id="main-content" class="max-w-7xl mx-auto hidden">
         <!-- Header -->
-        <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-8 pb-5 border-b border-slate-850 gap-5">
+        <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-8 pb-5 border-b border-slate-855 gap-5">
             <div>
                 <h1 class="text-3.5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-450 via-indigo-400 to-emerald-400 flex items-center gap-2">
                     <i class="fas fa-sliders text-blue-500"></i> Painel Multicontrole Pro
@@ -201,7 +201,7 @@
                     <i class="fas fa-circle-notch fa-spin"></i> A ligar...
                 </div>
                 <div id="admin-badge" class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/50"></div>
-                <button id="btn-logout" class="bg-slate-900 hover:bg-red-950/60 text-slate-300 hover:text-red-400 border border-slate-800 py-1.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                <button id="btn-logout" class="bg-slate-900 hover:bg-red-955 text-slate-300 hover:text-red-400 border border-slate-800 py-1.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
                     <i class="fas fa-sign-out-alt"></i> Sair
                 </button>
             </div>
@@ -338,7 +338,7 @@
                                 </div>
                             </label>
 
-                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-red-950/10 rounded-xl border border-red-900/30">
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-red-955 rounded-xl border border-red-900/30">
                                 <span class="text-xs font-bold text-red-350 block mb-1">Obrigatória</span>
                                 <div class="flex items-center justify-between">
                                     <span class="text-[10px] text-red-400/80">Bloquear app</span>
@@ -373,7 +373,7 @@
                             <p class="text-xs text-slate-400 mt-0.5">Gestão central e controlo geral do feed.</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-450 font-bold uppercase">Mural Ativo:</span>
+                            <span class="text-xs text-slate-455 font-bold uppercase">Mural Ativo:</span>
                             <input type="checkbox" id="mural-enabled" class="checkbox-toggle" title="Habilitar/Desabilitar Mural no App">
                         </div>
                     </div>
@@ -773,6 +773,26 @@
                 </div>
             </div>
 
+            <!-- Dica de Configuração Avançada / Caixa de Ajuda de Regras -->
+            <div id="rules-help-box" class="hidden mb-6 p-4 bg-amber-950/40 border border-amber-500/20 rounded-xl">
+                <div class="flex gap-3">
+                    <i class="fas fa-circle-exclamation text-amber-400 text-xl mt-0.5"></i>
+                    <div class="text-sm text-slate-300 text-left">
+                        <p class="font-bold text-amber-300 mb-1">Dica de Configuração Avançada (Realtime Database):</p>
+                        <p class="mb-2">Para habilitar a leitura automática em tempo real dos utilizadores que se registam na sua app, substitua a regra do nó <code>"usuarios"</code> no Firebase Console para permitir que apenas o seu e-mail leia a lista geral:</p>
+                        <pre class="bg-slate-950/85 p-3 rounded-lg text-yellow-400 font-mono text-xs overflow-x-auto leading-relaxed">
+"usuarios": {
+  ".read": "auth != null && auth.token.email === 'geilsomcarlos93@gmail.com'",
+  "$uid": {
+    ".read": "$uid === auth.uid",
+    ".write": "$uid === auth.uid"
+  }
+}</pre>
+                        <p class="mt-1.5 text-xs text-slate-400"><i class="fas fa-info-circle mr-1"></i> Enquanto as regras não forem atualizadas, pode monitorizar utilizadores inserindo e salvando o UID deles manualmente no campo acima.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tabela de Utilizadores -->
             <div class="overflow-x-auto border border-slate-800 rounded-xl">
                 <table class="w-full text-left border-collapse">
@@ -823,7 +843,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <label class="flex items-start cursor-pointer p-3.5 bg-slate-955 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
                             <div class="flex items-center h-5 mt-1">
-                                <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2">
+                                <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-955 border-slate-800 focus:ring-indigo-500 focus:ring-2">
                             </div>
                             <div class="ml-3">
                                 <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
@@ -833,7 +853,7 @@
 
                         <label class="flex items-start cursor-pointer p-3.5 bg-slate-955 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
                             <div class="flex items-center h-5 mt-1">
-                                <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2">
+                                <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-955 border-slate-800 focus:ring-indigo-500 focus:ring-2">
                             </div>
                             <div class="ml-3">
                                 <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
@@ -843,7 +863,7 @@
 
                         <label class="flex items-start cursor-pointer p-3.5 bg-slate-955 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-900/30 transition">
                             <div class="flex items-center h-5 mt-1">
-                                <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-2" checked>
+                                <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-955 border-slate-800 focus:ring-indigo-500 focus:ring-2" checked>
                             </div>
                             <div class="ml-3">
                                 <span class="font-bold text-white text-sm block mb-1">Actualização Silenciosa</span>
@@ -879,10 +899,10 @@
                 <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-750 py-3 text-lg" disabled>
                     <i class="fas fa-save"></i> Guardar Apresentação do Portal
                 </button>
-            </div>
+            </branch>
         </section>
 
-        <!-- NOVO WIDGET: MONITOR DE PROCESSAMENTO DE DADOS (LIVE CONSOLE) -->
+        <!-- MONITOR DE PROCESSAMENTO DE DADOS (LIVE CONSOLE) -->
         <section class="glass-card rounded-2xl p-5 border border-slate-850 mb-8">
             <h3 class="text-xs font-black uppercase text-slate-450 tracking-widest mb-3 flex items-center gap-1.5">
                 <i class="fas fa-terminal text-blue-400"></i> Terminal de Operações em Tempo Real (Simulado)
@@ -941,6 +961,7 @@
         // Escrever mensagens simuladas no Console
         function writeToConsole(message, type = "info") {
             const consoleEl = document.getElementById('live-terminal-console');
+            if (!consoleEl) return;
             const newLog = document.createElement('div');
             const now = new Date().toLocaleTimeString('pt-PT');
             
@@ -1003,7 +1024,7 @@
                     mainContent.classList.remove('hidden');
                     domainErrorMsg.classList.add('hidden');
                     
-                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-450"></i> ${user.displayName || 'Admin'}`;
+                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-455"></i> ${user.displayName || 'Admin'}`;
                     adminBadge.className = "flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20";
                     
                     toggleActionButtons(false);
@@ -1201,6 +1222,7 @@
         // --- SISTEMA MULTI-MURAL & PREVIEW ---
         function renderMuralList() {
             const container = document.getElementById('mural-items-container');
+            if (!container) return;
             const items = Object.entries(allMuralItems);
             
             document.getElementById('mural-count-preview').innerText = `${items.length} Recados`;
@@ -1285,7 +1307,7 @@
                     try {
                         await remove(ref(db, 'dados_app/mural/comunicados'));
                         writeToConsole("Neutralização do Mural realizada pelo administrador.", "warning");
-                        window.showToast("Mural neutralizado com sucesso!");
+                        window.showToast("Mural neutralized com sucesso!");
                         allMuralItems = {};
                         renderMuralList();
                     } catch (error) {
@@ -1421,14 +1443,14 @@
             
             try {
                 const snapshot = await get(ref(db, 'usuarios'));
-                helpBox.classList.add('hidden');
+                if (helpBox) helpBox.classList.add('hidden');
                 
                 if (snapshot.exists()) {
                     registeredUserUIDs = Object.keys(snapshot.val());
                 }
             } catch (err) {
                 console.warn("Utilizadores globais indisponíveis. A usar lista local secundária.");
-                helpBox.classList.remove('hidden');
+                if (helpBox) helpBox.classList.remove('hidden');
             }
 
             const allUIDs = new Set([
@@ -1477,7 +1499,7 @@
                 row.innerHTML = `
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2.5 font-semibold text-xs !bg-slate-950 border-slate-800 max-w-[200px]" placeholder="Criar apelido">
+                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2.5 font-semibold text-xs !bg-slate-955 border-slate-800 max-w-[200px]" placeholder="Criar apelido">
                             <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-300 p-1 bg-teal-500/10 hover:bg-teal-500/20 rounded transition" title="Guardar Apelido">
                                 <i class="fas fa-save text-xs"></i>
                             </button>
