@@ -921,7 +921,29 @@
                     <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-700 py-3 text-lg" disabled>
                         <i class="fas fa-save"></i> Guardar Apresentação do Portal
                     </button>
-                </div> <!-- Correção da tag fechamento incorreta (era </branch>) -->
+                </div>
+            </section>
+
+            <!-- 10. CAIXA DE MENSAGENS DE SUPORTE -->
+            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-sky-500 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold flex items-center text-sky-400 gap-2">
+                            <i class="fas fa-envelope-open-text"></i> Caixa de Entrada do Suporte
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Responda aos pedidos de ajuda enviados através da aplicação de suporte.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="support-pending-badge" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all">0 Pendentes</span>
+                    </div>
+                </div>
+
+                <div id="support-messages-container" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- As mensagens vão aparecer aqui -->
+                    <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
+                        <i class="fas fa-circle-notch fa-spin mr-2"></i> A procurar mensagens...
+                    </div>
+                </div>
             </section>
 
             <!-- MONITOR DE PROCESSAMENTO DE DADOS (LIVE CONSOLE) -->
@@ -981,6 +1003,7 @@
         let loadedUserConfigs = {}; 
         let registeredUserUIDs = [];
         let allMuralItems = {};
+        let allSupportMessages = {};
 
         // --- SISTEMA DE GESTÃO DE UI/UX ---
 
@@ -1295,6 +1318,7 @@
                     
                     writeToConsole("Todos os módulos de dados foram carregados.", "success");
                     await fetchAndRenderUsers();
+                    await fetchAndRenderSupportMessages();
                 } else {
                     statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Sem dados salvos';
                     writeToConsole("Nenhum dado encontrado no nó principal.", "warning");
@@ -1306,6 +1330,142 @@
                 showToast("Erro de leitura.", true);
                 writeToConsole(`Falha crítica de comunicação com base de dados: ${error.message}`, "error");
             }
+        }
+
+        // --- SISTEMA CAIXA DE MENSAGENS (SUPORTE) ---
+        async function fetchAndRenderSupportMessages() {
+            const container = document.getElementById('support-messages-container');
+            const badge = document.getElementById('support-pending-badge');
+            
+            try {
+                writeToConsole("A procurar novas mensagens na base suporte_mensagens...", "info");
+                const snapshot = await get(ref(db, 'suporte_mensagens'));
+                
+                if (snapshot.exists()) {
+                    allSupportMessages = snapshot.val();
+                    renderSupportMessages();
+                } else {
+                    allSupportMessages = {};
+                    container.innerHTML = `
+                        <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
+                            <i class="fas fa-envelope-open mr-2 text-slate-600"></i> Nenhuma mensagem de suporte recebida.
+                        </div>`;
+                    badge.innerText = '0 Pendentes';
+                    badge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+                }
+            } catch (err) {
+                console.error("Erro ao ler suporte_mensagens:", err);
+                container.innerHTML = `<div class="p-6 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar mensagens de suporte.</div>`;
+            }
+        }
+
+        function renderSupportMessages() {
+            const container = document.getElementById('support-messages-container');
+            container.innerHTML = '';
+            
+            const items = Object.entries(allSupportMessages);
+            
+            // Ordenar da mais recente para a mais antiga
+            items.sort((a, b) => new Date(b[1].dataEnvio) - new Date(a[1].dataEnvio));
+
+            let pendingCount = 0;
+
+            items.forEach(([id, msg]) => {
+                const isResolved = msg.status === 'Resolvido';
+                if (!isResolved) pendingCount++;
+
+                const date = new Date(msg.dataEnvio).toLocaleString('pt-PT');
+                
+                // Formatação do E-mail de Resposta (Preenchimento Automático)
+                const subject = encodeURIComponent("Resposta ao Suporte - Portal Escolar");
+                const mailBody = encodeURIComponent(`Olá ${msg.nome},\n\nEm resposta à sua solicitação:\n"${msg.mensagem}"\n\n---\nEscreva a sua resposta aqui...\n`);
+                const mailtoLink = `mailto:${msg.email}?subject=${subject}&body=${mailBody}`;
+
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-xl border transition-all duration-300 ${isResolved ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100' : 'bg-slate-800/60 border-sky-500/40 hover:border-sky-400 shadow-md'}`;
+                
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between gap-3 mb-3">
+                        <div>
+                            <h4 class="font-bold text-white text-sm flex items-center gap-2 mb-0.5">
+                                <i class="fas fa-user-circle text-sky-500"></i> ${msg.nome}
+                                <span class="text-[9px] px-2 py-0.5 rounded uppercase font-black border ${isResolved ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}">
+                                    ${msg.status || 'Aguardando Resposta'}
+                                </span>
+                            </h4>
+                            <a href="mailto:${msg.email}" class="text-xs text-sky-400 hover:text-sky-300 hover:underline transition"><i class="fas fa-envelope mr-1"></i> ${msg.email}</a>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap"><i class="fas fa-clock mr-1"></i> ${date}</span>
+                    </div>
+                    
+                    <div class="bg-slate-950/60 p-3.5 rounded-lg text-slate-300 text-xs mb-4 border border-slate-800/80 leading-relaxed font-medium">
+                        "${msg.mensagem}"
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="${mailtoLink}" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
+                            <i class="fas fa-reply"></i> Responder por E-mail
+                        </a>
+                        
+                        ${!isResolved ? `
+                        <button onclick="toggleSupportStatus('${id}', 'Resolvido')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
+                            <i class="fas fa-check-double"></i> Marcar Resolvido
+                        </button>
+                        ` : `
+                        <button onclick="toggleSupportStatus('${id}', 'Aguardando Resposta')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                            <i class="fas fa-undo"></i> Reabrir Pedido
+                        </button>
+                        `}
+                        
+                        <button onclick="deleteSupportMessage('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto" title="Apagar Mensagem">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Atualiza a badge de contagem de pendências
+            const badge = document.getElementById('support-pending-badge');
+            badge.innerText = `${pendingCount} Pendentes`;
+            if (pendingCount > 0) {
+                badge.className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold animate-pulse transition-all";
+            } else {
+                badge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+            }
+        }
+
+        window.toggleSupportStatus = async (id, newStatus) => {
+            try {
+                await update(ref(db, `suporte_mensagens/${id}`), {
+                    status: newStatus
+                });
+                writeToConsole(`Status do ticket ${id} atualizado para: ${newStatus}`, "success");
+                window.showToast("Estado do ticket alterado!");
+                await fetchAndRenderSupportMessages();
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao atualizar o estado do ticket.", true);
+            }
+        }
+
+        window.deleteSupportMessage = async (id) => {
+            window.customConfirm(
+                "Apagar Pedido de Suporte?",
+                "Tem a certeza absoluta de que deseja eliminar esta mensagem? Esta ação não pode ser desfeita.",
+                async () => {
+                    try {
+                        await remove(ref(db, `suporte_mensagens/${id}`));
+                        writeToConsole(`Mensagem de suporte ${id} eliminada definitivamente.`, "warning");
+                        window.showToast("Mensagem eliminada da base de dados!");
+                        await fetchAndRenderSupportMessages();
+                    } catch (err) {
+                        console.error(err);
+                        window.showToast("Erro ao tentar eliminar a mensagem.", true);
+                    }
+                },
+                true
+            );
         }
 
         // --- SISTEMA MULTI-MURAL & PREVIEW ---
