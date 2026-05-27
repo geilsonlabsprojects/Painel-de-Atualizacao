@@ -32,12 +32,12 @@
             backdrop-filter: blur(16px); 
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05); 
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
         }
         
         .glass-card:hover {
             border-color: rgba(var(--accent-color), 0.3);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--accent-color), 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(var(--accent-color), 0.15);
         }
         
         .input-field { 
@@ -114,6 +114,16 @@
             box-shadow: none !important; 
             opacity: 0.5; 
         }
+
+        /* Classes de navegação lateral ativa */
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+        .sidebar-item.active {
+            background-color: rgba(var(--accent-color), 0.15);
+            border-left: 4px solid rgb(var(--accent-color));
+            color: white;
+        }
         
         /* Notificação Toast */
         #toast { 
@@ -135,26 +145,24 @@
         #toast.show { bottom: 24px; }
         
         /* Scrollbar Personalizada */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #060913; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgb(var(--accent-color)); }
     </style>
 </head>
-<body id="body-panel" class="min-h-screen p-4 md:p-8 theme-blue relative">
+<body id="body-panel" class="min-h-screen theme-blue relative flex flex-col">
 
     <!-- Efeitos de Brilho Dinâmicos de Fundo -->
     <div class="fixed top-[-15%] left-[-10%] w-[500px] h-[500px] rounded-full mix-blend-screen filter blur-[100px] opacity-20 pointer-events-none z-0 transition-colors duration-700" style="background-color: rgb(var(--accent-color));"></div>
     <div class="fixed bottom-[-15%] right-[-5%] w-[400px] h-[400px] rounded-full mix-blend-screen filter blur-[100px] opacity-10 pointer-events-none z-0 transition-colors duration-700" style="background-color: rgb(var(--accent-color));"></div>
 
-    <!-- Container Principal Relativo (para ficar acima do fundo) -->
-    <div class="relative z-10">
+    <!-- Container Principal Relativo -->
+    <div class="relative z-10 flex-grow flex flex-col">
         <!-- Diálogo de Confirmação Personalizado -->
         <div id="custom-confirm-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[250] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
             <div class="glass-card max-w-md w-full rounded-2xl p-6 border border-slate-800 text-center shadow-2xl transform scale-95 transition-all duration-300" id="custom-confirm-card">
-                <div id="confirm-modal-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border">
-                    <!-- Ícone inserido via JS -->
-                </div>
+                <div id="confirm-modal-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border"></div>
                 <h3 id="confirm-modal-title" class="text-xl font-bold mb-2 text-white">Confirmar Ação</h3>
                 <p id="confirm-modal-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Deseja prosseguir com esta ação administrativa?</p>
                 <div class="flex gap-3">
@@ -181,7 +189,6 @@
                     <ol class="list-decimal list-inside ml-1 mt-1 space-y-1 text-slate-300">
                         <li>Aceda ao seu painel do Firebase Console.</li>
                         <li>Vá a <strong class="text-white">Authentication</strong> ➔ <strong class="text-white">Settings</strong> ➔ <strong class="text-white">Authorized domains</strong>.</li>
-                        <li>Adicione o domínio desta página para autorizar a autenticação.</li>
                     </ol>
                 </div>
 
@@ -194,243 +201,370 @@
         </div>
 
         <!-- Conteúdo Principal do Painel -->
-        <div id="main-content" class="max-w-7xl mx-auto hidden">
-            <!-- Header -->
-            <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-8 pb-5 border-b border-slate-800 gap-5 relative z-20">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 flex items-center gap-2">
-                        <i class="fas fa-sliders text-blue-500 drop-shadow-md"></i> Painel Multicontrole Pro
-                    </h1>
-                    <p class="text-slate-400 mt-1 text-sm">Controlo dinâmico e monitorização em tempo real de dados em <code class="text-blue-300 bg-blue-500/10 px-1.5 rounded">/dados_app</code></p>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-4">
-                    <!-- Seletor de Temas Dinâmico -->
-                    <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 shadow-inner">
-                        <span class="text-[11px] font-bold uppercase text-slate-400 px-2">Tema:</span>
-                        <button onclick="changeTheme('blue')" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-110 transition border-2 border-white/20 shadow-md" title="Azul"></button>
-                        <button onclick="changeTheme('emerald')" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition border-2 border-white/20 shadow-md" title="Esmeralda"></button>
-                        <button onclick="changeTheme('purple')" class="w-6 h-6 rounded-full bg-purple-500 hover:scale-110 transition border-2 border-white/20 shadow-md" title="Roxo"></button>
-                        <button onclick="changeTheme('rose')" class="w-6 h-6 rounded-full bg-rose-500 hover:scale-110 transition border-2 border-white/20 shadow-md" title="Rosa"></button>
+        <div id="main-content" class="w-full max-w-[1600px] mx-auto hidden flex flex-col lg:flex-row flex-grow">
+            
+            <!-- BARRA LATERAL DE NAVEGAÇÃO -->
+            <aside class="w-full lg:w-72 bg-slate-950/95 border-b lg:border-b-0 lg:border-r border-slate-800 p-5 flex flex-col justify-between gap-6 shrink-0">
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-slate-800/80">
+                        <div class="w-10 h-10 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-extrabold text-white text-sm tracking-wide">Portal Administrativo</h2>
+                            <span class="text-[10px] text-slate-400 font-medium">Sincronização em tempo real</span>
+                        </div>
                     </div>
 
-                    <div id="connection-status" class="flex items-center gap-2 text-xs font-semibold text-amber-400 bg-amber-400/10 px-3 py-1.5 rounded-full border border-amber-400/20">
-                        <i class="fas fa-circle-notch fa-spin"></i> A ligar...
+                    <!-- Menu de Navegação -->
+                    <nav class="space-y-1.5" id="sidebar-nav">
+                        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60 active">
+                            <i class="fas fa-chart-line w-4"></i> Dashboard Geral
+                        </button>
+                        <button onclick="switchTab('update')" id="tab-btn-update" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-cloud-arrow-down w-4"></i> Atualizações do App
+                        </button>
+                        <button onclick="switchTab('mural')" id="tab-btn-mural" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-clipboard-list w-4"></i> Mural de Notícias
+                        </button>
+                        <button onclick="switchTab('maintenance')" id="tab-btn-maintenance" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-tools w-4"></i> Manutenção & Avisos
+                        </button>
+                        <button onclick="switchTab('system')" id="tab-btn-system" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-sliders w-4"></i> Configuração Básica
+                        </button>
+                        <button onclick="switchTab('users')" id="tab-btn-users" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-user-gear w-4"></i> Gestão de Utilizadores
+                        </button>
+                        <button onclick="switchTab('terms')" id="tab-btn-terms" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60">
+                            <i class="fas fa-file-signature w-4"></i> Termos Legais
+                        </button>
+                        <button onclick="switchTab('support')" id="tab-btn-support" class="sidebar-item w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900/60 relative">
+                            <i class="fas fa-envelope-open-text w-4"></i> Caixa de Suporte
+                            <span id="support-badge-count" class="hidden absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Footer Sidebar com Perfil Admin -->
+                <div class="space-y-4 pt-4 border-t border-slate-800/80">
+                    <div id="admin-profile" class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+                            <i class="fas fa-user text-xs"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 id="admin-display-name" class="text-xs font-bold text-white truncate">Carregando...</h4>
+                            <span class="text-[9px] text-emerald-400 font-semibold block flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Super Admin
+                            </span>
+                        </div>
                     </div>
-                    <div id="admin-badge" class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/50"></div>
-                    <button id="btn-logout" class="bg-slate-900 hover:bg-red-950 text-slate-300 hover:text-red-400 border border-slate-800 hover:border-red-500/50 py-1.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
-                        <i class="fas fa-sign-out-alt"></i> Sair
+                    <button id="btn-logout" class="w-full bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-800 hover:border-red-500/30 py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i> Terminar Sessão
                     </button>
                 </div>
-            </header>
+            </aside>
 
-            <!-- Resumo Rápido / Stats -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="glass-card rounded-2xl p-5 flex items-center justify-between group cursor-default">
+            <!-- ÁREA DO CONTEÚDO PRINCIPAL (DINAAMICO) -->
+            <main class="flex-grow p-4 md:p-8 lg:max-h-screen lg:overflow-y-auto">
+                
+                <!-- HEADER DO CONTEÚDO -->
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-5 border-b border-slate-800">
                     <div>
-                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider mb-1">Versão Activa</span>
-                        <span id="active-version-preview" class="text-2xl font-black text-blue-400 drop-shadow-sm">v0.0.0</span>
+                        <h1 id="current-section-title" class="text-2xl font-black text-white flex items-center gap-2">
+                            <i class="fas fa-chart-line text-blue-500"></i> Dashboard Geral
+                        </h1>
+                        <p id="current-section-desc" class="text-xs text-slate-400 mt-1">Estatísticas, integridade e monitorização em tempo real das definições no Firebase.</p>
                     </div>
-                    <div class="p-3.5 bg-blue-500/10 text-blue-400 rounded-xl group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-300">
-                        <i class="fas fa-code-branch text-xl"></i>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-5 flex items-center justify-between group cursor-default">
-                    <div>
-                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider mb-1">Modo Manutenção</span>
-                        <span id="maintenance-status-preview" class="text-2xl font-black text-amber-500 drop-shadow-sm">Inativo</span>
-                    </div>
-                    <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-xl group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
-                        <i class="fas fa-tools text-xl"></i>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-5 flex items-center justify-between group cursor-default">
-                    <div>
-                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider mb-1">Mural Público</span>
-                        <span id="mural-count-preview" class="text-2xl font-black text-cyan-400 drop-shadow-sm">0 Itens</span>
-                    </div>
-                    <div class="p-3.5 bg-cyan-500/10 text-cyan-400 rounded-xl group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-300">
-                        <i class="fas fa-newspaper text-xl"></i>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-5 flex items-center justify-between group cursor-default">
-                    <div>
-                        <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider mb-1">Aviso Geral</span>
-                        <span id="alert-status-preview" class="text-2xl font-black text-purple-400 drop-shadow-sm">Desativado</span>
-                    </div>
-                    <div class="p-3.5 bg-purple-500/10 text-purple-400 rounded-xl group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-300">
-                        <i class="fas fa-bell text-xl"></i>
-                    </div>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <!-- COLUNA DA ESQUERDA -->
-                <div class="space-y-8">
-                    
-                    <!-- 1. SISTEMA DE ATUALIZAÇÕES -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-blue-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-blue-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex items-center justify-between mb-6 relative z-10">
-                            <h2 class="text-xl font-bold flex items-center text-blue-400 gap-2">
-                                <i class="fas fa-cloud-arrow-down"></i> Atualização do Sistema
+                    <!-- Opções Rápidas -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+                            <button onclick="changeTheme('blue')" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-110 transition border border-white/10" title="Tema Azul"></button>
+                            <button onclick="changeTheme('emerald')" class="w-5 h-5 rounded-full bg-emerald-500 hover:scale-110 transition border border-white/10" title="Tema Esmeralda"></button>
+                            <button onclick="changeTheme('purple')" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-110 transition border border-white/10" title="Tema Roxo"></button>
+                            <button onclick="changeTheme('rose')" class="w-5 h-5 rounded-full bg-rose-500 hover:scale-110 transition border border-white/10" title="Tema Rosa"></button>
+                        </div>
+                        <div id="connection-status" class="flex items-center gap-1.5 text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2.5 py-1.5 rounded-full border border-amber-400/20">
+                            <i class="fas fa-circle-notch fa-spin"></i> A Ligar...
+                        </div>
+                    </div>
+                </header>
+
+                <!-- SECTION 1: DASHBOARD GERAL -->
+                <div id="sec-dashboard" class="tab-content space-y-6">
+                    <!-- Cards Rápidos de Estado -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div class="glass-card rounded-2xl p-5 flex items-center justify-between group">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Versão Ativa</span>
+                                <span id="active-version-preview" class="text-2xl font-black text-blue-400">v0.0.0</span>
+                            </div>
+                            <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl group-hover:scale-110 transition duration-300">
+                                <i class="fas fa-code-branch text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-5 flex items-center justify-between group">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Modo Manutenção</span>
+                                <span id="maintenance-status-preview" class="text-2xl font-black text-amber-500">Inativo</span>
+                            </div>
+                            <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl group-hover:scale-110 transition duration-300">
+                                <i class="fas fa-tools text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-5 flex items-center justify-between group">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Comunicados</span>
+                                <span id="mural-count-preview" class="text-2xl font-black text-cyan-400">0 Items</span>
+                            </div>
+                            <div class="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl group-hover:scale-110 transition duration-300">
+                                <i class="fas fa-newspaper text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-5 flex items-center justify-between group">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Avisos In-App</span>
+                                <span id="alert-status-preview" class="text-2xl font-black text-purple-400">Inativo</span>
+                            </div>
+                            <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl group-hover:scale-110 transition duration-300">
+                                <i class="fas fa-bell text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumos e Métricas Integradas -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Estado de Registos de Utilizadores -->
+                        <div class="glass-card rounded-2xl p-6 lg:col-span-2 space-y-4">
+                            <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-users-viewfinder text-teal-400"></i> Integridade dos Utilizadores Ativos
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-center">
+                                    <span class="text-[10px] text-slate-400 uppercase font-black block tracking-wider mb-1">Total Monitorizado</span>
+                                    <span id="dash-user-total" class="text-xl font-bold text-white">0</span>
+                                </div>
+                                <div class="bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/20 text-center">
+                                    <span class="text-[10px] text-emerald-400 uppercase font-black block tracking-wider mb-1">Acessos Ativos</span>
+                                    <span id="dash-user-active" class="text-xl font-bold text-emerald-400">0</span>
+                                </div>
+                                <div class="bg-red-950/20 p-4 rounded-xl border border-red-500/20 text-center">
+                                    <span class="text-[10px] text-red-400 uppercase font-black block tracking-wider mb-1">Acessos Bloqueados</span>
+                                    <span id="dash-user-blocked" class="text-xl font-bold text-red-400">0</span>
+                                </div>
+                            </div>
+                            <!-- Barra Visual Dinâmica de Distribuição -->
+                            <div class="space-y-1.5 pt-2">
+                                <div class="flex justify-between text-[11px] text-slate-400 font-semibold">
+                                    <span>Percentagem de Utilizadores Seguros / Livres</span>
+                                    <span id="user-ratio-percentage" class="text-emerald-400">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
+                                    <div id="user-ratio-bar-active" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                    <div id="user-ratio-bar-blocked" class="bg-red-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado Rápido do Servidor e Configs -->
+                        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-sm font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <i class="fas fa-server text-indigo-400"></i> Estado do Servidor
+                                </h3>
+                                <div class="space-y-3.5">
+                                    <div class="flex justify-between items-center bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50">
+                                        <span class="text-xs text-slate-400 font-semibold">Base de Dados Realtime</span>
+                                        <span class="flex items-center gap-1.5 text-xs text-emerald-400 font-black">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Ativo
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50">
+                                        <span class="text-xs text-slate-400 font-semibold">Inscrições na App</span>
+                                        <span id="dash-status-reg" class="text-xs font-black">Carregando...</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50">
+                                        <span class="text-xs text-slate-400 font-semibold">Pedidos de Suporte</span>
+                                        <span id="dash-status-support" class="text-xs font-black text-amber-400">0 Pendentes</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="switchTab('system')" class="mt-4 w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 py-2.5 rounded-xl text-xs font-bold text-slate-300 transition-all">
+                                Configurar Infraestrutura
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Log do Live Terminal Console integrado -->
+                    <div class="glass-card rounded-2xl p-5 border border-slate-800">
+                        <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-1.5">
+                            <i class="fas fa-terminal text-blue-400 animate-pulse"></i> Terminal de Operações em Tempo Real
+                        </h3>
+                        <div id="live-terminal-console" class="bg-black/90 rounded-xl p-4 font-mono text-[11px] text-blue-300/90 h-36 overflow-y-auto space-y-1 select-none border border-slate-800 custom-scrollbar">
+                            <div>[SISTEMA] Painel Inicializado de forma segura. SSL Protegido.</div>
+                            <div>[SISTEMA] Ligando ao Nó principal Firebase...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: SISTEMA DE ATUALIZAÇÕES -->
+                <div id="sec-update" class="tab-content hidden">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-blue-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <h2 class="text-lg font-bold text-blue-400 flex items-center gap-2">
+                                <i class="fas fa-cloud-arrow-down"></i> Emitir Novo Lançamento APK
                             </h2>
-                            <span class="bg-blue-500/10 text-blue-400 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-blue-500/20">Distribuição</span>
+                            <span class="text-[10px] font-extrabold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">Módulo de Deploy</span>
                         </div>
-                        
-                        <div class="space-y-4 relative z-10">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Código da Versão</label>
-                                    <input type="number" id="upd-code" class="input-field font-mono" placeholder="Ex: 28">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Nome da Versão</label>
-                                    <input type="text" id="upd-name" class="input-field font-mono" placeholder="Ex: 2.8.1" oninput="document.getElementById('active-version-preview').innerText = 'v' + (this.value || '0.0.0')">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Canal de Lançamento</label>
-                                    <select id="upd-channel" class="input-field font-semibold text-slate-200">
-                                        <option value="stable">Estável (Produção)</option>
-                                        <option value="beta">Beta Público</option>
-                                        <option value="alpha">Alpha Restrito</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Título do Alerta</label>
-                                    <input type="text" id="upd-title" class="input-field" placeholder="Nova versão disponível!">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Texto do Botão</label>
-                                    <input type="text" id="upd-btn-text" class="input-field" placeholder="Baixar Agora">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Tamanho do APK</label>
-                                    <input type="text" id="upd-size" class="input-field" placeholder="Ex: 18.5 MB">
-                                </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Mínimo Android SDK</label>
-                                    <input type="text" id="upd-min-sdk" class="input-field" placeholder="Android 8.0 (API 26)">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Rollout (Liberação Gradual)</label>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <input type="range" id="upd-rollout" min="0" max="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="this.nextElementSibling.innerText = this.value + '%'">
-                                        <span class="text-xs font-black text-blue-400 w-12 text-right">100%</span>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Changelog (Novidades)</label>
-                                <textarea id="upd-desc" class="input-field h-24 text-sm resize-y" placeholder="• Correções e melhorias gerais"></textarea>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Código da Versão (Inteiro)</label>
+                                <input type="number" id="upd-code" class="input-field font-mono" placeholder="Ex: 29">
                             </div>
-
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Link de Download do APK</label>
-                                <input type="url" id="upd-url" class="input-field" placeholder="https://...">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Nome da Versão (String)</label>
+                                <input type="text" id="upd-name" class="input-field font-mono" placeholder="Ex: 2.9.0">
                             </div>
-
-                            <!-- Opções adicionais de atualização -->
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                                <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
-                                    <span class="text-xs font-bold block mb-1">Exibir Alerta</span>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] text-slate-400">Popup activo</span>
-                                        <input type="checkbox" id="upd-show" class="checkbox-toggle">
-                                    </div>
-                                </label>
-
-                                <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
-                                    <span class="text-xs font-bold block mb-1">Permitir Ignorar</span>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] text-slate-400">Permite fechar</span>
-                                        <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
-                                    </div>
-                                </label>
-
-                                <label class="flex flex-col justify-between cursor-pointer p-3 bg-red-950/40 rounded-xl border border-red-900/50 hover:border-red-500 transition">
-                                    <span class="text-xs font-bold text-red-400 block mb-1">Obrigatória</span>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] text-red-400/80">Bloquear app</span>
-                                        <input type="checkbox" id="upd-force" class="checkbox-toggle">
-                                    </div>
-                                </label>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Canal de Lançamento</label>
+                                <select id="upd-channel" class="input-field font-semibold text-slate-200">
+                                    <option value="stable">Estável (Produção)</option>
+                                    <option value="beta">Beta Público</option>
+                                    <option value="alpha">Alpha Restrito</option>
+                                </select>
                             </div>
+                        </div>
 
-                            <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-slate-600 transition">
-                                <div>
-                                    <span class="text-sm font-semibold">Exigir Wi-Fi para download</span>
-                                    <p class="text-[11px] text-slate-400">Recomenda download apenas em rede sem fios.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Título do Alerta</label>
+                                <input type="text" id="upd-title" class="input-field" placeholder="Ex: Atualização Obrigatória!">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Texto do Botão de Ação</label>
+                                <input type="text" id="upd-btn-text" class="input-field" placeholder="Descarregar Agora">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Tamanho do Ficheiro APK</label>
+                                <input type="text" id="upd-size" class="input-field" placeholder="Ex: 19.8 MB">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Mínimo Android SDK Requerido</label>
+                                <input type="text" id="upd-min-sdk" class="input-field" placeholder="Android 9.0 (API 28)">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Percentagem de Rollout Gradual</label>
+                                <div class="flex items-center gap-3 mt-1.5">
+                                    <input type="range" id="upd-rollout" min="0" max="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="this.nextElementSibling.innerText = this.value + '%'">
+                                    <span class="text-xs font-black text-blue-400 w-12 text-right">100%</span>
                                 </div>
-                                <input type="checkbox" id="upd-wifi" class="checkbox-toggle">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Changelog (Lista de Novidades)</label>
+                            <textarea id="upd-desc" class="input-field h-24 text-sm resize-y" placeholder="• Adicionadas novas salas de aula virtuais&#10;• Otimização de desempenho na resposta das notificações"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Endereço de Download (URL do APK)</label>
+                            <input type="url" id="upd-url" class="input-field" placeholder="https://...">
+                        </div>
+
+                        <!-- Opções Extras -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
+                                <span class="text-xs font-bold block mb-1">Exibir Alerta na Entrada</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-slate-400">Popup ativo</span>
+                                    <input type="checkbox" id="upd-show" class="checkbox-toggle">
+                                </div>
                             </label>
-
-                            <div class="pt-2">
-                                <button onclick="saveData('update')" id="btn-save-update" class="btn-dynamic w-full" disabled>
-                                    <i class="fas fa-cloud-arrow-up"></i> Publicar Atualização e Sincronizar
-                                </button>
-                            </div>
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
+                                <span class="text-xs font-bold block mb-1">Permitir Cancelamento</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-slate-400">Pode ignorar</span>
+                                    <input type="checkbox" id="upd-cancellable" class="checkbox-toggle" checked>
+                                </div>
+                            </label>
+                            <label class="flex flex-col justify-between cursor-pointer p-3 bg-red-950/40 rounded-xl border border-red-900/50 hover:border-red-500 transition">
+                                <span class="text-xs font-bold text-red-400 block mb-1">Bloqueio Forçado</span>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-red-400/80">Obrigatória</span>
+                                    <input type="checkbox" id="upd-force" class="checkbox-toggle">
+                                </div>
+                            </label>
                         </div>
-                    </section>
 
-                    <!-- 2. MURAL DE NOTÍCIAS AVANÇADO -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-cyan-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-cyan-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-800 relative z-10">
+                        <label class="flex items-center justify-between cursor-pointer p-4.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-slate-600 transition">
                             <div>
-                                <h2 class="text-xl font-bold flex items-center text-cyan-400 gap-2">
-                                    <i class="fas fa-clipboard-list"></i> Mural de Notícias
-                                </h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Gestão central e controlo geral do feed.</p>
+                                <span class="text-xs font-bold block">Recomendar Descarregamento em Wi-Fi</span>
+                                <p class="text-[10px] text-slate-400">Orienta os alunos a usarem ligações de rede sem fios para poupar dados móveis.</p>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs text-slate-300 font-bold uppercase">Mural Ativo:</span>
-                                <input type="checkbox" id="mural-enabled" class="checkbox-toggle" title="Habilitar/Desabilitar Mural no App">
+                            <input type="checkbox" id="upd-wifi" class="checkbox-toggle">
+                        </label>
+
+                        <button onclick="saveData('update')" id="btn-save-update" class="btn-dynamic w-full py-3" disabled>
+                            <i class="fas fa-circle-arrow-up"></i> Publicar Atualização do APK
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: MURAL DE NOTÍCIAS AVANÇADO -->
+                <div id="sec-mural" class="tab-content hidden space-y-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-500 space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-cyan-400 flex items-center gap-2">
+                                    <i class="fas fa-clipboard-list"></i> Mural de Notícias Ativo
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Dispare comunicados rápidos na secção principal do aplicativo.</p>
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
+                                <span class="text-[10px] font-bold text-slate-300">EXIBIR MURAL NO APP:</span>
+                                <input type="checkbox" id="mural-enabled" class="checkbox-toggle">
                             </div>
                         </div>
 
-                        <!-- Botões de Ação Geral (Neutralizar e Pesquisar) -->
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 relative z-10">
-                            <div class="relative flex-1">
-                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                                <input type="text" id="mural-search-input" oninput="filterMural()" class="input-field text-xs pl-10 pr-4" placeholder="Pesquisar recados no mural...">
+                        <!-- Caixa de Filtros Rápidos -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="relative flex-grow">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="mural-search-input" oninput="filterMural()" class="input-field text-xs pl-9" placeholder="Pesquisar por título, autor ou assunto...">
                             </div>
-                            <button onclick="neutralizeAllMuralItems()" id="btn-neutralize-mural" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5" disabled>
-                                <i class="fas fa-trash-can"></i> Neutralizar Tudo
+                            <button onclick="neutralizeAllMuralItems()" id="btn-neutralize-mural" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0" disabled>
+                                <i class="fas fa-trash-can"></i> Limpar Todo o Mural
                             </button>
                         </div>
 
-                        <!-- Layout com Live Preview do App -->
-                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6 relative z-10">
-                            <!-- Formulário -->
-                            <div class="xl:col-span-2 bg-slate-900/60 rounded-xl p-4 border border-slate-800 space-y-4 shadow-inner">
-                                <h3 id="mural-form-title" class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-                                    <i class="fas fa-plus text-cyan-400 animate-pulse"></i> Criar Comunicado
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                            <!-- Formulário de Criação -->
+                            <div class="xl:col-span-2 space-y-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+                                <h3 id="mural-form-title" class="text-xs font-extrabold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fas fa-circle-plus text-cyan-400"></i> Criar Novo Recado
                                 </h3>
                                 <input type="hidden" id="mural-edit-id">
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Título do Recado</label>
-                                        <input type="text" id="mural-title" class="input-field text-xs" oninput="updateMuralLivePreview()" placeholder="Ex: Alteração de Sala">
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Título do Recado</label>
+                                        <input type="text" id="mural-title" class="input-field text-xs" oninput="updateMuralLivePreview()" placeholder="Ex: Alteração de Horário">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Autor</label>
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Autor / Emissor</label>
                                         <input type="text" id="mural-author" class="input-field text-xs" oninput="updateMuralLivePreview()" placeholder="Ex: Direção Geral">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Categoria</label>
-                                        <select id="mural-category" class="input-field text-xs font-semibold text-cyan-400" onchange="updateMuralLivePreview()">
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Categoria</label>
+                                        <select id="mural-category" class="input-field text-xs font-semibold" onchange="updateMuralLivePreview()">
                                             <option value="Aviso">Aviso Geral</option>
                                             <option value="Urgente">🚨 Urgente</option>
                                             <option value="Novidade">✨ Novidade</option>
@@ -438,371 +572,354 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Ativo (Dias)</label>
-                                        <input type="number" id="mural-expiry" class="input-field text-xs" placeholder="7" value="7">
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Duração (Dias Ativos)</label>
+                                        <input type="number" id="mural-expiry" class="input-field text-xs font-mono" value="7">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Cor Visual</label>
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Esquema de Cores</label>
                                         <select id="mural-color" class="input-field text-xs" onchange="updateMuralLivePreview()">
-                                            <option value="blue">Azul</option>
-                                            <option value="red">Vermelho</option>
-                                            <option value="emerald">Verde</option>
-                                            <option value="yellow">Amarelo</option>
-                                            <option value="purple">Roxo</option>
+                                            <option value="blue">Azul Escolar</option>
+                                            <option value="red">Vermelho Alerta</option>
+                                            <option value="emerald">Verde Confirmação</option>
+                                            <option value="yellow">Amarelo Atenção</option>
+                                            <option value="purple">Roxo Especial</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Conteúdo do Aviso</label>
-                                    <textarea id="mural-content" class="input-field h-20 text-xs resize-y" oninput="updateMuralLivePreview()" placeholder="Texto informativo do recado..."></textarea>
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Conteúdo do Recado</label>
+                                    <textarea id="mural-content" class="input-field text-xs h-20 resize-y" oninput="updateMuralLivePreview()" placeholder="Escreva de forma clara a mensagem..."></textarea>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">URL da Imagem</label>
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Link de Imagem (Opcional)</label>
                                         <input type="url" id="mural-image" class="input-field text-xs" oninput="updateMuralLivePreview()" placeholder="https://...">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Link de Ação</label>
+                                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Link de Redirecionamento (Opcional)</label>
                                         <input type="url" id="mural-action-url" class="input-field text-xs" placeholder="https://...">
                                     </div>
                                 </div>
 
-                                <div class="flex gap-2 pt-1">
-                                    <button onclick="saveMuralItem()" id="btn-save-mural" class="btn-dynamic flex-1 !py-2 !text-xs !bg-cyan-600 hover:!bg-cyan-700" disabled>
-                                        <i class="fas fa-thumbtack"></i> Fixar no Mural
+                                <div class="flex gap-2">
+                                    <button onclick="saveMuralItem()" id="btn-save-mural" class="btn-dynamic flex-grow !text-xs !bg-cyan-600 hover:!bg-cyan-500" disabled>
+                                        <i class="fas fa-thumbtack"></i> Publicar no Mural
                                     </button>
-                                    <button onclick="clearMuralForm()" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 rounded-xl text-xs font-semibold transition">
-                                        Limpar
+                                    <button onclick="clearMuralForm()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition">
+                                        Limpar Campos
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Live Card Preview -->
-                            <div class="flex flex-col justify-start space-y-2">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center xl:text-left">Visualização em Tempo Real:</span>
-                                
-                                <!-- Card Simulador -->
-                                <div id="mural-live-preview-card" class="p-4 rounded-xl border border-slate-800 bg-[#0f172a] text-left space-y-2 transition-all shadow-xl">
+                            <div class="space-y-3">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center xl:text-left block">Simulação Visual (Mobile):</span>
+                                <div id="mural-live-preview-card" class="p-4 rounded-xl border border-slate-800 bg-[#0f172a] space-y-3 shadow-2xl relative overflow-hidden">
                                     <div class="flex justify-between items-center">
                                         <span id="preview-tag" class="text-[8px] font-black px-2 py-0.5 rounded uppercase border border-blue-500 text-blue-400 bg-blue-500/10">Aviso</span>
                                         <span class="text-[9px] text-slate-500 font-bold">Hoje</span>
                                     </div>
                                     <h4 id="preview-title" class="font-extrabold text-white text-xs truncate">Título do Recado</h4>
-                                    <p class="text-[9px] text-slate-400 font-medium">Por: <span id="preview-author" class="text-cyan-400">Emissor</span></p>
-                                    <p id="preview-content" class="text-[10px] text-slate-300 leading-snug break-words line-clamp-3">O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...</p>
-                                    <div id="preview-image-container" class="hidden h-20 w-full rounded-lg bg-slate-900 overflow-hidden border border-slate-800 mt-2">
+                                    <p class="text-[9px] text-slate-500">Por: <span id="preview-author" class="text-cyan-400 font-semibold">Emissor</span></p>
+                                    <p id="preview-content" class="text-[10px] text-slate-300 leading-relaxed break-words line-clamp-4">O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...</p>
+                                    <div id="preview-image-container" class="hidden h-24 w-full rounded-lg bg-slate-900 overflow-hidden border border-slate-800">
                                         <img id="preview-img-src" src="" class="w-full h-full object-cover">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Lista de Recados Atuais (Sincronizados) -->
-                        <div class="relative z-10">
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center justify-between">
-                                <span>Recados Atuais no Mural</span>
+                        <!-- Lista dos Recados Atualmente Ativos no Sistema -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-xs font-black uppercase tracking-wider text-slate-400 pb-2 border-b border-slate-800">
+                                <span>Recados Publicados Atualmente</span>
                                 <span id="mural-stats-tag" class="text-[10px] text-slate-500">Filtrados em tempo real</span>
-                            </h3>
-                            <div id="mural-items-container" class="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                            </div>
+                            <div id="mural-items-container" class="space-y-3 max-h-96 overflow-y-auto pr-1.5 custom-scrollbar">
                                 <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
-                                    Nenhum comunicado inserido ou carregado no mural.
+                                    A ler os dados do mural...
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
                 </div>
 
-                <!-- COLUNA DA DIREITA -->
-                <div class="space-y-8">
-                    
-                    <!-- 3. MODO MANUTENÇÃO -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-amber-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-amber-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex items-center justify-between mb-4 relative z-10">
+                <!-- SECTION 4: MANUTENÇÃO E AVISOS GLOBAIS -->
+                <div id="sec-maintenance" class="tab-content hidden space-y-6">
+                    <!-- Config do Modo Manutenção -->
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-amber-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                             <div>
-                                <h2 class="text-xl font-bold flex items-center text-amber-400 gap-2">
-                                    <i class="fas fa-gears"></i> Modo Manutenção
+                                <h2 class="text-lg font-bold text-amber-500 flex items-center gap-2">
+                                    <i class="fas fa-gears"></i> Restringir Entrada (Modo Manutenção)
                                 </h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Bloqueio temporário do sistema para manutenção.</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Interrompe o acesso temporário dos alunos por motivos de atualizações estruturais.</p>
                             </div>
-                            <input type="checkbox" id="mnt-enabled" class="checkbox-toggle" onchange="document.getElementById('maintenance-status-preview').innerText = this.checked ? 'Ativo ⚠️' : 'Inativo'; document.getElementById('maintenance-status-preview').className = this.checked ? 'text-2xl font-black text-red-500 drop-shadow-sm' : 'text-2xl font-black text-amber-500 drop-shadow-sm'">
+                            <input type="checkbox" id="mnt-enabled" class="checkbox-toggle" onchange="updateMntBadge(this.checked)">
                         </div>
-                        
-                        <div class="space-y-4 relative z-10">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Título de Alerta na Tela</label>
-                                    <input type="text" id="mnt-title" class="input-field" placeholder="Ex: Servidores em Manutenção">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Previsão de Retorno (ETA)</label>
-                                    <input type="text" id="mnt-eta" class="input-field" placeholder="Ex: Hoje às 18:30h">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Mensagem Descritiva para os utilizadores</label>
-                                <textarea id="mnt-msg" class="input-field h-20 text-sm resize-y" placeholder="Ex: Estamos a realizar uma manutenção preventiva para melhorar o desempenho..."></textarea>
-                            </div>
 
-                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-amber-500/50 transition">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Título de Bloqueio no Ecrã</label>
+                                <input type="text" id="mnt-title" class="input-field" placeholder="Ex: Servidores em Manutenção">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Previsão Estimada de Retorno (ETA)</label>
+                                <input type="text" id="mnt-eta" class="input-field" placeholder="Ex: Hoje às 19:30h">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Mensagem Detalhada aos Alunos</label>
+                            <textarea id="mnt-msg" class="input-field h-20 text-sm resize-y" placeholder="Explique resumidamente o motivo da manutenção preventiva..."></textarea>
+                        </div>
+
+                        <label class="flex items-center justify-between cursor-pointer p-4 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-amber-500/50 transition">
+                            <div>
+                                <span class="text-xs font-bold text-amber-400 block">Ignorar Administradores</span>
+                                <p class="text-[10px] text-slate-400 leading-relaxed mt-0.5">As contas autorizadas continuam a conseguir navegar na aplicação para efetuar testes em tempo real.</p>
+                            </div>
+                            <input type="checkbox" id="mnt-bypass-admins" class="checkbox-toggle" checked>
+                        </label>
+
+                        <button onclick="saveData('maintenance')" id="btn-save-maintenance" class="btn-dynamic w-full !bg-amber-600 hover:!bg-amber-500" disabled>
+                            <i class="fas fa-circle-check"></i> Sincronizar Estado de Manutenção
+                        </button>
+                    </div>
+
+                    <!-- Avisos Globais em Banner Flutuante -->
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-purple-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-purple-400 flex items-center gap-2">
+                                    <i class="fas fa-bullhorn"></i> Transmissão de Alertas Globais (In-App)
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Exibe um banner flutuante em cima de todos os ecrãs do aplicativo.</p>
+                            </div>
+                            <input type="checkbox" id="msg-enabled" class="checkbox-toggle" onchange="updateMsgBadge(this.checked)">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Título da Notificação</label>
+                                <input type="text" id="msg-title" class="input-field" placeholder="Ex: Comunicado Urgente!">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Nível Visual de Impacto</label>
+                                <select id="msg-style" class="input-field text-slate-200 font-semibold">
+                                    <option value="info">Informação Padrão (Azul)</option>
+                                    <option value="warning">Aviso Moderado (Amarelo)</option>
+                                    <option value="danger">Crítico / Importante (Vermelho)</option>
+                                    <option value="success">Sucesso / Informativo (Verde)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Texto Descritivo de Suporte</label>
+                            <textarea id="msg-text" class="input-field h-20 text-sm resize-y" placeholder="Escreva de forma compacta e objetiva o que os alunos precisam de saber..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Endereço do Botão de Redirecionamento (Opcional)</label>
+                                <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Rótulo do Botão</label>
+                                <input type="text" id="msg-action-text" class="input-field" placeholder="Ver detalhes">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-purple-500/50 transition">
                                 <div>
-                                    <span class="text-sm font-semibold text-amber-400">Liberar Administradores</span>
-                                    <p class="text-[11px] text-slate-400 leading-snug">Contas autorizadas mantêm acesso de teste durante a manutenção.</p>
+                                    <span class="text-xs font-bold block">Permitir Dispensar</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Deixa o utilizador fechar o aviso para continuar a navegar.</p>
                                 </div>
-                                <input type="checkbox" id="mnt-bypass-admins" class="checkbox-toggle" checked>
+                                <input type="checkbox" id="msg-dismissible" class="checkbox-toggle" checked>
+                            </label>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Máximo de Visualizações por Aparelho</label>
+                                <input type="number" id="msg-max-views" class="input-field font-mono" value="3">
+                            </div>
+                        </div>
+
+                        <button onclick="saveData('messages')" id="btn-save-messages" class="btn-dynamic w-full !bg-purple-600 hover:!bg-purple-500" disabled>
+                            <i class="fas fa-paper-plane"></i> Propagar Alerta Geral
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: CONFIGURAÇÕES GERAIS DO SISTEMA -->
+                <div id="sec-system" class="tab-content hidden space-y-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fas fa-sliders"></i> Parâmetros Operacionais da Aplicação
+                            </h2>
+                            <span class="text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">Sistema</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Nome Oficial do Aplicativo</label>
+                                <input type="text" id="sys-name" class="input-field" placeholder="Meu App">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Correio Eletrónico Principal (Admin)</label>
+                                <input type="email" id="sys-admin-email" class="input-field" placeholder="adm@app.com">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
+                                <div>
+                                    <span class="font-bold text-xs">Estado do Servidor Central</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Desmarque para simular uma quebra geral de rede ou indisponibilidade de API.</p>
+                                </div>
+                                <input type="checkbox" id="sys-status" class="checkbox-toggle" checked>
                             </label>
 
-                            <button onclick="saveData('maintenance')" id="btn-save-maintenance" class="btn-dynamic w-full !bg-amber-600 hover:!bg-amber-700" disabled>
-                                <i class="fas fa-circle-check"></i> Salvar Estado de Manutenção
-                            </button>
+                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
+                                <div>
+                                    <span class="font-bold text-xs text-emerald-400">Novas Inscrições Abertas</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Determina se novos estudantes podem registar conta a partir do formulário de entrada.</p>
+                                </div>
+                                <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
+                            </label>
                         </div>
-                    </section>
 
-                    <!-- 4. AVISOS GLOBAIS / BANNER IN-APP -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-purple-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-purple-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex items-center justify-between mb-4 relative z-10">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <h2 class="text-xl font-bold flex items-center text-purple-400 gap-2">
-                                    <i class="fas fa-bullhorn"></i> Alertas & Avisos Globais
-                                </h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Exibição de banners flutuantes na App.</p>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Limite Máximo de Upload por Ficheiro</label>
+                                <select id="sys-upload-limit" class="input-field text-slate-200">
+                                    <option value="5">5 Megabytes (MB)</option>
+                                    <option value="10">10 Megabytes (MB)</option>
+                                    <option value="25">25 Megabytes (MB)</option>
+                                    <option value="50">50 Megabytes (MB)</option>
+                                </select>
                             </div>
-                            <input type="checkbox" id="msg-enabled" class="checkbox-toggle" onchange="document.getElementById('alert-status-preview').innerText = this.checked ? 'Ativado 🔔' : 'Desativado'; document.getElementById('alert-status-preview').className = this.checked ? 'text-2xl font-black text-emerald-400 drop-shadow-sm' : 'text-2xl font-black text-purple-400 drop-shadow-sm'">
-                        </div>
-                        
-                        <div class="space-y-4 relative z-10">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Título da Notificação</label>
-                                    <input type="text" id="msg-title" class="input-field" placeholder="Atenção Utilizadores!">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Estilo Visual do Banner</label>
-                                    <select id="msg-style" class="input-field text-slate-200">
-                                        <option value="info">Informação (Azul)</option>
-                                        <option value="warning">Aviso Importante (Amarelo)</option>
-                                        <option value="danger">Crítico / Urgente (Vermelho)</option>
-                                        <option value="success">Sucesso / Festivo (Verde)</option>
-                                    </select>
-                                </div>
-                            </div>
-
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Texto Curto do Alerta</label>
-                                <textarea id="msg-text" class="input-field h-20 text-sm resize-y" placeholder="Escreva uma breve notificação geral..."></textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div class="sm:col-span-2">
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Link do Botão (Opcional)</label>
-                                    <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Texto do Botão</label>
-                                    <input type="text" id="msg-action-text" class="input-field" placeholder="Ver detalhes">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-purple-500/50 transition">
-                                    <div>
-                                        <span class="text-xs font-bold uppercase tracking-wider block text-slate-200">Permitir fechar</span>
-                                        <p class="text-[10px] text-slate-400">Permite ao utilizador fechar o aviso.</p>
-                                    </div>
-                                    <input type="checkbox" id="msg-dismissible" class="checkbox-toggle" checked>
-                                </label>
-                                
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Máximo de Visualizações</label>
-                                    <input type="number" id="msg-max-views" class="input-field font-mono" value="3" placeholder="Ex: 3">
-                                </div>
-                            </div>
-
-                            <button onclick="saveData('messages')" id="btn-save-messages" class="btn-dynamic w-full !bg-purple-600 hover:!bg-purple-700" disabled>
-                                <i class="fas fa-paper-plane"></i> Propagar Alerta Geral
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- 5. CONFIGURAÇÕES GERAIS DO SISTEMA -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-emerald-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-emerald-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex items-center justify-between mb-4 relative z-10">
-                            <div>
-                                <h2 class="text-xl font-bold flex items-center text-emerald-400 gap-2">
-                                    <i class="fas fa-cubes"></i> Definições do App & Sistema
-                                </h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Operações e controle operacional básico.</p>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Limpeza Automática de Registos (Logs)</label>
+                                <select id="sys-cleanup-days" class="input-field text-slate-200">
+                                    <option value="30">Destruir histórico com mais de 30 dias</option>
+                                    <option value="90">Destruir histórico com mais de 90 dias</option>
+                                    <option value="never">Armazenar permanentemente (Manual)</option>
+                                </select>
                             </div>
                         </div>
-                        
-                        <div class="space-y-4 relative z-10">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Nome do Aplicativo</label>
-                                    <input type="text" id="sys-name" class="input-field" placeholder="Meu App">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">E-mail Administrativo</label>
-                                    <input type="email" id="sys-admin-email" class="input-field" placeholder="adm@app.com">
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
-                                    <div>
-                                        <span class="font-bold text-sm text-slate-200">Status do Servidor</span>
-                                        <p class="text-[11px] text-slate-400">Desative para simular queda geral.</p>
-                                    </div>
-                                    <input type="checkbox" id="sys-status" class="checkbox-toggle" checked>
-                                </label>
 
-                                <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
-                                    <div>
-                                        <span class="font-bold text-sm text-emerald-400">Inscrições Abertas</span>
-                                        <p class="text-[11px] text-slate-400">Permitir registo de novas contas.</p>
-                                    </div>
-                                    <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
-                                </label>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Limite de Upload</label>
-                                    <select id="sys-upload-limit" class="input-field text-slate-200">
-                                        <option value="5">5 MB por ficheiro</option>
-                                        <option value="10">10 MB por ficheiro</option>
-                                        <option value="25">25 MB por ficheiro</option>
-                                        <option value="50">50 MB por ficheiro</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Limpeza de Logs</label>
-                                    <select id="sys-cleanup-days" class="input-field text-slate-200">
-                                        <option value="30">Apagar após 30 dias</option>
-                                        <option value="90">Apagar após 90 dias</option>
-                                        <option value="never">Manter logs permanentemente</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <button onclick="saveData('system')" id="btn-save-system" class="btn-dynamic w-full !bg-emerald-600 hover:!bg-emerald-700" disabled>
-                                <i class="fas fa-check-circle"></i> Sincronizar Definições de Sistema
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- 6. REDES SOCIAIS E CANAIS DE SUPORTE -->
-                    <section class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-pink-500 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-10 bg-pink-500/5 rounded-bl-full pointer-events-none"></div>
-                        <div class="flex items-center justify-between mb-4 relative z-10">
-                            <div>
-                                <h2 class="text-xl font-bold flex items-center text-pink-400 gap-2">
-                                    <i class="fas fa-hashtag"></i> Canais de Suporte
-                                </h2>
-                                <p class="text-xs text-slate-400 mt-0.5">Links externos visíveis na aba de suporte do app.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-4 relative z-10">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">
-                                        <i class="fab fa-whatsapp text-green-400 mr-1"></i> WhatsApp de Apoio
-                                    </label>
-                                    <input type="text" id="link-wpp" class="input-field font-mono" placeholder="Ex: 351912345678">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">
-                                        <i class="fab fa-telegram text-sky-400 mr-1"></i> Canal do Telegram
-                                    </label>
-                                    <input type="url" id="link-telegram" class="input-field" placeholder="https://t.me/...">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">
-                                        <i class="fab fa-instagram text-pink-400 mr-1"></i> Instagram Oficial
-                                    </label>
-                                    <input type="url" id="link-insta" class="input-field" placeholder="https://instagram.com/...">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">
-                                        <i class="fab fa-youtube text-red-500 mr-1"></i> Canal do YouTube
-                                    </label>
-                                    <input type="url" id="link-youtube" class="input-field" placeholder="https://youtube.com/...">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">
-                                    <i class="fas fa-earth-americas text-blue-400 mr-1"></i> Site Oficial
-                                </label>
-                                <input type="url" id="link-site" class="input-field" placeholder="https://...">
-                            </div>
-
-                            <button onclick="saveData('links')" id="btn-save-links" class="btn-dynamic w-full !bg-pink-600 hover:!bg-pink-700" disabled>
-                                <i class="fas fa-network-wired"></i> Salvar Canais
-                            </button>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <!-- 7. GESTÃO E BLOQUEIO DE UTILIZADORES -->
-            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-teal-500 mb-8">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-xl font-bold flex items-center text-teal-400 gap-2">
-                            <i class="fas fa-user-gear"></i> Gestão de Utilizadores e Controlo de Acesso
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Atribua apelidos aos códigos UID e restrinja acessos indesejados.</p>
+                        <button onclick="saveData('system')" id="btn-save-system" class="btn-dynamic w-full !bg-emerald-600 hover:!bg-emerald-500" disabled>
+                            <i class="fas fa-floppy-disk"></i> Guardar Definições de Infraestrutura
+                        </button>
                     </div>
-                    
-                    <!-- Barra de Ações Rápidas -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input type="text" id="user-search-input" oninput="filterUsersTable()" class="input-field text-xs pl-10 pr-4 min-w-[200px]" placeholder="Pesquisar por nome/UID...">
+
+                    <!-- Redes Sociais & Suporte da Escola -->
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-pink-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-pink-400 flex items-center gap-2">
+                                    <i class="fas fa-share-nodes"></i> Ligações Sociais & Apoio Direto
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Links externos expostos na aba oficial do aluno.</p>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="new-user-uid" class="input-field text-xs font-mono min-w-[250px]" placeholder="Introduzir UID do utilizador">
-                            <button onclick="addUserManually()" id="btn-add-user-manual" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition" disabled>
-                                <i class="fas fa-user-plus"></i> Registar UID
-                            </button>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
+                                    <i class="fab fa-whatsapp text-green-400 mr-1"></i> WhatsApp Institucional
+                                </label>
+                                <input type="text" id="link-wpp" class="input-field font-mono" placeholder="Ex: 351912345678">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
+                                    <i class="fab fa-telegram text-sky-400 mr-1"></i> Canal ou Grupo Telegram
+                                </label>
+                                <input type="url" id="link-telegram" class="input-field font-mono" placeholder="https://t.me/...">
+                            </div>
                         </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
+                                    <i class="fab fa-instagram text-pink-500 mr-1"></i> Instagram da Escola
+                                </label>
+                                <input type="url" id="link-insta" class="input-field font-mono" placeholder="https://instagram.com/...">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
+                                    <i class="fab fa-youtube text-red-500 mr-1"></i> Canal do YouTube
+                                </label>
+                                <input type="url" id="link-youtube" class="input-field font-mono" placeholder="https://youtube.com/...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
+                                <i class="fas fa-globe text-blue-400 mr-1"></i> Site Oficial do Agrupamento
+                            </label>
+                            <input type="url" id="link-site" class="input-field font-mono" placeholder="https://...">
+                        </div>
+
+                        <button onclick="saveData('links')" id="btn-save-links" class="btn-dynamic w-full !bg-pink-600 hover:!bg-pink-500" disabled>
+                            <i class="fas fa-floppy-disk"></i> Gravar Ligações e Suportes
+                        </button>
                     </div>
                 </div>
 
-                <!-- Resumo Analítico -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 text-center">
-                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 shadow-inner">
-                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Monitorizados</span>
-                        <span id="user-stats-total" class="text-lg font-black text-white">0</span>
-                    </div>
-                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 shadow-inner">
-                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Contas Ativas</span>
-                        <span id="user-stats-active" class="text-lg font-black text-emerald-400">0</span>
-                    </div>
-                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 shadow-inner">
-                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Acessos Bloqueados</span>
-                        <span id="user-stats-blocked" class="text-lg font-black text-red-400">0</span>
-                    </div>
-                </div>
+                <!-- SECTION 6: GESTÃO DE UTILIZADORES -->
+                <div id="sec-users" class="tab-content hidden space-y-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-teal-500 space-y-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-teal-400 flex items-center gap-2">
+                                    <i class="fas fa-users-gear"></i> Credenciais e Monitorização de Utilizadores
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-1">Insira UIDs para associar apelidos e administrar o nível de acesso e bloqueio.</p>
+                            </div>
 
-                <!-- Dica de Configuração -->
-                <div id="rules-help-box" class="hidden mb-6 p-4 bg-amber-900/30 border border-amber-500/30 rounded-xl">
-                    <div class="flex gap-3">
-                        <i class="fas fa-circle-exclamation text-amber-400 text-xl mt-0.5"></i>
-                        <div class="text-sm text-slate-300 text-left">
-                            <p class="font-bold text-amber-400 mb-1">Dica de Configuração Avançada (Realtime Database):</p>
-                            <p class="mb-2 text-slate-300">Para habilitar a leitura automática em tempo real, substitua a regra do nó <code>"usuarios"</code> para permitir que apenas o seu e-mail leia a lista geral:</p>
-                            <pre class="bg-slate-950/80 p-3 rounded-lg text-amber-300 font-mono text-xs overflow-x-auto leading-relaxed border border-amber-500/20">
+                            <!-- Filtros e Adição Manual -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                    <input type="text" id="user-search-input" oninput="filterUsersTable()" class="input-field text-xs pl-9 min-w-[200px]" placeholder="Filtrar por nome/UID...">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="new-user-uid" class="input-field text-xs font-mono min-w-[220px]" placeholder="Introduzir UID do Aluno">
+                                    <button onclick="addUserManually()" id="btn-add-user-manual" class="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition" disabled>
+                                        <i class="fas fa-user-plus"></i> Monitorizar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores Internos -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                            <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 shadow-inner">
+                                <span class="text-[9px] text-slate-400 uppercase font-black block mb-1">Registos de Acesso</span>
+                                <span id="user-stats-total" class="text-xl font-extrabold text-white">0</span>
+                            </div>
+                            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/10 text-center">
+                                <span class="text-[9px] text-emerald-400 uppercase font-black block mb-1">Acessos Permitidos</span>
+                                <span id="user-stats-active" class="text-xl font-extrabold text-emerald-400">0</span>
+                            </div>
+                            <div class="p-4 bg-red-950/20 rounded-xl border border-red-500/10 text-center">
+                                <span class="text-[9px] text-red-400 uppercase font-black block mb-1">Acessos Bloqueados</span>
+                                <span id="user-stats-blocked" class="text-xl font-extrabold text-red-400">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Box Informativa das Regras -->
+                        <div id="rules-help-box" class="hidden p-4 bg-amber-950/30 border border-amber-500/30 rounded-xl flex gap-3 text-left">
+                            <i class="fas fa-triangle-exclamation text-amber-500 text-lg mt-0.5 shrink-0 animate-bounce"></i>
+                            <div class="text-xs text-slate-300">
+                                <p class="font-bold text-amber-400 mb-1">Nota sobre a Leitura Automática (Regras de Segurança):</p>
+                                <p class="mb-2">Para puxar todos os utilizadores em tempo real, garanta que a regra do nó <code>"usuarios"</code> autoriza o seu e-mail administrativo:</p>
+                                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-[10px] text-amber-400 overflow-x-auto leading-relaxed">
 "usuarios": {
   ".read": "auth != null && auth.token.email === 'geilsomcarlos93@gmail.com'",
   "$uid": {
@@ -810,159 +927,131 @@
     ".write": "$uid === auth.uid"
   }
 }</pre>
-                            <p class="mt-2 text-xs text-slate-400"><i class="fas fa-info-circle mr-1"></i> Enquanto as regras não forem atualizadas, pode monitorizar inserindo o UID manualmente.</p>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Gestão de Utilizadores -->
+                        <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900/10">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-800/40 border-b border-slate-800 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                                        <th class="p-4">Apelido Próprio</th>
+                                        <th class="p-4">Identificador Único (UID)</th>
+                                        <th class="p-4 text-center">Estado de Entrada</th>
+                                        <th class="p-4 text-center">Sincronizado</th>
+                                        <th class="p-4 text-right">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-slate-800/40 text-xs">
+                                    <tr>
+                                        <td colspan="5" class="p-8 text-center text-slate-500">
+                                            <i class="fas fa-circle-notch fa-spin mr-1.5"></i> A processar dados dos utilizadores...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tabela de Utilizadores -->
-                <div class="overflow-x-auto border border-slate-800 rounded-xl shadow-inner bg-slate-900/30">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-800/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                <th class="p-4">Apelido Administrativo</th>
-                                <th class="p-4">Identificador (UID)</th>
-                                <th class="p-4 text-center">Estado de Acesso</th>
-                                <th class="p-4 text-center">Última Modificação</th>
-                                <th class="p-4 text-right">Acções</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="divide-y divide-slate-800/50 text-sm text-slate-200">
-                            <tr>
-                                <td colspan="5" class="p-8 text-center text-slate-500">
-                                    <i class="fas fa-circle-notch fa-spin mr-2"></i> A carregar lista de utilizadores...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- SECTION 7: TERMOS LEGAIS & PORTAL -->
+                <div id="sec-terms" class="tab-content hidden space-y-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-indigo-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+                                    <i class="fas fa-file-signature"></i> Termos de Uso & Políticas de Privacidade
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-1">Texto exibido na entrada inicial para aceitação regulamentar de privacidade dos estudantes.</p>
+                            </div>
+                            <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1 rounded-xl border border-slate-800">
+                                <span class="text-[10px] font-bold text-slate-400">VERSÃO:</span>
+                                <input type="text" id="terms-version" class="input-field font-mono !py-1 !px-2 max-w-[80px] text-center text-xs" placeholder="v1.0">
+                            </div>
+                        </div>
+
+                        <div>
+                            <textarea id="terms-content" class="input-field h-64 font-mono text-xs text-slate-300 resize-y custom-scrollbar" placeholder="Introduza aqui os termos legais completos..."></textarea>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <span class="text-[10px] font-bold uppercase text-slate-300">Medida a Tomar ao Gravar a Nova Versão:</span>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
+                                    <input type="radio" name="terms_action" value="force" id="terms-action-force" class="mt-1">
+                                    <div class="ml-3">
+                                        <span class="text-xs font-bold text-white block">Forçar Reassinatura</span>
+                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Exige o consentimento de todos na próxima entrada.</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
+                                    <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="mt-1">
+                                    <div class="ml-3">
+                                        <span class="text-xs font-bold text-white block">Apenas Notificar</span>
+                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Dispara um aviso discreto no ecran sem fechar a navegação.</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
+                                    <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="mt-1" checked>
+                                    <div class="ml-3">
+                                        <span class="text-xs font-bold text-white block">Guardar Silenciosamente</span>
+                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Atualiza o banco sem interromper de forma alguma.</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button onclick="saveData('terms')" id="btn-save-terms" class="btn-dynamic w-full !bg-indigo-600 hover:!bg-indigo-500" disabled>
+                            <i class="fas fa-file-contract"></i> Sincronizar Novos Termos Regulamentares
+                        </button>
+                    </div>
+
+                    <!-- Apresentação do Portal de Download -->
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-fuchsia-500 space-y-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-fuchsia-400 flex items-center gap-2">
+                                <i class="fas fa-globe"></i> Portal de Download Premium
+                            </h2>
+                            <p class="text-[10px] text-slate-400 mt-1">Configuração de apresentação dos recursos para o site público.</p>
+                        </div>
+                        <div>
+                            <textarea id="portal-content" class="input-field h-52 font-mono text-xs text-slate-300 resize-y custom-scrollbar" placeholder="Escreva a descrição do portal público..."></textarea>
+                        </div>
+                        <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-500" disabled>
+                            <i class="fas fa-save"></i> Atualizar Portal de Descarregamento
+                        </button>
+                    </div>
                 </div>
-            </section>
 
-            <!-- 8. GESTÃO DOS TERMOS E CONDIÇÕES -->
-            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-indigo-500 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold flex items-center text-indigo-400 gap-2">
-                            <i class="fas fa-file-signature"></i> Termos de Utilização & Política de Privacidade
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Configuração de termos legais do ecossistema do aplicativo escolar.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-slate-400 uppercase">Versão:</span>
-                        <input type="text" id="terms-version" class="input-field font-mono !py-1 !px-2 max-w-[80px] text-center text-xs" placeholder="v1.0" value="v1.0">
-                    </div>
-                </div>
-                
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Documento Legal Completo</label>
-                        <textarea id="terms-content" class="input-field h-64 md:h-80 resize-y leading-relaxed font-mono text-xs text-slate-300 custom-scrollbar" placeholder="Introduza o conteúdo dos Termos de Utilização aqui..."></textarea>
-                    </div>
+                <!-- SECTION 8: CAIXA DE SUPORTE -->
+                <div id="sec-support" class="tab-content hidden space-y-6">
+                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-sky-500 space-y-6">
+                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                            <div>
+                                <h2 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                                    <i class="fas fa-envelope-open-text"></i> Inbox de Pedidos de Ajuda dos Alunos
+                                </h2>
+                                <p class="text-[10px] text-slate-400 mt-1">Pedidos enviados diretamente da aplicação móvel pelos estudantes com dificuldades.</p>
+                            </div>
+                            <span id="support-pending-badge" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide">0 Pendentes</span>
+                        </div>
 
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 shadow-inner">
-                        <label class="block text-xs font-bold text-slate-300 mb-3 uppercase tracking-wider">Ação após a alteração dos termos:</label>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <label class="flex items-start cursor-pointer p-3.5 bg-slate-900 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-800 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="force" id="terms-action-force" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-700 focus:ring-indigo-500 focus:ring-2">
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Forçar Reaceitação</span>
-                                    <p class="text-xs text-slate-400 leading-snug">Exige que todos os utilizadores ativos assinem os termos de novo.</p>
-                                </div>
-                            </label>
-
-                            <label class="flex items-start cursor-pointer p-3.5 bg-slate-900 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-800 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-700 focus:ring-indigo-500 focus:ring-2">
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Apenas Notificar</span>
-                                    <p class="text-xs text-slate-400 leading-snug">Exibe um aviso discreto no ecrã da app informando as mudanças.</p>
-                                </div>
-                            </label>
-
-                            <label class="flex items-start cursor-pointer p-3.5 bg-slate-900 rounded-xl border border-slate-800 hover:border-indigo-500 hover:bg-slate-800 transition">
-                                <div class="flex items-center h-5 mt-1">
-                                    <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="w-4 h-4 text-indigo-600 bg-slate-900 border-slate-700 focus:ring-indigo-500 focus:ring-2" checked>
-                                </div>
-                                <div class="ml-3">
-                                    <span class="font-bold text-white text-sm block mb-1">Actualização Silenciosa</span>
-                                    <p class="text-xs text-slate-400 leading-snug">Atualiza o texto nas definições sem interromper a navegação.</p>
-                                </div>
-                            </label>
+                        <div id="support-messages-container" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
+                                <i class="fas fa-circle-notch fa-spin mr-2"></i> Procurando tickets pendentes no Firebase...
+                            </div>
                         </div>
                     </div>
-
-                    <button onclick="saveData('terms')" id="btn-save-terms" class="btn-dynamic w-full !bg-indigo-600 hover:!bg-indigo-700 py-3 text-lg" disabled>
-                        <i class="fas fa-file-signature"></i> Guardar Termos de Utilização
-                    </button>
-                </div>
-            </section>
-
-            <!-- 9. APRESENTAÇÃO DO PORTAL DE DOWNLOAD -->
-            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-fuchsia-500 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold flex items-center text-fuchsia-400 gap-2">
-                            <i class="fas fa-globe"></i> Apresentação do Portal de Download
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Configure o texto com a descrição completa e os pilares de recursos do Portal de Download.</p>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Apresentação dos Recursos Escolar Premium</label>
-                        <textarea id="portal-content" class="input-field h-64 md:h-80 resize-y leading-relaxed text-xs text-slate-300 font-mono custom-scrollbar" placeholder="Introduza a descrição detalhada para o portal..."></textarea>
-                    </div>
-
-                    <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-700 py-3 text-lg" disabled>
-                        <i class="fas fa-save"></i> Guardar Apresentação do Portal
-                    </button>
-                </div>
-            </section>
-
-            <!-- 10. CAIXA DE MENSAGENS DE SUPORTE -->
-            <section class="glass-card rounded-2xl p-6 shadow-xl border-t-4 border-t-sky-500 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold flex items-center text-sky-400 gap-2">
-                            <i class="fas fa-envelope-open-text"></i> Caixa de Entrada do Suporte
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Responda aos pedidos de ajuda enviados através da aplicação de suporte.</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span id="support-pending-badge" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all">0 Pendentes</span>
-                    </div>
                 </div>
 
-                <div id="support-messages-container" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                    <!-- As mensagens vão aparecer aqui -->
-                    <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
-                        <i class="fas fa-circle-notch fa-spin mr-2"></i> A procurar mensagens...
-                    </div>
-                </div>
-            </section>
-
-            <!-- MONITOR DE PROCESSAMENTO DE DADOS (LIVE CONSOLE) -->
-            <section class="glass-card rounded-2xl p-5 border border-slate-800 mb-8 shadow-inner">
-                <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-1.5">
-                    <i class="fas fa-terminal text-blue-400"></i> Terminal de Operações em Tempo Real (Simulado)
-                </h3>
-                <div id="live-terminal-console" class="bg-black/90 rounded-xl p-4 font-mono text-[11px] text-blue-300/90 h-32 overflow-y-auto space-y-1 select-none border border-slate-800 custom-scrollbar">
-                    <div>[SISTEMA] Inicializando escuta de dados em dados_app/...</div>
-                    <div>[SISTEMA] Canal seguro SSL ativo.</div>
-                </div>
-            </section>
+            </main>
         </div>
     </div>
 
-    <!-- Toast de Confirmação -->
+    <!-- Toast de Confirmação de Transações -->
     <div id="toast">
         <i class="fas fa-check-circle text-lg"></i>
-        <span id="toast-msg">Salvo com sucesso!</span>
+        <span id="toast-msg">Operação concluída com sucesso!</span>
     </div>
 
     <!-- Firebase SDK Modular e Scripts -->
@@ -971,7 +1060,7 @@
         import { getDatabase, ref, set, get, child, update, remove, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // NOTA: Configurações do Firebase fornecidas mantidas inalteradas.
+        // Configuração original do Firebase mantida
         const firebaseConfig = {
             apiKey: "AIzaSyDGCjBbqtp_TvFeW7ySpLp0QmKjTsTn2Sw",
             authDomain: "horarios-escolar-danisio.firebaseapp.com",
@@ -995,9 +1084,7 @@
         const mainContent = document.getElementById('main-content');
         const btnLoginGoogle = document.getElementById('btn-login-google');
         const btnLogout = document.getElementById('btn-logout');
-        const adminBadge = document.getElementById('admin-badge');
         const statusEl = document.getElementById('connection-status');
-        const activeVersionPreview = document.getElementById('active-version-preview');
         const domainErrorMsg = document.getElementById('domain-error-msg');
 
         let loadedUserConfigs = {}; 
@@ -1005,67 +1092,43 @@
         let allMuralItems = {};
         let allSupportMessages = {};
 
-        // --- SISTEMA DE GESTÃO DE UI/UX ---
-
-        // Função de Alteração de Tema
-        window.changeTheme = (theme) => {
-            const body = document.getElementById('body-panel');
-            body.classList.remove('theme-blue', 'theme-emerald', 'theme-purple', 'theme-rose');
-            body.classList.add(`theme-${theme}`);
-            writeToConsole(`Interface alterada para o tema: ${theme.toUpperCase()}`, "info");
+        // Mapeamento dos títulos das abas da Sidebar
+        const sectionMeta = {
+            dashboard: { title: 'Dashboard Geral', desc: 'Estatísticas de adesão, estado operacional da API e monitorização das instâncias.', icon: 'fa-chart-line text-blue-500' },
+            update: { title: 'Módulo de Lançamento de Atualização', desc: 'Sinalize patches de segurança ou publique novas builds do ficheiro Android (.apk).', icon: 'fa-cloud-arrow-down text-blue-400' },
+            mural: { title: 'Controle de Notícias e Mural Escolar', desc: 'Adicione, altere ou oculte comunicados interativos no ecrã inicial do telemóvel.', icon: 'fa-clipboard-list text-cyan-400' },
+            maintenance: { title: 'Modo de Operação e Segurança', desc: 'Ative alertas globais in-app e configure a barra de bloqueio de manutenção preventiva.', icon: 'fa-tools text-amber-500' },
+            system: { title: 'Infraestrutura da Aplicação', desc: 'Controle parâmetros vitais do sistema, credenciais de administrador e links sociais.', icon: 'fa-sliders text-emerald-400' },
+            users: { title: 'Acessos e Monitorização de Dispositivos', desc: 'Atribua apelidos, remova do painel ou bloqueie acessos persistentes a UIDs identificados.', icon: 'fa-user-gear text-teal-400' },
+            terms: { title: 'Documentação Legal & Portal', desc: 'Edite os termos regulamentares da escola e configure o painel público do portal de downloads.', icon: 'fa-file-signature text-indigo-400' },
+            support: { title: 'Pedidos de Suporte Recebidos', desc: 'Preste ajuda aos alunos respondendo diretamente para os e-mails registados.', icon: 'fa-envelope-open-text text-sky-400' }
         };
 
-        // Função de Confirmação Personalizada
-        window.customConfirm = (title, message, onConfirmCallback, isDestructive = false) => {
-            const modal = document.getElementById('custom-confirm-modal');
-            const card = document.getElementById('custom-confirm-card');
-            const titleEl = document.getElementById('confirm-modal-title');
-            const descEl = document.getElementById('confirm-modal-desc');
-            const btnOk = document.getElementById('confirm-modal-ok');
-            const btnCancel = document.getElementById('confirm-modal-cancel');
-            const iconEl = document.getElementById('confirm-modal-icon');
-
-            titleEl.innerText = title;
-            descEl.innerText = message;
-
-            // Configuração do aspeto mediante o perigo da ação
-            if (isDestructive) {
-                btnOk.className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-all";
-                iconEl.className = "w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20";
-                iconEl.innerHTML = '<i class="fas fa-exclamation-triangle text-2xl animate-bounce"></i>';
-            } else {
-                btnOk.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-all";
-                iconEl.className = "w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20";
-                iconEl.innerHTML = '<i class="fas fa-question-circle text-2xl animate-pulse"></i>';
-            }
-
-            // Exibir o modal com animação
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                card.classList.remove('scale-95');
-                card.classList.add('scale-100');
-            }, 10);
+        // --- NAVEGAÇÃO ENTRE ABAS DA SIDEBAR ---
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             
-            // Limpar event listeners anteriores clonando os botões
-            const newBtnOk = btnOk.cloneNode(true);
-            btnOk.parentNode.replaceChild(newBtnOk, btnOk);
-            const newBtnCancel = btnCancel.cloneNode(true);
-            btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+            const targetSec = document.getElementById(`sec-${tabName}`);
+            const targetBtn = document.getElementById(`tab-btn-${tabName}`);
+            
+            if (targetSec) targetSec.classList.remove('hidden');
+            if (targetBtn) targetBtn.classList.add('active');
 
-            const closeModal = () => {
-                modal.classList.add('opacity-0');
-                card.classList.remove('scale-100');
-                card.classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            };
+            // Atualiza metadados do Header
+            const meta = sectionMeta[tabName];
+            if (meta) {
+                document.getElementById('current-section-title').innerHTML = `<i class="fas ${meta.icon}"></i> ${meta.title}`;
+                document.getElementById('current-section-desc').innerText = meta.desc;
+            }
+            writeToConsole(`Acedeu à secção: ${meta ? meta.title : tabName}`, "info");
+        };
 
-            newBtnOk.addEventListener('click', () => {
-                closeModal();
-                if(onConfirmCallback) onConfirmCallback();
-            });
-
-            newBtnCancel.addEventListener('click', closeModal);
+        // --- ALTERAÇÃO DE TEMA DINÂMICO ---
+        window.changeTheme = (theme) => {
+            const body = document.getElementById('body-panel');
+            body.className = `min-h-screen relative flex flex-col theme-${theme}`;
+            writeToConsole(`Tema de exibição alterado para: ${theme.toUpperCase()}`, "info");
         };
 
         // --- SISTEMA DE LOGS ---
@@ -1086,14 +1149,76 @@
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        // Live Preview do Mural Card em Tempo Real
+        // --- TOAST DE CONFIRMAÇÃO ---
+        window.showToast = (message, isError = false) => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+            
+            const icon = toast.querySelector('i');
+            icon.className = isError ? 'fas fa-exclamation-circle text-lg' : 'fas fa-check-circle text-lg';
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        };
+
+        // --- MODAL DE CONFIRMAÇÃO PERSONALIZADO ---
+        window.customConfirm = (title, message, onConfirmCallback, isDestructive = false) => {
+            const modal = document.getElementById('custom-confirm-modal');
+            const card = document.getElementById('custom-confirm-card');
+            const titleEl = document.getElementById('confirm-modal-title');
+            const descEl = document.getElementById('confirm-modal-desc');
+            const btnOk = document.getElementById('confirm-modal-ok');
+            const btnCancel = document.getElementById('confirm-modal-cancel');
+            const iconEl = document.getElementById('confirm-modal-icon');
+
+            titleEl.innerText = title;
+            descEl.innerText = message;
+
+            if (isDestructive) {
+                btnOk.className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition-all";
+                iconEl.className = "w-14 h-14 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20";
+                iconEl.innerHTML = '<i class="fas fa-triangle-exclamation text-xl animate-bounce"></i>';
+            } else {
+                btnOk.className = "flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-semibold transition-all";
+                iconEl.className = "w-14 h-14 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20";
+                iconEl.innerHTML = '<i class="fas fa-circle-question text-xl animate-pulse"></i>';
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }, 10);
+            
+            const newBtnOk = btnOk.cloneNode(true);
+            btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+            const newBtnCancel = btnCancel.cloneNode(true);
+            btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+
+            const closeModal = () => {
+                modal.classList.add('opacity-0');
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            };
+
+            newBtnOk.addEventListener('click', () => {
+                closeModal();
+                if(onConfirmCallback) onConfirmCallback();
+            });
+
+            newBtnCancel.addEventListener('click', closeModal);
+        };
+
+        // --- SISTEMA LIVE CARD PREVIEW (MURAL) ---
         window.updateMuralLivePreview = () => {
             const title = document.getElementById('mural-title').value || "Título do Recado";
             const author = document.getElementById('mural-author').value || "Emissor";
             const content = document.getElementById('mural-content').value || "O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...";
             const image = document.getElementById('mural-image').value.trim();
             const category = document.getElementById('mural-category').value;
-            const color = document.getElementById('mural-color').value;
 
             document.getElementById('preview-title').innerText = title;
             document.getElementById('preview-author').innerText = author;
@@ -1123,7 +1248,20 @@
             }
         };
 
-        // Escuta de autenticação do Firebase
+        // --- ESCUTAS DAS BADGES DINÂMICAS DE MANT. & MSGS ---
+        window.updateMntBadge = (checked) => {
+            const preview = document.getElementById('maintenance-status-preview');
+            preview.innerText = checked ? 'Ativo ⚠️' : 'Inativo';
+            preview.className = checked ? 'text-2xl font-black text-red-500' : 'text-2xl font-black text-amber-500';
+        };
+
+        window.updateMsgBadge = (checked) => {
+            const preview = document.getElementById('alert-status-preview');
+            preview.innerText = checked ? 'Ativado 🔔' : 'Desativado';
+            preview.className = checked ? 'text-2xl font-black text-emerald-400' : 'text-2xl font-black text-purple-400';
+        };
+
+        // --- ESCUTA DE CONTROLO DE AUTENTICAÇÃO ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 if (user.email === ALLOWED_EMAIL) {
@@ -1131,15 +1269,14 @@
                     mainContent.classList.remove('hidden');
                     domainErrorMsg.classList.add('hidden');
                     
-                    adminBadge.innerHTML = `<i class="fas fa-user-shield text-emerald-400"></i> ${user.displayName || 'Admin'}`;
-                    adminBadge.className = "flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20";
+                    document.getElementById('admin-display-name').innerText = user.displayName || 'Super Administrador';
+                    writeToConsole(`Sessão segura iniciada por: ${user.email}`, "success");
                     
                     toggleActionButtons(false);
-                    writeToConsole(`Autenticação efetuada com sucesso: ${user.email}`, "success");
                     await loadData();
                 } else {
-                    window.showToast("E-mail não autorizado!", true);
-                    writeToConsole(`Invasão ou acesso negado para: ${user.email}`, "error");
+                    window.showToast("Permissão Negada! Email não autorizado.", true);
+                    writeToConsole(`Tentativa de invasão não autorizada por: ${user.email}`, "error");
                     await signOut(auth);
                 }
             } else {
@@ -1149,29 +1286,30 @@
             }
         });
 
+        // Eventos dos botões de Login/Logout
         btnLoginGoogle.addEventListener('click', async () => {
             domainErrorMsg.classList.add('hidden');
-            writeToConsole("Tentativa de login via Google Popup...", "info");
+            writeToConsole("Iniciando requisição de login externo via Google...", "info");
             try {
                 await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("Erro de login:", error);
-                if (error.code === 'auth/unauthorized-domain') {
+            } catch (err) {
+                console.error(err);
+                if (err.code === 'auth/unauthorized-domain') {
                     domainErrorMsg.classList.remove('hidden');
-                    window.showToast("Domínio não autorizado!", true);
-                    writeToConsole("Domínio bloqueado pelo Firebase Auth.", "error");
+                    writeToConsole("Falha crítica de segurança: Domínio não autorizado no console.", "error");
+                    window.showToast("Domínio Rejeitado pelo Firebase Auth!", true);
                 } else {
-                    window.showToast("Falha na autenticação.", true);
+                    window.showToast("Falha ao autenticar sessão.", true);
                 }
             }
         });
 
         btnLogout.addEventListener('click', async () => {
             try {
-                writeToConsole("Logout solicitado pelo utilizador.", "warning");
+                writeToConsole("Finalizando conexão segura com a base de dados.", "warning");
                 await signOut(auth);
-            } catch (error) {
-                console.error("Erro de logout:", error);
+            } catch (err) {
+                console.error(err);
             }
         });
 
@@ -1188,30 +1326,17 @@
             document.getElementById('btn-neutralize-mural').disabled = disabled;
         }
 
-        window.showToast = (message, isError = false) => {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
-            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
-            
-            // Icon adjust
-            const icon = toast.querySelector('i');
-            icon.className = isError ? 'fas fa-exclamation-circle text-lg' : 'fas fa-check-circle text-lg';
-
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
+        // --- CARREGAMENTO DE DADOS DO BANCO REALTIME (FIREBASE) ---
         async function loadData() {
             try {
-                writeToConsole("A obter dados das definições da app...", "info");
-                const dbRef = ref(db);
-                const snapshot = await get(child(dbRef, 'dados_app'));
+                writeToConsole("Efetuando requisição de leitura ao nó dados_app...", "info");
+                const snapshot = await get(ref(db, 'dados_app'));
                 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     
                     // 1. Atualizações
-                    if(data.update) {
+                    if (data.update) {
                         document.getElementById('upd-code').value = data.update.versionCode || '';
                         document.getElementById('upd-name').value = data.update.versionName || '';
                         document.getElementById('upd-title').value = data.update.title || '';
@@ -1221,126 +1346,118 @@
                         document.getElementById('upd-show').checked = data.update.showUpdate || false;
                         document.getElementById('upd-force').checked = data.update.forceUpdate || false;
                         document.getElementById('upd-cancellable').checked = data.update.cancellable !== false;
-                        
                         document.getElementById('upd-channel').value = data.update.channel || 'stable';
                         document.getElementById('upd-size').value = data.update.apkSize || '';
                         document.getElementById('upd-min-sdk').value = data.update.minSdk || '';
+                        
                         document.getElementById('upd-rollout').value = data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100;
                         document.getElementById('upd-rollout').nextElementSibling.innerText = (data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100) + '%';
                         document.getElementById('upd-wifi').checked = data.update.requireWifi || false;
 
-                        activeVersionPreview.innerText = 'v' + (data.update.versionName || '0.0.0');
+                        document.getElementById('active-version-preview').innerText = 'v' + (data.update.versionName || '0.0.0');
                     }
 
                     // 2. Manutenção
-                    if(data.maintenance) {
-                        const mntActive = data.maintenance.enabled || false;
-                        document.getElementById('mnt-enabled').checked = mntActive;
+                    if (data.maintenance) {
+                        const mnt = data.maintenance.enabled || false;
+                        document.getElementById('mnt-enabled').checked = mnt;
                         document.getElementById('mnt-title').value = data.maintenance.title || '';
                         document.getElementById('mnt-msg').value = data.maintenance.message || '';
                         document.getElementById('mnt-eta').value = data.maintenance.eta || '';
                         document.getElementById('mnt-bypass-admins').checked = data.maintenance.bypassAdmins !== false;
-
-                        const previewEl = document.getElementById('maintenance-status-preview');
-                        previewEl.innerText = mntActive ? 'Ativo ⚠️' : 'Inativo';
-                        previewEl.className = mntActive ? 'text-2xl font-black text-red-500 drop-shadow-sm' : 'text-2xl font-black text-amber-500 drop-shadow-sm';
+                        updateMntBadge(mnt);
                     }
 
                     // 3. Avisos Globais
-                    if(data.messages) {
-                        const msgActive = data.messages.enabled || false;
-                        document.getElementById('msg-enabled').checked = msgActive;
+                    if (data.messages) {
+                        const msg = data.messages.enabled || false;
+                        document.getElementById('msg-enabled').checked = msg;
                         document.getElementById('msg-title').value = data.messages.title || '';
                         document.getElementById('msg-text').value = data.messages.message || '';
                         document.getElementById('msg-action-text').value = data.messages.actionText || '';
                         document.getElementById('msg-action-url').value = data.messages.actionUrl || '';
-                        
                         document.getElementById('msg-style').value = data.messages.bannerStyle || 'info';
                         document.getElementById('msg-dismissible').checked = data.messages.dismissible !== false;
                         document.getElementById('msg-max-views').value = data.messages.maxViews || 3;
-
-                        const alertPreview = document.getElementById('alert-status-preview');
-                        alertPreview.innerText = msgActive ? 'Ativado 🔔' : 'Desativado';
-                        alertPreview.className = msgActive ? 'text-2xl font-black text-emerald-400 drop-shadow-sm' : 'text-2xl font-black text-purple-400 drop-shadow-sm';
+                        updateMsgBadge(msg);
                     }
 
                     // 4. Sistema
-                    if(data.system) {
+                    if (data.system) {
                         document.getElementById('sys-name').value = data.system.appName || '';
-                        document.getElementById('sys-status').checked = data.system.serverStatus !== false;
-                        document.getElementById('sys-reg').checked = data.system.allowRegistration !== false;
-                        
+                        const serverStatus = data.system.serverStatus !== false;
+                        document.getElementById('sys-status').checked = serverStatus;
+                        const allowReg = data.system.allowRegistration !== false;
+                        document.getElementById('sys-reg').checked = allowReg;
                         document.getElementById('sys-admin-email').value = data.system.adminEmail || ALLOWED_EMAIL;
                         document.getElementById('sys-upload-limit').value = data.system.uploadLimitMb || '10';
                         document.getElementById('sys-cleanup-days').value = data.system.cleanupDays || 'never';
+
+                        // Dashboard indicators
+                        document.getElementById('dash-status-reg').innerText = allowReg ? 'Aberto' : 'Bloqueado';
+                        document.getElementById('dash-status-reg').className = allowReg ? 'text-xs font-black text-emerald-400' : 'text-xs font-black text-red-400';
                     }
 
                     // 5. Redes e Suporte
-                    if(data.links) {
+                    if (data.links) {
                         document.getElementById('link-wpp').value = data.links.whatsapp || '';
-                        document.getElementById('link-insta').value = data.links.instagram || '';
-                        document.getElementById('link-site').value = data.links.website || '';
-                        
                         document.getElementById('link-telegram').value = data.links.telegram || '';
+                        document.getElementById('link-insta').value = data.links.instagram || '';
                         document.getElementById('link-youtube').value = data.links.youtube || '';
+                        document.getElementById('link-site').value = data.links.website || '';
                     }
 
                     // 6. Mural de Notícias
-                    if(data.mural) {
+                    if (data.mural) {
                         document.getElementById('mural-enabled').checked = data.mural.enabled || false;
                         allMuralItems = data.mural.comunicados || {};
                         renderMuralList();
                     }
 
                     // 7. Termos
-                    if(data.terms) {
+                    if (data.terms) {
                         document.getElementById('terms-content').value = data.terms.content || '';
                         document.getElementById('terms-version').value = data.terms.version || 'v1.0';
                         const action = data.terms.updateAction || 'silent';
-                        if(action === 'force') {
-                            document.getElementById('terms-action-force').checked = true;
-                        } else if(action === 'notify') {
-                            document.getElementById('terms-action-notify').checked = true;
-                        } else {
-                            document.getElementById('terms-action-silent').checked = true;
-                        }
+                        if (action === 'force') document.getElementById('terms-action-force').checked = true;
+                        else if (action === 'notify') document.getElementById('terms-action-notify').checked = true;
+                        else document.getElementById('terms-action-silent').checked = true;
                     }
 
-                    // 8. Portal de Download
-                    if(data.portal) {
+                    // 8. Portal
+                    if (data.portal) {
                         document.getElementById('portal-content').value = data.portal.content || '';
                     }
 
                     loadedUserConfigs = data.usuarios_config || {};
 
-                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Sincronizado com /dados_app';
-                    statusEl.className = "flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20";
+                    statusEl.innerHTML = '<i class="fas fa-circle-check"></i> Sincronizado com /dados_app';
+                    statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1.5 rounded-full border border-emerald-400/20";
+                    writeToConsole("Todos os dados foram descarregados com êxito.", "success");
                     
-                    writeToConsole("Todos os módulos de dados foram carregados.", "success");
                     await fetchAndRenderUsers();
                     await fetchAndRenderSupportMessages();
                 } else {
-                    statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Sem dados salvos';
-                    writeToConsole("Nenhum dado encontrado no nó principal.", "warning");
+                    statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Nó Inicial Desprovido';
+                    writeToConsole("A estrutura dados_app está atualmente vazia.", "warning");
                 }
-            } catch (error) {
-                console.error("Erro ao ler dados:", error);
-                statusEl.innerHTML = '<i class="fas fa-circle-xmark"></i> Erro de Ligação';
-                statusEl.className = "flex items-center gap-2 text-xs font-semibold text-red-400 bg-red-400/10 px-3 py-1.5 rounded-full border border-red-400/20";
-                showToast("Erro de leitura.", true);
-                writeToConsole(`Falha crítica de comunicação com base de dados: ${error.message}`, "error");
+            } catch (err) {
+                console.error(err);
+                statusEl.innerHTML = '<i class="fas fa-circle-xmark"></i> Erro de Comunicação';
+                statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-full border border-red-400/20";
+                window.showToast("Falha na sincronização inicial de dados.", true);
+                writeToConsole(`Impossível estabelecer conexão: ${err.message}`, "error");
             }
         }
 
         // --- SISTEMA CAIXA DE MENSAGENS (SUPORTE) ---
         async function fetchAndRenderSupportMessages() {
             const container = document.getElementById('support-messages-container');
-            const badge = document.getElementById('support-pending-badge');
+            const sidebarBadge = document.getElementById('support-badge-count');
+            const dashBadge = document.getElementById('support-pending-badge');
             
             try {
-                writeToConsole("A procurar novas mensagens na base suporte_mensagens...", "info");
                 const snapshot = await get(ref(db, 'suporte_mensagens'));
-                
                 if (snapshot.exists()) {
                     allSupportMessages = snapshot.val();
                     renderSupportMessages();
@@ -1348,24 +1465,25 @@
                     allSupportMessages = {};
                     container.innerHTML = `
                         <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
-                            <i class="fas fa-envelope-open mr-2 text-slate-600"></i> Nenhuma mensagem de suporte recebida.
+                            <i class="fas fa-envelope-circle-check mr-2 text-slate-600"></i> Nenhuma mensagem de suporte recebida.
                         </div>`;
-                    badge.innerText = '0 Pendentes';
-                    badge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+                    sidebarBadge.classList.add('hidden');
+                    dashBadge.innerText = '0 Pendentes';
+                    dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
                 }
             } catch (err) {
-                console.error("Erro ao ler suporte_mensagens:", err);
+                console.error(err);
                 container.innerHTML = `<div class="p-6 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar mensagens de suporte.</div>`;
             }
         }
 
         function renderSupportMessages() {
             const container = document.getElementById('support-messages-container');
+            const sidebarBadge = document.getElementById('support-badge-count');
+            const dashBadge = document.getElementById('support-pending-badge');
             container.innerHTML = '';
             
             const items = Object.entries(allSupportMessages);
-            
-            // Ordenar da mais recente para a mais antiga
             items.sort((a, b) => new Date(b[1].dataEnvio) - new Date(a[1].dataEnvio));
 
             let pendingCount = 0;
@@ -1376,19 +1494,19 @@
 
                 const date = new Date(msg.dataEnvio).toLocaleString('pt-PT');
                 
-                // Formatação do E-mail de Resposta (Preenchimento Automático)
-                const subject = encodeURIComponent("Resposta ao Suporte - Portal Escolar");
-                const mailBody = encodeURIComponent(`Olá ${msg.nome},\n\nEm resposta à sua solicitação:\n"${msg.mensagem}"\n\n---\nEscreva a sua resposta aqui...\n`);
+                // Formatação para preenchimento de correio eletrónico rápido
+                const subject = encodeURIComponent("Suporte Técnico - Portal de Alunos");
+                const mailBody = encodeURIComponent(`Olá ${msg.nome},\n\nRecebemos a sua mensagem enviada através da aplicação:\n"${msg.mensagem}"\n\n---\nEscreva a sua resposta de suporte abaixo:\n`);
                 const mailtoLink = `mailto:${msg.email}?subject=${subject}&body=${mailBody}`;
 
                 const card = document.createElement('div');
-                card.className = `p-5 rounded-xl border transition-all duration-300 ${isResolved ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100' : 'bg-slate-800/60 border-sky-500/40 hover:border-sky-400 shadow-md'}`;
+                card.className = `p-5 rounded-xl border transition-all duration-300 ${isResolved ? 'bg-slate-900/40 border-slate-800 opacity-60 hover:opacity-100' : 'bg-slate-800/60 border-sky-500/30 hover:border-sky-400 shadow-md'}`;
                 
                 card.innerHTML = `
                     <div class="flex flex-col sm:flex-row justify-between gap-3 mb-3">
                         <div>
                             <h4 class="font-bold text-white text-sm flex items-center gap-2 mb-0.5">
-                                <i class="fas fa-user-circle text-sky-500"></i> ${msg.nome}
+                                <i class="fas fa-circle-user text-sky-500"></i> ${msg.nome}
                                 <span class="text-[9px] px-2 py-0.5 rounded uppercase font-black border ${isResolved ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}">
                                     ${msg.status || 'Aguardando Resposta'}
                                 </span>
@@ -1425,50 +1543,53 @@
                 container.appendChild(card);
             });
 
-            // Atualiza a badge de contagem de pendências
-            const badge = document.getElementById('support-pending-badge');
-            badge.innerText = `${pendingCount} Pendentes`;
+            // Atualização de Badges
+            document.getElementById('dash-status-support').innerText = `${pendingCount} Pendentes`;
+            document.getElementById('dash-status-support').className = pendingCount > 0 ? 'text-xs font-black text-amber-400' : 'text-xs font-black text-emerald-400';
+            
+            dashBadge.innerText = `${pendingCount} Pendentes`;
             if (pendingCount > 0) {
-                badge.className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold animate-pulse transition-all";
+                dashBadge.className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-extrabold animate-pulse";
+                sidebarBadge.classList.remove('hidden');
+                sidebarBadge.innerText = pendingCount;
             } else {
-                badge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+                dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-extrabold";
+                sidebarBadge.classList.add('hidden');
             }
         }
 
         window.toggleSupportStatus = async (id, newStatus) => {
             try {
-                await update(ref(db, `suporte_mensagens/${id}`), {
-                    status: newStatus
-                });
-                writeToConsole(`Status do ticket ${id} atualizado para: ${newStatus}`, "success");
+                await update(ref(db, `suporte_mensagens/${id}`), { status: newStatus });
+                writeToConsole(`Ticket ${id} status modificado para: ${newStatus}`, "success");
                 window.showToast("Estado do ticket alterado!");
                 await fetchAndRenderSupportMessages();
             } catch (err) {
                 console.error(err);
-                window.showToast("Erro ao atualizar o estado do ticket.", true);
+                window.showToast("Falha ao modificar estado do ticket.", true);
             }
-        }
+        };
 
         window.deleteSupportMessage = async (id) => {
             window.customConfirm(
-                "Apagar Pedido de Suporte?",
-                "Tem a certeza absoluta de que deseja eliminar esta mensagem? Esta ação não pode ser desfeita.",
+                "Eliminar Ticket de Apoio?",
+                "Esta ação é final e removerá permanentemente o pedido de suporte do banco de dados.",
                 async () => {
                     try {
                         await remove(ref(db, `suporte_mensagens/${id}`));
-                        writeToConsole(`Mensagem de suporte ${id} eliminada definitivamente.`, "warning");
-                        window.showToast("Mensagem eliminada da base de dados!");
+                        writeToConsole(`Ticket ${id} destruído.`, "warning");
+                        window.showToast("Ticket removido do Firebase!");
                         await fetchAndRenderSupportMessages();
                     } catch (err) {
                         console.error(err);
-                        window.showToast("Erro ao tentar eliminar a mensagem.", true);
+                        window.showToast("Impossível destruir registo.", true);
                     }
                 },
                 true
             );
-        }
+        };
 
-        // --- SISTEMA MULTI-MURAL & PREVIEW ---
+        // --- SISTEMA MULTI-MURAL & CARDS ---
         function renderMuralList() {
             const container = document.getElementById('mural-items-container');
             if (!container) return;
@@ -1501,27 +1622,27 @@
                 card.setAttribute('data-search-mural', `${item.title.toLowerCase()} ${item.content.toLowerCase()} ${item.author?.toLowerCase() || ''}`);
                 
                 card.innerHTML = `
-                    <div class="flex-1 space-y-1">
+                    <div class="flex-1 space-y-1 text-left">
                         <div class="flex flex-wrap items-center gap-2 mb-1.5">
                             <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border ${catColorClass}">${item.category || 'Geral'}</span>
                             <span class="text-[10px] font-bold ${isItemActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'} px-1.5 py-0.5 rounded border">
                                 ${isItemActive ? 'Visível' : 'Ocultado'}
                             </span>
                             <span class="text-[11px] text-slate-400 font-semibold">${date}</span>
-                            ${item.daysActive ? `<span class="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded border border-slate-800">Expira: ${item.daysActive} dias</span>` : ''}
+                            ${item.daysActive ? `<span class="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded border border-slate-800">Expira: ${item.daysActive} d</span>` : ''}
                         </div>
                         <h4 class="font-bold text-white text-base">${item.title}</h4>
                         <p class="text-xs text-slate-400">Escrito por: <span class="text-cyan-400 font-bold">${item.author || 'Desconhecido'}</span></p>
                         <p class="text-xs text-slate-300 leading-relaxed max-w-2xl mt-1">${item.content}</p>
                     </div>
                     <div class="flex items-center gap-1.5 self-end sm:self-center">
-                        <button onclick="toggleMuralItemStatus('${id}', ${isItemActive})" class="p-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition-all" title="${isItemActive ? 'Desativar' : 'Ativar'}">
+                        <button onclick="toggleMuralItemStatus('${id}', ${isItemActive})" class="p-2 bg-slate-750 hover:bg-slate-700 rounded-lg text-slate-300 text-xs transition-all" title="${isItemActive ? 'Ocultar' : 'Exibir'}">
                             <i class="fas ${isItemActive ? 'fa-eye-slash text-amber-400' : 'fa-eye text-emerald-400'}"></i>
                         </button>
-                        <button onclick="editMuralItem('${id}')" class="p-2 bg-slate-700/50 hover:bg-slate-700 hover:text-cyan-400 rounded-lg text-slate-400 text-xs transition-all" title="Editar">
+                        <button onclick="editMuralItem('${id}')" class="p-2 bg-slate-750 hover:bg-slate-700 hover:text-cyan-400 rounded-lg text-slate-400 text-xs transition-all" title="Editar">
                             <i class="fas fa-pen"></i>
                         </button>
-                        <button onclick="deleteMuralItem('${id}')" class="p-2 bg-slate-700/50 hover:bg-red-500/20 hover:text-red-400 rounded-lg text-slate-400 text-xs transition-all" title="Excluir">
+                        <button onclick="deleteMuralItem('${id}')" class="p-2 bg-slate-750 hover:bg-red-500/20 hover:text-red-400 rounded-lg text-slate-400 text-xs transition-all" title="Excluir">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -1548,40 +1669,6 @@
             document.getElementById('mural-stats-tag').innerText = `Encontrados: ${visibleCount} recado(s)`;
         };
 
-        window.neutralizeAllMuralItems = () => {
-            window.customConfirm(
-                "Neutralizar Mural Inteiro?",
-                "Esta ação apagará de forma absoluta e definitiva todos os comunicados postados no mural! É impossível reverter.",
-                async () => {
-                    try {
-                        await remove(ref(db, 'dados_app/mural/comunicados'));
-                        writeToConsole("Neutralização do Mural realizada pelo administrador.", "warning");
-                        window.showToast("Mural neutralizado com sucesso!");
-                        allMuralItems = {};
-                        renderMuralList();
-                    } catch (error) {
-                        console.error(error);
-                        window.showToast("Erro ao neutralizar.", true);
-                    }
-                },
-                true
-            );
-        };
-
-        window.toggleMuralItemStatus = async (id, currentStatus) => {
-            try {
-                await update(ref(db, `dados_app/mural/comunicados/${id}`), {
-                    active: !currentStatus
-                });
-                writeToConsole(`Aviso ${id} visibilidade alterada para: ${!currentStatus}`, "info");
-                window.showToast("Estado do comunicado alterado!");
-                await loadData();
-            } catch (error) {
-                console.error(error);
-                window.showToast("Erro ao alterar visibilidade.", true);
-            }
-        };
-
         window.clearMuralForm = () => {
             document.getElementById('mural-edit-id').value = '';
             document.getElementById('mural-title').value = '';
@@ -1593,9 +1680,9 @@
             document.getElementById('mural-expiry').value = '7';
             document.getElementById('mural-color').value = 'blue';
             
-            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-plus text-cyan-400"></i> Criar Novo Recado / Comunicado`;
+            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-circle-plus text-cyan-400"></i> Criar Novo Recado`;
             updateMuralLivePreview();
-        }
+        };
 
         window.editMuralItem = (id) => {
             const item = allMuralItems[id];
@@ -1611,10 +1698,12 @@
             document.getElementById('mural-expiry').value = item.daysActive || '7';
             document.getElementById('mural-color').value = item.cardColor || 'blue';
 
-            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-pen text-amber-400"></i> Editando Comunicado (${item.title})`;
+            document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-pen text-amber-400"></i> Editando Recado (${item.title})`;
             document.getElementById('mural-title').focus();
+            
+            switchTab('mural');
             updateMuralLivePreview();
-        }
+        };
 
         window.saveMuralItem = async () => {
             const id = document.getElementById('mural-edit-id').value;
@@ -1628,7 +1717,7 @@
             const cardColor = document.getElementById('mural-color').value;
 
             if(!title || !content) {
-                window.showToast("Informe ao menos o Título e Conteúdo do Recado!", true);
+                window.showToast("Título e Conteúdo do Recado são campos mandatórios!", true);
                 return;
             }
 
@@ -1647,52 +1736,84 @@
 
             const btnSave = document.getElementById('btn-save-mural');
             const originalText = btnSave.innerHTML;
-            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A Guardar...';
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A Gravar...';
             btnSave.disabled = true;
 
             try {
-                if(id) {
+                if (id) {
                     await set(ref(db, `dados_app/mural/comunicados/${id}`), itemData);
-                    writeToConsole(`Comunicado ${id} editado e salvo no Firebase.`, "success");
+                    writeToConsole(`Alteração de comunicado ${id} guardado com sucesso.`, "success");
                     window.showToast("Recado atualizado!");
                 } else {
                     const newRef = push(ref(db, `dados_app/mural/comunicados`));
                     await set(newRef, itemData);
-                    writeToConsole("Novo comunicado criado e salvo no Firebase.", "success");
-                    window.showToast("Novo recado fixado!");
+                    writeToConsole("Novo comunicado inserido na base de dados.", "success");
+                    window.showToast("Recado inserido com sucesso!");
                 }
                 
                 clearMuralForm();
                 await loadData();
-            } catch (error) {
-                console.error("Erro ao salvar mural:", error);
-                window.showToast("Não foi possível salvar o recado.", true);
+            } catch (err) {
+                console.error(err);
+                window.showToast("Não foi possível salvar os dados do mural.", true);
             } finally {
                 btnSave.innerHTML = originalText;
                 btnSave.disabled = false;
             }
-        }
+        };
+
+        window.toggleMuralItemStatus = async (id, currentStatus) => {
+            try {
+                await update(ref(db, `dados_app/mural/comunicados/${id}`), { active: !currentStatus });
+                writeToConsole(`Visibilidade do recado ${id} alterada para: ${!currentStatus}`, "info");
+                window.showToast("Visibilidade do recado atualizada!");
+                await loadData();
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao ocultar/exibir recado.", true);
+            }
+        };
 
         window.deleteMuralItem = async (id) => {
             window.customConfirm(
-                "Remover Comunicado?",
-                "Você tem certeza que deseja excluir permanentemente este comunicado do banco de dados do mural?",
+                "Excluir Recado?",
+                "Pretende eliminar de forma irreversível este recado do mural móvel?",
                 async () => {
                     try {
                         await remove(ref(db, `dados_app/mural/comunicados/${id}`));
-                        writeToConsole(`Comunicado ${id} removido da base de dados.`, "warning");
-                        window.showToast("Recado excluído.");
+                        writeToConsole(`Recado ${id} removido.`, "warning");
+                        window.showToast("Recado excluído do painel.");
                         await loadData();
-                    } catch (error) {
-                        console.error(error);
-                        window.showToast("Erro ao excluir recado.", true);
+                    } catch (err) {
+                        console.error(err);
+                        window.showToast("Erro ao tentar remover.", true);
                     }
                 },
                 true
             );
         };
 
-        // --- SISTEMA DE GESTÃO DE UTILIZADORES E INDICADORES ---
+        window.neutralizeAllMuralItems = () => {
+            window.customConfirm(
+                "Destruir Todo o Mural?",
+                "Atenção: Todos os comunicados inseridos serão eliminados do banco. Esta ação não poderá ser revertida.",
+                async () => {
+                    try {
+                        await remove(ref(db, 'dados_app/mural/comunicados'));
+                        writeToConsole("Limpeza massiva de mural executada.", "warning");
+                        window.showToast("Todos os comunicados foram desintegrados.");
+                        allMuralItems = {};
+                        renderMuralList();
+                    } catch (err) {
+                        console.error(err);
+                        window.showToast("Falha ao efetuar limpeza.", true);
+                    }
+                },
+                true
+            );
+        };
+
+        // --- GESTÃO DE UTILIZADORES ---
         async function fetchAndRenderUsers() {
             const tableBody = document.getElementById('users-table-body');
             const helpBox = document.getElementById('rules-help-box');
@@ -1706,7 +1827,7 @@
                     registeredUserUIDs = Object.keys(snapshot.val());
                 }
             } catch (err) {
-                console.warn("Utilizadores globais indisponíveis. A usar lista local secundária.");
+                console.warn("Nó geral 'usuarios' inacessível. Usando histórico de registo local.");
                 if (helpBox) helpBox.classList.remove('hidden');
             }
 
@@ -1715,29 +1836,37 @@
                 ...Object.keys(loadedUserConfigs)
             ]);
 
-            // Atualização dos Indicadores de Estatísticas
+            // Estatísticas
             let totalCount = allUIDs.size;
             let activeCount = 0;
             let blockedCount = 0;
 
             allUIDs.forEach(uid => {
                 const config = loadedUserConfigs[uid] || { bloqueado: false };
-                if (config.bloqueado === true) {
-                    blockedCount++;
-                } else {
-                    activeCount++;
-                }
+                if (config.bloqueado === true) blockedCount++;
+                else activeCount++;
             });
 
+            // Atualiza indicadores de utilizadores (Dashboard & Secção de users)
             document.getElementById('user-stats-total').innerText = totalCount;
             document.getElementById('user-stats-active').innerText = activeCount;
             document.getElementById('user-stats-blocked').innerText = blockedCount;
+
+            document.getElementById('dash-user-total').innerText = totalCount;
+            document.getElementById('dash-user-active').innerText = activeCount;
+            document.getElementById('dash-user-blocked').innerText = blockedCount;
+
+            // Rácio de barra de progresso
+            const ratioPercentage = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
+            document.getElementById('user-ratio-percentage').innerText = `${ratioPercentage}%`;
+            document.getElementById('user-ratio-bar-active').style.width = `${ratioPercentage}%`;
+            document.getElementById('user-ratio-bar-blocked').style.width = `${totalCount > 0 ? 100 - ratioPercentage : 0}%`;
 
             if (allUIDs.size === 0) {
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="5" class="p-8 text-center text-slate-500">
-                            Nenhum utilizador monitorizado de momento. Adicione um UID acima!
+                            Nenhum utilizador registado para monitorização. Insira um UID acima.
                         </td>
                     </tr>`;
                 return;
@@ -1751,30 +1880,30 @@
                 const updatedTime = config.updatedAt ? new Date(config.updatedAt).toLocaleDateString('pt-PT') : 'Sem histórico';
 
                 const row = document.createElement('tr');
-                row.className = "hover:bg-slate-800/40 transition user-row";
+                row.className = "hover:bg-slate-800/20 transition user-row";
                 row.setAttribute('data-search', `${uid.toLowerCase()} ${apelido.toLowerCase()}`);
                 row.innerHTML = `
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2.5 font-semibold text-xs !bg-slate-900 border-slate-700 max-w-[200px]" placeholder="Criar apelido">
-                            <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-300 p-1 bg-teal-500/10 hover:bg-teal-500/20 rounded transition" title="Guardar Apelido">
-                                <i class="fas fa-save text-xs"></i>
+                            <input type="text" id="nickname-${uid}" value="${apelido}" class="input-field py-1 px-2.5 font-semibold text-xs !bg-slate-900 border-slate-700 max-w-[180px]" placeholder="Atribuir apelido">
+                            <button onclick="updateNickname('${uid}')" class="text-teal-400 hover:text-teal-350 p-1 bg-teal-500/10 hover:bg-teal-500/20 rounded transition" title="Salvar Apelido">
+                                <i class="fas fa-floppy-disk text-xs"></i>
                             </button>
                         </div>
                     </td>
                     <td class="p-4 font-mono text-[11px] text-slate-400 select-all">${uid}</td>
                     <td class="p-4 text-center">
-                        <span id="badge-${uid}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${isBlocked ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
-                            ${isBlocked ? 'Bloqueado' : 'Acesso Activo'}
+                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase ${isBlocked ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
+                            ${isBlocked ? 'Bloqueado' : 'Seguro'}
                         </span>
                     </td>
-                    <td class="p-4 text-center text-[11px] text-slate-400 font-semibold">${updatedTime}</td>
+                    <td class="p-4 text-center text-[11px] text-slate-400 font-medium">${updatedTime}</td>
                     <td class="p-4 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-3 py-1.5 text-xs font-bold rounded-lg transition border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 text-white shadow-lg' : 'bg-red-600 border-red-500 hover:bg-red-700 text-white shadow-lg'}">
-                                <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'} mr-1"></i> ${isBlocked ? 'Desbloquear' : 'Bloquear'}
+                        <div class="flex justify-end gap-1.5">
+                            <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-2.5 py-1 text-xs font-bold rounded-lg transition border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-500 text-white shadow' : 'bg-red-600 border-red-500 hover:bg-red-500 text-white shadow'}">
+                                <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'}"></i> ${isBlocked ? 'Permitir' : 'Bloquear'}
                             </button>
-                            <button onclick="removeUserFromPanel('${uid}')" class="text-slate-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition" title="Remover">
+                            <button onclick="removeUserFromPanel('${uid}')" class="text-slate-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -1796,19 +1925,19 @@
                     row.classList.add('hidden');
                 }
             });
-        }
+        };
 
         window.addUserManually = async () => {
             const uidInput = document.getElementById('new-user-uid');
             const uid = uidInput.value.trim();
 
             if (!uid) {
-                window.showToast("Forneça um UID válido!", true);
+                window.showToast("Informe um código de UID válido!", true);
                 return;
             }
 
             if (loadedUserConfigs[uid]) {
-                window.showToast("Este utilizador já existe!", true);
+                window.showToast("Este UID já se encontra monitorizado!", true);
                 return;
             }
 
@@ -1826,9 +1955,9 @@
                 await loadData();
             } catch (err) {
                 console.error(err);
-                window.showToast("Erro ao registar UID.", true);
+                window.showToast("Erro ao monitorizar UID.", true);
             }
-        }
+        };
 
         window.updateNickname = async (uid) => {
             const nicknameVal = document.getElementById(`nickname-${uid}`).value.trim();
@@ -1838,20 +1967,20 @@
                     updatedAt: Date.now(),
                     source_url: SOURCE_URL_VALIDATION
                 });
-                writeToConsole(`Apelido modificado para o utilizador ${uid}: ${nicknameVal}`, "success");
-                window.showToast("Apelido guardado!");
+                writeToConsole(`Utilizador ${uid} associado ao apelido: ${nicknameVal}`, "success");
+                window.showToast("Apelido salvo!");
                 await loadData();
             } catch (err) {
                 console.error(err);
-                window.showToast("Erro ao guardar apelido.", true);
+                window.showToast("Erro ao salvar apelido.", true);
             }
-        }
+        };
 
         window.toggleUserBlock = async (uid, isCurrentlyBlocked) => {
             const newStatus = !isCurrentlyBlocked;
             window.customConfirm(
-                newStatus ? "Bloquear Acesso?" : "Desbloquear Acesso?",
-                newStatus ? `Pretende cortar o acesso à base de dados para o utilizador ${uid}?` : `Reestabelecer acesso para o utilizador ${uid}?`,
+                newStatus ? "Cortar Acesso?" : "Autorizar Acesso?",
+                newStatus ? `Deseja negar de forma compulsiva o acesso ao banco de dados para o utilizador ${uid}?` : `Pretende restabelecer de imediato o acesso para ${uid}?`,
                 async () => {
                     try {
                         await update(ref(db, `dados_app/usuarios_config/${uid}`), {
@@ -1861,41 +1990,41 @@
                         });
                         
                         writeToConsole(`Bloqueio de acesso do utilizador ${uid} alterado para: ${newStatus}`, "warning");
-                        window.showToast(newStatus ? "Utilizador BLOQUEADO!" : "Utilizador DESBLOQUEADO!");
+                        window.showToast(newStatus ? "Utilizador bloqueado!" : "Utilizador seguro!");
                         await loadData();
                     } catch (err) {
                         console.error(err);
-                        window.showToast("Erro ao alterar acesso.", true);
+                        window.showToast("Erro ao definir estado.", true);
                     }
                 },
-                newStatus // Passa a ação para o modo destrutivo se for um bloqueio
+                newStatus
             );
         };
 
         window.removeUserFromPanel = async (uid) => {
             window.customConfirm(
-                "Remover Utilizador?",
-                "Deseja limpar todos os dados de monitorização, apelidos e status de bloqueio configurados para este utilizador?",
+                "Excluir Monitorização?",
+                "Removerá os apelidos, históricos e registos configurados para este dispositivo.",
                 async () => {
                     try {
                         await remove(ref(db, `dados_app/usuarios_config/${uid}`));
-                        writeToConsole(`Monitorização do utilizador ${uid} encerrada.`, "warning");
-                        window.showToast("Configurações removidas.");
+                        writeToConsole(`UID ${uid} removido do monitor administrativo.`, "warning");
+                        window.showToast("Histórico eliminado.");
                         await loadData();
                     } catch (err) {
                         console.error(err);
-                        window.showToast("Erro ao limpar dados.", true);
+                        window.showToast("Falha ao tentar limpar.", true);
                     }
                 },
                 true
             );
         };
 
-        // --- GRAVAÇÃO DOS MÓDULOS DE DADOS ---
+        // --- PROCESSADOR DE GRAVAÇÃO DE CONFIGS COMPLETO ---
         window.saveData = async (section) => {
             const currentUser = auth.currentUser;
             if (!currentUser || currentUser.email !== ALLOWED_EMAIL) {
-                window.showToast("Sessão expirada ou não autorizada.", true);
+                window.showToast("Acesso expirado! Autentique-se de novo.", true);
                 return;
             }
 
@@ -1919,7 +2048,6 @@
                         showUpdate: document.getElementById('upd-show').checked,
                         forceUpdate: document.getElementById('upd-force').checked,
                         cancellable: document.getElementById('upd-cancellable').checked,
-                        
                         channel: document.getElementById('upd-channel').value,
                         apkSize: document.getElementById('upd-size').value,
                         minSdk: document.getElementById('upd-min-sdk').value,
@@ -1946,7 +2074,6 @@
                         message: document.getElementById('msg-text').value,
                         actionText: document.getElementById('msg-action-text').value,
                         actionUrl: document.getElementById('msg-action-url').value,
-                        
                         bannerStyle: document.getElementById('msg-style').value,
                         dismissible: document.getElementById('msg-dismissible').checked,
                         maxViews: parseInt(document.getElementById('msg-max-views').value) || 3,
@@ -1958,7 +2085,6 @@
                         appName: document.getElementById('sys-name').value,
                         serverStatus: document.getElementById('sys-status').checked,
                         allowRegistration: document.getElementById('sys-reg').checked,
-                        
                         adminEmail: document.getElementById('sys-admin-email').value,
                         uploadLimitMb: document.getElementById('sys-upload-limit').value,
                         cleanupDays: document.getElementById('sys-cleanup-days').value,
@@ -1970,7 +2096,6 @@
                         whatsapp: document.getElementById('link-wpp').value,
                         instagram: document.getElementById('link-insta').value,
                         website: document.getElementById('link-site').value,
-                        
                         telegram: document.getElementById('link-telegram').value,
                         youtube: document.getElementById('link-youtube').value,
                         source_url: SOURCE_URL_VALIDATION
@@ -1997,22 +2122,27 @@
                     };
                 }
 
-                writeToConsole(`A enviar escrita para o nó dados_app/${section}...`, "info");
+                writeToConsole(`Escrevendo alterações em dados_app/${section}...`, "info");
                 await set(ref(db, `dados_app/${section}`), dataToSave);
                 
-                writeToConsole(`Gravação do módulo "${section}" confirmada pelo Firebase.`, "success");
+                writeToConsole(`Alterações aplicadas no nó "${section}"!`, "success");
                 window.showToast(`Módulo "${section}" sincronizado!`);
                 await loadData();
                 
-            } catch (error) {
-                console.error("Erro ao salvar:", error);
-                writeToConsole(`Erro na gravação do módulo "${section}": ${error.message}`, "error");
-                window.showToast("Falha de escrita! Verifique as regras de segurança.", true);
+            } catch (err) {
+                console.error(err);
+                writeToConsole(`Falha ao gravar módulo "${section}": ${err.message}`, "error");
+                window.showToast("Falha de gravação! Verifique as regras de segurança.", true);
             } finally {
                 btnEl.innerHTML = originalContent;
                 btnEl.disabled = false;
             }
-        }
+        };
+
+        // Executado ao finalizar carregamento do DOM
+        window.onload = () => {
+            writeToConsole("Consola Administrativa Pronta.", "info");
+        };
     </script>
 </body>
 </html>
