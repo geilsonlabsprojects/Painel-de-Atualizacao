@@ -1075,7 +1075,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
+        
         const provider = new GoogleAuthProvider();
+        
+        // --- ADICIONADO ---
+        // Força o Google a pedir a escolha da conta sempre, limpando a sessão cacheada visualmente
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
 
         const ALLOWED_EMAIL = "geilsomcarlos93@gmail.com";
         const SOURCE_URL_VALIDATION = "https://geilsonlabsprojects.github.io/Calendario-Escolar-Projects/apk.html";
@@ -1291,6 +1298,11 @@
             domainErrorMsg.classList.add('hidden');
             writeToConsole("Iniciando requisição de login externo via Google...", "info");
             try {
+                // --- ADICIONADO ---
+                // Garante que o estado local Firebase está completamente deslogado
+                // e limpo antes de invocar a janela pop-up, evitando conflitos de conta
+                await signOut(auth);
+                
                 await signInWithPopup(auth, provider);
             } catch (err) {
                 console.error(err);
@@ -1298,6 +1310,8 @@
                     domainErrorMsg.classList.remove('hidden');
                     writeToConsole("Falha crítica de segurança: Domínio não autorizado no console.", "error");
                     window.showToast("Domínio Rejeitado pelo Firebase Auth!", true);
+                } else if (err.code === 'auth/popup-closed-by-user') {
+                     window.showToast("Login cancelado pelo usuário.", true);
                 } else {
                     window.showToast("Falha ao autenticar sessão.", true);
                 }
