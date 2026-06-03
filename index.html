@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
         
         body { 
             background-color: #060913; 
@@ -265,7 +265,7 @@
                 </div>
             </aside>
 
-            <!-- ÁREA DO CONTEÚDO PRINCIPAL (DINAAMICO) -->
+            <!-- ÁREA DO CONTEÚDO PRINCIPAL (DINÂMICO) -->
             <main class="flex-grow p-4 md:p-8 lg:max-h-screen lg:overflow-y-auto">
                 
                 <!-- HEADER DO CONTEÚDO -->
@@ -481,7 +481,7 @@
                             <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
                                 <span class="text-xs font-bold block mb-1">Exibir Alerta na Entrada</span>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[10px] text-slate-400">Popup ativo</span>
+                                    <span class="text-[10px] text-slate-400">Popup active</span>
                                     <input type="checkbox" id="upd-show" class="checkbox-toggle">
                                 </div>
                             </label>
@@ -527,7 +527,7 @@
                             </div>
                             <div class="flex items-center gap-3 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
                                 <span class="text-[10px] font-bold text-slate-300">EXIBIR MURAL NO APP:</span>
-                                <input type="checkbox" id="mural-enabled" class="checkbox-toggle">
+                                <input type="checkbox" id="mural-enabled" class="checkbox-toggle" onchange="saveMuralState()">
                             </div>
                         </div>
 
@@ -623,9 +623,9 @@
                                     </div>
                                     <h4 id="preview-title" class="font-extrabold text-white text-xs truncate">Título do Recado</h4>
                                     <p class="text-[9px] text-slate-500">Por: <span id="preview-author" class="text-cyan-400 font-semibold">Emissor</span></p>
-                                    <p id="preview-content" class="text-[10px] text-slate-300 leading-relaxed break-words line-clamp-4">O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...</p>
+                                    <p id="preview-content" class="text-[10px] text-slate-300 leading-relaxed break-words line-clamp-4 font-normal">O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...</p>
                                     <div id="preview-image-container" class="hidden h-24 w-full rounded-lg bg-slate-900 overflow-hidden border border-slate-800">
-                                        <img id="preview-img-src" src="" class="w-full h-full object-cover">
+                                        <img id="preview-img-src" src="" class="w-full h-full object-cover" alt="Visualização do Recado">
                                     </div>
                                 </div>
                             </div>
@@ -988,7 +988,7 @@
                                     <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="mt-1">
                                     <div class="ml-3">
                                         <span class="text-xs font-bold text-white block">Apenas Notificar</span>
-                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Dispara um aviso discreto no ecran sem fechar a navegação.</p>
+                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Dispara um aviso discreto no ecrã sem fechar a navegação.</p>
                                     </div>
                                 </label>
                                 <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
@@ -1057,7 +1057,7 @@
     <!-- Firebase SDK Modular e Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, get, child, update, remove, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, get, child, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Configuração original do Firebase mantida
@@ -1078,7 +1078,6 @@
         
         const provider = new GoogleAuthProvider();
         
-        // --- ADICIONADO ---
         // Força o Google a pedir a escolha da conta sempre, limpando a sessão cacheada visualmente
         provider.setCustomParameters({
             prompt: 'select_account'
@@ -1281,6 +1280,7 @@
                     
                     toggleActionButtons(false);
                     await loadData();
+                    startRealtimeListeners();
                 } else {
                     window.showToast("Permissão Negada! Email não autorizado.", true);
                     writeToConsole(`Tentativa de invasão não autorizada por: ${user.email}`, "error");
@@ -1298,11 +1298,9 @@
             domainErrorMsg.classList.add('hidden');
             writeToConsole("Iniciando requisição de login externo via Google...", "info");
             try {
-                // --- ADICIONADO ---
                 // Garante que o estado local Firebase está completamente deslogado
                 // e limpo antes de invocar a janela pop-up, evitando conflitos de conta
                 await signOut(auth);
-                
                 await signInWithPopup(auth, provider);
             } catch (err) {
                 console.error(err);
@@ -1338,6 +1336,38 @@
             document.getElementById('btn-save-portal').disabled = disabled;
             document.getElementById('btn-add-user-manual').disabled = disabled;
             document.getElementById('btn-neutralize-mural').disabled = disabled;
+        }
+
+        // --- ESCUTAS EM TEMPO REAL (REALTIME LISTENERS) ---
+        function startRealtimeListeners() {
+            // Escuta em tempo real do mural de recados
+            onValue(ref(db, 'dados_app/mural'), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('mural-enabled').checked = data.enabled || false;
+                    allMuralItems = data.comunicados || {};
+                    renderMuralList();
+                }
+            });
+
+            // Escuta em tempo real de mensagens de suporte
+            onValue(ref(db, 'suporte_mensagens'), (snapshot) => {
+                if (snapshot.exists()) {
+                    allSupportMessages = snapshot.val();
+                    renderSupportMessages();
+                } else {
+                    allSupportMessages = {};
+                    renderSupportMessages();
+                }
+            });
+
+            // Escuta em tempo real das configurações de utilizadores
+            onValue(ref(db, 'dados_app/usuarios_config'), (snapshot) => {
+                if (snapshot.exists()) {
+                    loadedUserConfigs = snapshot.val();
+                    fetchAndRenderUsers();
+                }
+            });
         }
 
         // --- CARREGAMENTO DE DADOS DO BANCO REALTIME (FIREBASE) ---
@@ -1766,7 +1796,6 @@
                 }
                 
                 clearMuralForm();
-                await loadData();
             } catch (err) {
                 console.error(err);
                 window.showToast("Não foi possível salvar os dados do mural.", true);
@@ -1776,12 +1805,23 @@
             }
         };
 
+        window.saveMuralState = async () => {
+            const enabled = document.getElementById('mural-enabled').checked;
+            try {
+                await update(ref(db, 'dados_app/mural'), { enabled });
+                writeToConsole(`Visibilidade geral do mural alterada para: ${enabled}`, "success");
+                window.showToast("Configuração de visibilidade guardada!");
+            } catch (err) {
+                console.error(err);
+                window.showToast("Erro ao definir visibilidade do mural.", true);
+            }
+        };
+
         window.toggleMuralItemStatus = async (id, currentStatus) => {
             try {
                 await update(ref(db, `dados_app/mural/comunicados/${id}`), { active: !currentStatus });
                 writeToConsole(`Visibilidade do recado ${id} alterada para: ${!currentStatus}`, "info");
                 window.showToast("Visibilidade do recado atualizada!");
-                await loadData();
             } catch (err) {
                 console.error(err);
                 window.showToast("Erro ao ocultar/exibir recado.", true);
@@ -1797,7 +1837,6 @@
                         await remove(ref(db, `dados_app/mural/comunicados/${id}`));
                         writeToConsole(`Recado ${id} removido.`, "warning");
                         window.showToast("Recado excluído do painel.");
-                        await loadData();
                     } catch (err) {
                         console.error(err);
                         window.showToast("Erro ao tentar remover.", true);
@@ -1816,8 +1855,6 @@
                         await remove(ref(db, 'dados_app/mural/comunicados'));
                         writeToConsole("Limpeza massiva de mural executada.", "warning");
                         window.showToast("Todos os comunicados foram desintegrados.");
-                        allMuralItems = {};
-                        renderMuralList();
                     } catch (err) {
                         console.error(err);
                         window.showToast("Falha ao efetuar limpeza.", true);
@@ -1913,7 +1950,7 @@
                     </td>
                     <td class="p-4 text-center text-[11px] text-slate-400 font-medium">${updatedTime}</td>
                     <td class="p-4 text-right">
-                        <div class="flex justify-end gap-1.5">
+                        <div class="flex justify-end gap-1.5 whitespace-nowrap">
                             <button onclick="toggleUserBlock('${uid}', ${isBlocked})" class="px-2.5 py-1 text-xs font-bold rounded-lg transition border ${isBlocked ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-500 text-white shadow' : 'bg-red-600 border-red-500 hover:bg-red-500 text-white shadow'}">
                                 <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'}"></i> ${isBlocked ? 'Permitir' : 'Bloquear'}
                             </button>
@@ -1966,7 +2003,6 @@
                 writeToConsole(`UID adicionado manualmente para monitorização: ${uid}`, "info");
                 window.showToast("UID registado!");
                 uidInput.value = "";
-                await loadData();
             } catch (err) {
                 console.error(err);
                 window.showToast("Erro ao monitorizar UID.", true);
@@ -1983,7 +2019,6 @@
                 });
                 writeToConsole(`Utilizador ${uid} associado ao apelido: ${nicknameVal}`, "success");
                 window.showToast("Apelido salvo!");
-                await loadData();
             } catch (err) {
                 console.error(err);
                 window.showToast("Erro ao salvar apelido.", true);
@@ -2005,7 +2040,6 @@
                         
                         writeToConsole(`Bloqueio de acesso do utilizador ${uid} alterado para: ${newStatus}`, "warning");
                         window.showToast(newStatus ? "Utilizador bloqueado!" : "Utilizador seguro!");
-                        await loadData();
                     } catch (err) {
                         console.error(err);
                         window.showToast("Erro ao definir estado.", true);
@@ -2024,7 +2058,6 @@
                         await remove(ref(db, `dados_app/usuarios_config/${uid}`));
                         writeToConsole(`UID ${uid} removido do monitor administrativo.`, "warning");
                         window.showToast("Histórico eliminado.");
-                        await loadData();
                     } catch (err) {
                         console.error(err);
                         window.showToast("Falha ao tentar limpar.", true);
