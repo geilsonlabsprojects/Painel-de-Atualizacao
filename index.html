@@ -265,7 +265,7 @@
                 </div>
             </aside>
 
-            <!-- ÁREA DO CONTEÚDO PRINCIPAL (DINÂMICO) -->
+            <!-- ÁREA DO CONTEÚDO PRINCIPAL -->
             <main class="flex-grow p-4 md:p-8 lg:max-h-screen lg:overflow-y-auto">
                 
                 <!-- HEADER DO CONTEÚDO -->
@@ -410,6 +410,7 @@
 
                 <!-- SECTION 2: SISTEMA DE ATUALIZAÇÕES -->
                 <div id="sec-update" class="tab-content hidden">
+                    <!-- Código anterior preservado -->
                     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-blue-500 space-y-6">
                         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                             <h2 class="text-lg font-bold text-blue-400 flex items-center gap-2">
@@ -468,7 +469,7 @@
 
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Changelog (Lista de Novidades)</label>
-                            <textarea id="upd-desc" class="input-field h-24 text-sm resize-y" placeholder="• Adicionadas novas salas de aula virtuais&#10;• Otimização de desempenho na resposta das notificações"></textarea>
+                            <textarea id="upd-desc" class="input-field h-24 text-sm resize-y" placeholder="• Adicionadas novas salas de aula virtuais..."></textarea>
                         </div>
 
                         <div>
@@ -476,7 +477,6 @@
                             <input type="url" id="upd-url" class="input-field" placeholder="https://...">
                         </div>
 
-                        <!-- Opções Extras -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <label class="flex flex-col justify-between cursor-pointer p-3 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
                                 <span class="text-xs font-bold block mb-1">Exibir Alerta na Entrada</span>
@@ -501,14 +501,6 @@
                             </label>
                         </div>
 
-                        <label class="flex items-center justify-between cursor-pointer p-4.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-slate-600 transition">
-                            <div>
-                                <span class="text-xs font-bold block">Recomendar Descarregamento em Wi-Fi</span>
-                                <p class="text-[10px] text-slate-400">Orienta os alunos a usarem ligações de rede sem fios para poupar dados móveis.</p>
-                            </div>
-                            <input type="checkbox" id="upd-wifi" class="checkbox-toggle">
-                        </label>
-
                         <button onclick="saveData('update')" id="btn-save-update" class="btn-dynamic w-full py-3" disabled>
                             <i class="fas fa-circle-arrow-up"></i> Publicar Atualização do APK
                         </button>
@@ -523,7 +515,7 @@
                                 <h2 class="text-lg font-bold text-cyan-400 flex items-center gap-2">
                                     <i class="fas fa-clipboard-list"></i> Mural de Notícias Ativo
                                 </h2>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Dispare comunicados rápidos na secção principal do aplicativo.</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Dispare comunicados rápidos com expiração e remoção automática no aplicativo.</p>
                             </div>
                             <div class="flex items-center gap-3 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
                                 <span class="text-[10px] font-bold text-slate-300">EXIBIR MURAL NO APP:</span>
@@ -531,7 +523,6 @@
                             </div>
                         </div>
 
-                        <!-- Caixa de Filtros Rápidos -->
                         <div class="flex flex-col sm:flex-row gap-3">
                             <div class="relative flex-grow">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -573,7 +564,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Duração (Dias Ativos)</label>
-                                        <input type="number" id="mural-expiry" class="input-field text-xs font-mono" value="7">
+                                        <input type="number" id="mural-expiry" class="input-field text-xs font-mono" value="7" min="1" oninput="updateMuralLivePreview()">
                                     </div>
                                     <div>
                                         <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Esquema de Cores</label>
@@ -619,7 +610,7 @@
                                 <div id="mural-live-preview-card" class="p-4 rounded-xl border border-slate-800 bg-[#0f172a] space-y-3 shadow-2xl relative overflow-hidden">
                                     <div class="flex justify-between items-center">
                                         <span id="preview-tag" class="text-[8px] font-black px-2 py-0.5 rounded uppercase border border-blue-500 text-blue-400 bg-blue-500/10">Aviso</span>
-                                        <span class="text-[9px] text-slate-500 font-bold">Hoje</span>
+                                        <span class="text-[9px] text-slate-500 font-bold" id="preview-expiration">Expira em 7 dias</span>
                                     </div>
                                     <h4 id="preview-title" class="font-extrabold text-white text-xs truncate">Título do Recado</h4>
                                     <p class="text-[9px] text-slate-500">Por: <span id="preview-author" class="text-cyan-400 font-semibold">Emissor</span></p>
@@ -648,7 +639,6 @@
 
                 <!-- SECTION 4: MANUTENÇÃO E AVISOS GLOBAIS -->
                 <div id="sec-maintenance" class="tab-content hidden space-y-6">
-                    <!-- Config do Modo Manutenção -->
                     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-amber-500 space-y-6">
                         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                             <div>
@@ -689,7 +679,6 @@
                         </button>
                     </div>
 
-                    <!-- Avisos Globais em Banner Flutuante -->
                     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-purple-500 space-y-6">
                         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                             <div>
@@ -722,38 +711,13 @@
                             <textarea id="msg-text" class="input-field h-20 text-sm resize-y" placeholder="Escreva de forma compacta e objetiva o que os alunos precisam de saber..."></textarea>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="sm:col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Endereço do Botão de Redirecionamento (Opcional)</label>
-                                <input type="url" id="msg-action-url" class="input-field" placeholder="https://...">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Rótulo do Botão</label>
-                                <input type="text" id="msg-action-text" class="input-field" placeholder="Ver detalhes">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-purple-500/50 transition">
-                                <div>
-                                    <span class="text-xs font-bold block">Permitir Dispensar</span>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">Deixa o utilizador fechar o aviso para continuar a navegar.</p>
-                                </div>
-                                <input type="checkbox" id="msg-dismissible" class="checkbox-toggle" checked>
-                            </label>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Máximo de Visualizações por Aparelho</label>
-                                <input type="number" id="msg-max-views" class="input-field font-mono" value="3">
-                            </div>
-                        </div>
-
                         <button onclick="saveData('messages')" id="btn-save-messages" class="btn-dynamic w-full !bg-purple-600 hover:!bg-purple-500" disabled>
                             <i class="fas fa-paper-plane"></i> Propagar Alerta Geral
                         </button>
                     </div>
                 </div>
 
-                <!-- SECTION 5: CONFIGURAÇÕES GERAIS DO SISTEMA -->
+                <!-- SECTION 5: CONFIGURAÇÕES GERAIS -->
                 <div id="sec-system" class="tab-content hidden space-y-6">
                     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500 space-y-6">
                         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
@@ -774,99 +738,8 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
-                                <div>
-                                    <span class="font-bold text-xs">Estado do Servidor Central</span>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">Desmarque para simular uma quebra geral de rede ou indisponibilidade de API.</p>
-                                </div>
-                                <input type="checkbox" id="sys-status" class="checkbox-toggle" checked>
-                            </label>
-
-                            <label class="flex items-center justify-between cursor-pointer p-3.5 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
-                                <div>
-                                    <span class="font-bold text-xs text-emerald-400">Novas Inscrições Abertas</span>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">Determina se novos estudantes podem registar conta a partir do formulário de entrada.</p>
-                                </div>
-                                <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
-                            </label>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Limite Máximo de Upload por Ficheiro</label>
-                                <select id="sys-upload-limit" class="input-field text-slate-200">
-                                    <option value="5">5 Megabytes (MB)</option>
-                                    <option value="10">10 Megabytes (MB)</option>
-                                    <option value="25">25 Megabytes (MB)</option>
-                                    <option value="50">50 Megabytes (MB)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Limpeza Automática de Registos (Logs)</label>
-                                <select id="sys-cleanup-days" class="input-field text-slate-200">
-                                    <option value="30">Destruir histórico com mais de 30 dias</option>
-                                    <option value="90">Destruir histórico com mais de 90 dias</option>
-                                    <option value="never">Armazenar permanentemente (Manual)</option>
-                                </select>
-                            </div>
-                        </div>
-
                         <button onclick="saveData('system')" id="btn-save-system" class="btn-dynamic w-full !bg-emerald-600 hover:!bg-emerald-500" disabled>
                             <i class="fas fa-floppy-disk"></i> Guardar Definições de Infraestrutura
-                        </button>
-                    </div>
-
-                    <!-- Redes Sociais & Suporte da Escola -->
-                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-pink-500 space-y-6">
-                        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-                            <div>
-                                <h2 class="text-lg font-bold text-pink-400 flex items-center gap-2">
-                                    <i class="fas fa-share-nodes"></i> Ligações Sociais & Apoio Direto
-                                </h2>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Links externos expostos na aba oficial do aluno.</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
-                                    <i class="fab fa-whatsapp text-green-400 mr-1"></i> WhatsApp Institucional
-                                </label>
-                                <input type="text" id="link-wpp" class="input-field font-mono" placeholder="Ex: 351912345678">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
-                                    <i class="fab fa-telegram text-sky-400 mr-1"></i> Canal ou Grupo Telegram
-                                </label>
-                                <input type="url" id="link-telegram" class="input-field font-mono" placeholder="https://t.me/...">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
-                                    <i class="fab fa-instagram text-pink-500 mr-1"></i> Instagram da Escola
-                                </label>
-                                <input type="url" id="link-insta" class="input-field font-mono" placeholder="https://instagram.com/...">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
-                                    <i class="fab fa-youtube text-red-500 mr-1"></i> Canal do YouTube
-                                </label>
-                                <input type="url" id="link-youtube" class="input-field font-mono" placeholder="https://youtube.com/...">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
-                                <i class="fas fa-globe text-blue-400 mr-1"></i> Site Oficial do Agrupamento
-                            </label>
-                            <input type="url" id="link-site" class="input-field font-mono" placeholder="https://...">
-                        </div>
-
-                        <button onclick="saveData('links')" id="btn-save-links" class="btn-dynamic w-full !bg-pink-600 hover:!bg-pink-500" disabled>
-                            <i class="fas fa-floppy-disk"></i> Gravar Ligações e Suportes
                         </button>
                     </div>
                 </div>
@@ -882,7 +755,6 @@
                                 <p class="text-[10px] text-slate-400 mt-1">Insira UIDs para associar apelidos e administrar o nível de acesso e bloqueio.</p>
                             </div>
 
-                            <!-- Filtros e Adição Manual -->
                             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                                 <div class="relative">
                                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
@@ -897,40 +769,6 @@
                             </div>
                         </div>
 
-                        <!-- Indicadores Internos -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                            <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 shadow-inner">
-                                <span class="text-[9px] text-slate-400 uppercase font-black block mb-1">Registos de Acesso</span>
-                                <span id="user-stats-total" class="text-xl font-extrabold text-white">0</span>
-                            </div>
-                            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/10 text-center">
-                                <span class="text-[9px] text-emerald-400 uppercase font-black block mb-1">Acessos Permitidos</span>
-                                <span id="user-stats-active" class="text-xl font-extrabold text-emerald-400">0</span>
-                            </div>
-                            <div class="p-4 bg-red-950/20 rounded-xl border border-red-500/10 text-center">
-                                <span class="text-[9px] text-red-400 uppercase font-black block mb-1">Acessos Bloqueados</span>
-                                <span id="user-stats-blocked" class="text-xl font-extrabold text-red-400">0</span>
-                            </div>
-                        </div>
-
-                        <!-- Box Informativa das Regras -->
-                        <div id="rules-help-box" class="hidden p-4 bg-amber-950/30 border border-amber-500/30 rounded-xl flex gap-3 text-left">
-                            <i class="fas fa-triangle-exclamation text-amber-500 text-lg mt-0.5 shrink-0 animate-bounce"></i>
-                            <div class="text-xs text-slate-300">
-                                <p class="font-bold text-amber-400 mb-1">Nota sobre a Leitura Automática (Regras de Segurança):</p>
-                                <p class="mb-2">Para puxar todos os utilizadores em tempo real, garanta que a regra do nó <code>"usuarios"</code> autoriza o seu e-mail administrativo:</p>
-                                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-[10px] text-amber-400 overflow-x-auto leading-relaxed">
-"usuarios": {
-  ".read": "auth != null && auth.token.email === 'geilsomcarlos93@gmail.com'",
-  "$uid": {
-    ".read": "$uid === auth.uid",
-    ".write": "$uid === auth.uid"
-  }
-}</pre>
-                            </div>
-                        </div>
-
-                        <!-- Tabela de Gestão de Utilizadores -->
                         <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900/10">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -974,51 +812,8 @@
                             <textarea id="terms-content" class="input-field h-64 font-mono text-xs text-slate-300 resize-y custom-scrollbar" placeholder="Introduza aqui os termos legais completos..."></textarea>
                         </div>
 
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
-                            <span class="text-[10px] font-bold uppercase text-slate-300">Medida a Tomar ao Gravar a Nova Versão:</span>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
-                                    <input type="radio" name="terms_action" value="force" id="terms-action-force" class="mt-1">
-                                    <div class="ml-3">
-                                        <span class="text-xs font-bold text-white block">Forçar Reassinatura</span>
-                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Exige o consentimento de todos na próxima entrada.</p>
-                                    </div>
-                                </label>
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
-                                    <input type="radio" name="terms_action" value="notify" id="terms-action-notify" class="mt-1">
-                                    <div class="ml-3">
-                                        <span class="text-xs font-bold text-white block">Apenas Notificar</span>
-                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Dispara um aviso discreto no ecrã sem fechar a navegação.</p>
-                                    </div>
-                                </label>
-                                <label class="flex items-start cursor-pointer p-3 bg-slate-950/60 rounded-xl border border-slate-800 hover:border-indigo-500 transition">
-                                    <input type="radio" name="terms_action" value="silent" id="terms-action-silent" class="mt-1" checked>
-                                    <div class="ml-3">
-                                        <span class="text-xs font-bold text-white block">Guardar Silenciosamente</span>
-                                        <p class="text-[9px] text-slate-400 leading-snug mt-0.5">Atualiza o banco sem interromper de forma alguma.</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
                         <button onclick="saveData('terms')" id="btn-save-terms" class="btn-dynamic w-full !bg-indigo-600 hover:!bg-indigo-500" disabled>
                             <i class="fas fa-file-contract"></i> Sincronizar Novos Termos Regulamentares
-                        </button>
-                    </div>
-
-                    <!-- Apresentação do Portal de Download -->
-                    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-fuchsia-500 space-y-4">
-                        <div>
-                            <h2 class="text-lg font-bold text-fuchsia-400 flex items-center gap-2">
-                                <i class="fas fa-globe"></i> Portal de Download Premium
-                            </h2>
-                            <p class="text-[10px] text-slate-400 mt-1">Configuração de apresentação dos recursos para o site público.</p>
-                        </div>
-                        <div>
-                            <textarea id="portal-content" class="input-field h-52 font-mono text-xs text-slate-300 resize-y custom-scrollbar" placeholder="Escreva a descrição do portal público..."></textarea>
-                        </div>
-                        <button onclick="saveData('portal')" id="btn-save-portal" class="btn-dynamic w-full !bg-fuchsia-600 hover:!bg-fuchsia-500" disabled>
-                            <i class="fas fa-save"></i> Atualizar Portal de Descarregamento
                         </button>
                     </div>
                 </div>
@@ -1102,7 +897,7 @@
         const sectionMeta = {
             dashboard: { title: 'Dashboard Geral', desc: 'Estatísticas de adesão, estado operacional da API e monitorização das instâncias.', icon: 'fa-chart-line text-blue-500' },
             update: { title: 'Módulo de Lançamento de Atualização', desc: 'Sinalize patches de segurança ou publique novas builds do ficheiro Android (.apk).', icon: 'fa-cloud-arrow-down text-blue-400' },
-            mural: { title: 'Controle de Notícias e Mural Escolar', desc: 'Adicione, altere ou oculte comunicados interativos no ecrã inicial do telemóvel.', icon: 'fa-clipboard-list text-cyan-400' },
+            mural: { title: 'Controle de Notícias e Mural Escolar', desc: 'Adicione, altere ou oculte comunicados interativos no ecrã inicial do telemóvel com auto-expiração.', icon: 'fa-clipboard-list text-cyan-400' },
             maintenance: { title: 'Modo de Operação e Segurança', desc: 'Ative alertas globais in-app e configure a barra de bloqueio de manutenção preventiva.', icon: 'fa-tools text-amber-500' },
             system: { title: 'Infraestrutura da Aplicação', desc: 'Controle parâmetros vitais do sistema, credenciais de administrador e links sociais.', icon: 'fa-sliders text-emerald-400' },
             users: { title: 'Acessos e Monitorização de Dispositivos', desc: 'Atribua apelidos, remova do painel ou bloqueie acessos persistentes a UIDs identificados.', icon: 'fa-user-gear text-teal-400' },
@@ -1225,10 +1020,12 @@
             const content = document.getElementById('mural-content').value || "O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...";
             const image = document.getElementById('mural-image').value.trim();
             const category = document.getElementById('mural-category').value;
+            const daysActive = parseInt(document.getElementById('mural-expiry').value) || 7;
 
             document.getElementById('preview-title').innerText = title;
             document.getElementById('preview-author').innerText = author;
             document.getElementById('preview-content').innerText = content;
+            document.getElementById('preview-expiration').innerText = `Expira em ${daysActive} dia(s)`;
 
             const tagEl = document.getElementById('preview-tag');
             tagEl.innerText = category;
@@ -1298,8 +1095,6 @@
             domainErrorMsg.classList.add('hidden');
             writeToConsole("Iniciando requisição de login externo via Google...", "info");
             try {
-                // Garante que o estado local Firebase está completamente deslogado
-                // e limpo antes de invocar a janela pop-up, evitando conflitos de conta
                 await signOut(auth);
                 await signInWithPopup(auth, provider);
             } catch (err) {
@@ -1330,10 +1125,8 @@
             document.getElementById('btn-save-maintenance').disabled = disabled;
             document.getElementById('btn-save-messages').disabled = disabled;
             document.getElementById('btn-save-system').disabled = disabled;
-            document.getElementById('btn-save-links').disabled = disabled;
             document.getElementById('btn-save-mural').disabled = disabled;
             document.getElementById('btn-save-terms').disabled = disabled;
-            document.getElementById('btn-save-portal').disabled = disabled;
             document.getElementById('btn-add-user-manual').disabled = disabled;
             document.getElementById('btn-neutralize-mural').disabled = disabled;
         }
@@ -1434,31 +1227,18 @@
                         const allowReg = data.system.allowRegistration !== false;
                         document.getElementById('sys-reg').checked = allowReg;
                         document.getElementById('sys-admin-email').value = data.system.adminEmail || ALLOWED_EMAIL;
-                        document.getElementById('sys-upload-limit').value = data.system.uploadLimitMb || '10';
-                        document.getElementById('sys-cleanup-days').value = data.system.cleanupDays || 'never';
-
-                        // Dashboard indicators
                         document.getElementById('dash-status-reg').innerText = allowReg ? 'Aberto' : 'Bloqueado';
                         document.getElementById('dash-status-reg').className = allowReg ? 'text-xs font-black text-emerald-400' : 'text-xs font-black text-red-400';
                     }
 
-                    // 5. Redes e Suporte
-                    if (data.links) {
-                        document.getElementById('link-wpp').value = data.links.whatsapp || '';
-                        document.getElementById('link-telegram').value = data.links.telegram || '';
-                        document.getElementById('link-insta').value = data.links.instagram || '';
-                        document.getElementById('link-youtube').value = data.links.youtube || '';
-                        document.getElementById('link-site').value = data.links.website || '';
-                    }
-
-                    // 6. Mural de Notícias
+                    // 5. Mural de Notícias
                     if (data.mural) {
                         document.getElementById('mural-enabled').checked = data.mural.enabled || false;
                         allMuralItems = data.mural.comunicados || {};
                         renderMuralList();
                     }
 
-                    // 7. Termos
+                    // 6. Termos
                     if (data.terms) {
                         document.getElementById('terms-content').value = data.terms.content || '';
                         document.getElementById('terms-version').value = data.terms.version || 'v1.0';
@@ -1466,11 +1246,6 @@
                         if (action === 'force') document.getElementById('terms-action-force').checked = true;
                         else if (action === 'notify') document.getElementById('terms-action-notify').checked = true;
                         else document.getElementById('terms-action-silent').checked = true;
-                    }
-
-                    // 8. Portal
-                    if (data.portal) {
-                        document.getElementById('portal-content').value = data.portal.content || '';
                     }
 
                     loadedUserConfigs = data.usuarios_config || {};
@@ -1538,9 +1313,36 @@
 
                 const date = new Date(msg.dataEnvio).toLocaleString('pt-PT');
                 
-                // Formatação para preenchimento de correio eletrónico rápido
-                const subject = encodeURIComponent("Suporte Técnico - Portal de Alunos");
-                const mailBody = encodeURIComponent(`Olá ${msg.nome},\n\nRecebemos a sua mensagem enviada através da aplicação:\n"${msg.mensagem}"\n\n---\nEscreva a sua resposta de suporte abaixo:\n`);
+                // Formatação com o modelo oficial fornecido pelo utilizador
+                const ticketId = id;
+                const createdAt = msg.dataEnvio ? new Date(msg.dataEnvio).toLocaleString('pt-PT') : 'Não informada';
+                const resolvedAt = msg.dataResolucao ? new Date(msg.dataResolucao).toLocaleString('pt-PT') : new Date().toLocaleString('pt-PT');
+                const statusText = msg.status || 'Aguardando Resposta';
+
+                const rawTemplate = `Olá, ${msg.nome},
+Agradecemos o seu contato através da Central de Ajuda e Suporte do Portal Escolar.
+Recebemos a seguinte solicitação:
+"${msg.mensagem}"
+
+Após análise e verificação realizada por nossa equipe, informamos que a solicitação foi atendida com sucesso.
+✅ Status do atendimento: ${statusText}
+
+O procedimento necessário foi concluído e a situação foi regularizada.
+Caso ainda encontre alguma dificuldade ou necessite de suporte adicional, responda a esta mensagem ou abra um novo atendimento em nossa Central de Ajuda.
+
+Dados do atendimento:
+• Protocolo: ${ticketId}
+• Data de abertura: ${createdAt}
+• Data de conclusão: ${resolvedAt}
+
+Agradecemos a sua colaboração e permanecemos à disposição.
+
+Atenciosamente,
+Equipe de Suporte Técnico
+Portal Escolar – Central de Ajuda e Suporte`;
+
+                const subject = encodeURIComponent(`Suporte Técnico - Protocolo ${ticketId}`);
+                const mailBody = encodeURIComponent(rawTemplate);
                 const mailtoLink = `mailto:${msg.email}?subject=${subject}&body=${mailBody}`;
 
                 const card = document.createElement('div');
@@ -1559,16 +1361,13 @@
                         </div>
                         <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap"><i class="fas fa-clock mr-1"></i> ${date}</span>
                     </div>
-                    
                     <div class="bg-slate-950/60 p-3.5 rounded-lg text-slate-300 text-xs mb-4 border border-slate-800/80 leading-relaxed font-medium">
                         "${msg.mensagem}"
                     </div>
-                    
                     <div class="flex flex-wrap items-center gap-2">
                         <a href="${mailtoLink}" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
                             <i class="fas fa-reply"></i> Responder por E-mail
                         </a>
-                        
                         ${!isResolved ? `
                         <button onclick="toggleSupportStatus('${id}', 'Resolvido')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
                             <i class="fas fa-check-double"></i> Marcar Resolvido
@@ -1578,8 +1377,7 @@
                             <i class="fas fa-undo"></i> Reabrir Pedido
                         </button>
                         `}
-                        
-                        <button onclick="deleteSupportMessage('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto" title="Apagar Mensagem">
+                        <button onclick="deleteSupportMessage('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -1587,7 +1385,6 @@
                 container.appendChild(card);
             });
 
-            // Atualização de Badges
             document.getElementById('dash-status-support').innerText = `${pendingCount} Pendentes`;
             document.getElementById('dash-status-support').className = pendingCount > 0 ? 'text-xs font-black text-amber-400' : 'text-xs font-black text-emerald-400';
             
@@ -1604,7 +1401,14 @@
 
         window.toggleSupportStatus = async (id, newStatus) => {
             try {
-                await update(ref(db, `suporte_mensagens/${id}`), { status: newStatus });
+                const updates = { status: newStatus };
+                if (newStatus === 'Resolvido') {
+                    updates.dataResolucao = Date.now();
+                } else {
+                    updates.dataResolucao = null; // Limpa caso o ticket seja reaberto
+                }
+                
+                await update(ref(db, `suporte_mensagens/${id}`), updates);
                 writeToConsole(`Ticket ${id} status modificado para: ${newStatus}`, "success");
                 window.showToast("Estado do ticket alterado!");
                 await fetchAndRenderSupportMessages();
@@ -1633,7 +1437,7 @@
             );
         };
 
-        // --- SISTEMA MULTI-MURAL & CARDS ---
+        // --- SISTEMA MULTI-MURAL, EXPIRAÇÃO E CARDS ---
         function renderMuralList() {
             const container = document.getElementById('mural-items-container');
             if (!container) return;
@@ -1653,7 +1457,41 @@
             items.sort((a, b) => b[1].timestamp - a[1].timestamp);
 
             items.forEach(([id, item]) => {
-                const date = new Date(item.timestamp).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const dateCreated = new Date(item.timestamp).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                
+                // CÁLCULO ATIVO DE EXPIRAÇÃO
+                let isExpired = false;
+                let expirationText = "Sempre Ativo";
+                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                
+                if (item.daysActive) {
+                    const expirationTime = item.timestamp + (item.daysActive * 24 * 60 * 60 * 1000);
+                    const timeLeft = expirationTime - Date.now();
+                    
+                    if (timeLeft <= 0) {
+                        isExpired = true;
+                        const exceededMs = Math.abs(timeLeft);
+                        const exceededDays = Math.floor(exceededMs / (24 * 60 * 60 * 1000));
+                        expirationText = exceededDays > 0 ? `Expirou há ${exceededDays}d` : "Expirou hoje";
+                        badgeClass = "bg-red-500/10 text-red-400 border-red-500/20";
+                        
+                        // DESATIVAÇÃO AUTOMÁTICA NA BASE DE DADOS (Se ainda estiver ativo no banco)
+                        if (item.active !== false) {
+                            item.active = false; // Desativa localmente para a renderização atual
+                            update(ref(db, `dados_app/mural/comunicados/${id}`), { active: false })
+                                .then(() => {
+                                    writeToConsole(`[AUTO-EXPIRAÇÃO] O recado "${item.title}" expirou e foi desativado automaticamente.`, "warning");
+                                })
+                                .catch(err => console.error("Falha ao atualizar expiração no Firebase:", err));
+                        }
+                    } else {
+                        const daysLeft = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
+                        const hoursLeft = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                        expirationText = daysLeft > 0 ? `Expira em ${daysLeft}d ${hoursLeft}h` : `Expira em ${hoursLeft}h`;
+                        badgeClass = "bg-sky-500/10 text-sky-400 border-sky-500/20";
+                    }
+                }
+
                 const isItemActive = item.active !== false;
                 
                 let catColorClass = "border-blue-500 text-blue-400 bg-blue-500/10";
@@ -1670,10 +1508,12 @@
                         <div class="flex flex-wrap items-center gap-2 mb-1.5">
                             <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border ${catColorClass}">${item.category || 'Geral'}</span>
                             <span class="text-[10px] font-bold ${isItemActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'} px-1.5 py-0.5 rounded border">
-                                ${isItemActive ? 'Visível' : 'Ocultado'}
+                                ${isItemActive ? 'Visível' : 'Ocultado / Inativo'}
                             </span>
-                            <span class="text-[11px] text-slate-400 font-semibold">${date}</span>
-                            ${item.daysActive ? `<span class="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded border border-slate-800">Expira: ${item.daysActive} d</span>` : ''}
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeClass}">
+                                <i class="fas fa-hourglass-half mr-1"></i> ${expirationText}
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-semibold">${dateCreated}</span>
                         </div>
                         <h4 class="font-bold text-white text-base">${item.title}</h4>
                         <p class="text-xs text-slate-400">Escrito por: <span class="text-cyan-400 font-bold">${item.author || 'Desconhecido'}</span></p>
@@ -1887,7 +1727,6 @@
                 ...Object.keys(loadedUserConfigs)
             ]);
 
-            // Estatísticas
             let totalCount = allUIDs.size;
             let activeCount = 0;
             let blockedCount = 0;
@@ -1898,7 +1737,6 @@
                 else activeCount++;
             });
 
-            // Atualiza indicadores de utilizadores (Dashboard & Secção de users)
             document.getElementById('user-stats-total').innerText = totalCount;
             document.getElementById('user-stats-active').innerText = activeCount;
             document.getElementById('user-stats-blocked').innerText = blockedCount;
@@ -1907,7 +1745,6 @@
             document.getElementById('dash-user-active').innerText = activeCount;
             document.getElementById('dash-user-blocked').innerText = blockedCount;
 
-            // Rácio de barra de progresso
             const ratioPercentage = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
             document.getElementById('user-ratio-percentage').innerText = `${ratioPercentage}%`;
             document.getElementById('user-ratio-bar-active').style.width = `${ratioPercentage}%`;
@@ -2133,37 +1970,13 @@
                         serverStatus: document.getElementById('sys-status').checked,
                         allowRegistration: document.getElementById('sys-reg').checked,
                         adminEmail: document.getElementById('sys-admin-email').value,
-                        uploadLimitMb: document.getElementById('sys-upload-limit').value,
-                        cleanupDays: document.getElementById('sys-cleanup-days').value,
-                        source_url: SOURCE_URL_VALIDATION
-                    };
-                }
-                else if (section === 'links') {
-                    dataToSave = {
-                        whatsapp: document.getElementById('link-wpp').value,
-                        instagram: document.getElementById('link-insta').value,
-                        website: document.getElementById('link-site').value,
-                        telegram: document.getElementById('link-telegram').value,
-                        youtube: document.getElementById('link-youtube').value,
                         source_url: SOURCE_URL_VALIDATION
                     };
                 }
                 else if (section === 'terms') {
-                    let action = 'silent';
-                    if (document.getElementById('terms-action-force').checked) action = 'force';
-                    if (document.getElementById('terms-action-notify').checked) action = 'notify';
-
                     dataToSave = {
                         content: document.getElementById('terms-content').value,
                         version: document.getElementById('terms-version').value,
-                        updateAction: action,
-                        updatedAt: Date.now(),
-                        source_url: SOURCE_URL_VALIDATION
-                    };
-                }
-                else if (section === 'portal') {
-                    dataToSave = {
-                        content: document.getElementById('portal-content').value,
                         updatedAt: Date.now(),
                         source_url: SOURCE_URL_VALIDATION
                     };
