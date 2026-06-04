@@ -410,7 +410,6 @@
 
                 <!-- SECTION 2: SISTEMA DE ATUALIZAÇÕES -->
                 <div id="sec-update" class="tab-content hidden">
-                    <!-- Código anterior preservado -->
                     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-blue-500 space-y-6">
                         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                             <h2 class="text-lg font-bold text-blue-400 flex items-center gap-2">
@@ -1366,11 +1365,11 @@ Portal Escolar – Central de Ajuda e Suporte`;
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <a href="${mailtoLink}" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
-                            <i class="fas fa-reply"></i> Responder por E-mail
+                            <i class="fas fa-reply"></i> Responder Manual
                         </a>
                         ${!isResolved ? `
                         <button onclick="toggleSupportStatus('${id}', 'Resolvido')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow hover:shadow-lg hover:-translate-y-0.5">
-                            <i class="fas fa-check-double"></i> Marcar Resolvido
+                            <i class="fas fa-check-double"></i> Marcar Resolvido (Notificar Vercel)
                         </button>
                         ` : `
                         <button onclick="toggleSupportStatus('${id}', 'Aguardando Resposta')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
@@ -1399,6 +1398,47 @@ Portal Escolar – Central de Ajuda e Suporte`;
             }
         }
 
+        // <<< NOVA FUNÇÃO PARA DISPARO NA API VERCEL >>>
+        async function enviarEmailSuporte(ticketId, msgData) {
+            writeToConsole(`Conectando à Vercel para enviar e-mail a ${msgData.email}...`, "warning");
+
+            const dadosSuporte = {
+                emailCliente: msgData.email,
+                nomeCliente: msgData.nome || "Estudante",
+                protocolo: ticketId,
+                textoSolicitacao: msgData.mensagem || "Solicitação de Suporte via App"
+            };
+
+            try {
+                const resposta = await fetch('https://painel-de-atualizacao.vercel.app/api/enviar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosSuporte)
+                });
+
+                let resultado;
+                try {
+                    resultado = await resposta.json();
+                } catch(e) {
+                    resultado = { erro: "A API da Vercel retornou um formato inesperado." };
+                }
+
+                if (resposta.ok) {
+                    console.log('E-mail disparado via Vercel com sucesso!', resultado);
+                    writeToConsole(`Notificação automática entregue a ${msgData.email}.`, "success");
+                    window.showToast("O e-mail de conclusão foi enviado com sucesso!");
+                } else {
+                    console.error('Erro retornado pela API da Vercel:', resultado.erro);
+                    writeToConsole(`A Vercel rejeitou o envio: ${resultado.erro || 'Erro não especificado'}`, "error");
+                    window.showToast("Falha ao notificar aluno por e-mail.", true);
+                }
+            } catch (erro) {
+                console.error('Erro de conexão HTTP com a Vercel:', erro);
+                writeToConsole("Falha grave de conexão com o servidor Node/Vercel.", "error");
+                window.showToast("O servidor de E-mail (Vercel) encontra-se offline.", true);
+            }
+        }
+
         window.toggleSupportStatus = async (id, newStatus) => {
             try {
                 const updates = { status: newStatus };
@@ -1408,13 +1448,23 @@ Portal Escolar – Central de Ajuda e Suporte`;
                     updates.dataResolucao = null; // Limpa caso o ticket seja reaberto
                 }
                 
+                // 1. Atualiza no Firebase
                 await update(ref(db, `suporte_mensagens/${id}`), updates);
-                writeToConsole(`Ticket ${id} status modificado para: ${newStatus}`, "success");
-                window.showToast("Estado do ticket alterado!");
+                writeToConsole(`Ticket ${id} marcado como: ${newStatus}`, "success");
+                window.showToast("O ticket foi atualizado no banco!");
+
+                // 2. Dispara a notificação via E-mail (Apenas se estiver marcando como resolvido)
+                if (newStatus === 'Resolvido') {
+                    const msg = allSupportMessages[id];
+                    if (msg && msg.email) {
+                        await enviarEmailSuporte(id, msg);
+                    }
+                }
+
                 await fetchAndRenderSupportMessages();
             } catch (err) {
                 console.error(err);
-                window.showToast("Falha ao modificar estado do ticket.", true);
+                window.showToast("Ocorreu um erro ao atualizar o banco de dados.", true);
             }
         };
 
