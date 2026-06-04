@@ -1369,26 +1369,39 @@
                 const statusText = msg.status || 'Aguardando Resposta';
 
                 const rawTemplate = `Olá, ${msg.nome},
+
 Agradecemos o seu contato através da Central de Ajuda e Suporte do Portal Escolar.
+
 Recebemos a seguinte solicitação:
+
 "${msg.mensagem}"
 
 Após análise e verificação realizada por nossa equipe, informamos que a solicitação foi atendida com sucesso.
+
 ✅ Status do atendimento: ${statusText}
 
 O procedimento necessário foi concluído e a situação foi regularizada.
-Caso ainda encontre alguma dificuldade ou necessite de suporte adicional, responda a esta mensagem ou abra um novo atendimento em nossa Central de Ajuda.
 
-Dados do atendimento:
+📋 Resumo do Atendimento
 • Protocolo: ${ticketId}
 • Data de abertura: ${createdAt}
 • Data de conclusão: ${resolvedAt}
+• Responsável pelo atendimento: Equipe de Suporte
 
-Agradecemos a sua colaboração e permanecemos à disposição.
+Caso ainda encontre alguma dificuldade relacionada a esta solicitação, você poderá abrir um novo atendimento em nossa Central de Ajuda. Nossa equipe estará à disposição para auxiliá-lo.
+
+Agradecemos sua colaboração e confiança em nossos serviços.
 
 Atenciosamente,
+
 Equipe de Suporte Técnico
-Portal Escolar – Central de Ajuda e Suporte`;
+Portal Escolar – Central de Ajuda e Suporte
+
+──────────────────────────────
+Esta é uma mensagem automática do sistema.
+Guarde o número do protocolo para futuras consultas.
+──────────────────────────────`;
+
 
                 const subject = encodeURIComponent(`Suporte Técnico - Protocolo ${ticketId}`);
                 const mailBody = encodeURIComponent(rawTemplate);
