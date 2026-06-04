@@ -737,6 +737,23 @@
                             </div>
                         </div>
 
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="flex items-center justify-between cursor-pointer p-4 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Estado do Servidor</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Permitir operações gerais do App</p>
+                                </div>
+                                <input type="checkbox" id="sys-status" class="checkbox-toggle" checked>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer p-4 bg-slate-900/60 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Inscrições na App</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Permitir novos registos de alunos</p>
+                                </div>
+                                <input type="checkbox" id="sys-reg" class="checkbox-toggle" checked>
+                            </label>
+                        </div>
+
                         <button onclick="saveData('system')" id="btn-save-system" class="btn-dynamic w-full !bg-emerald-600 hover:!bg-emerald-500" disabled>
                             <i class="fas fa-floppy-disk"></i> Guardar Definições de Infraestrutura
                         </button>
@@ -854,6 +871,14 @@
         import { getDatabase, ref, set, get, child, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+        // Funções auxiliares ultra-seguras para evitar erros "Cannot set properties of null"
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+        const setCheck = (id, checked) => { const el = document.getElementById(id); if (el) el.checked = checked; };
+        const setInner = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+
+        const getVal = (id, def = '') => { const el = document.getElementById(id); return el ? el.value : def; };
+        const getCheck = (id, def = false) => { const el = document.getElementById(id); return el ? el.checked : def; };
+
         // Configuração original do Firebase mantida
         const firebaseConfig = {
             apiKey: "AIzaSyDGCjBbqtp_TvFeW7ySpLp0QmKjTsTn2Sw",
@@ -918,8 +943,9 @@
             // Atualiza metadados do Header
             const meta = sectionMeta[tabName];
             if (meta) {
+                setInner('current-section-title', '');
                 document.getElementById('current-section-title').innerHTML = `<i class="fas ${meta.icon}"></i> ${meta.title}`;
-                document.getElementById('current-section-desc').innerText = meta.desc;
+                setInner('current-section-desc', meta.desc);
             }
             writeToConsole(`Acedeu à secção: ${meta ? meta.title : tabName}`, "info");
         };
@@ -952,11 +978,12 @@
         // --- TOAST DE CONFIRMAÇÃO ---
         window.showToast = (message, isError = false) => {
             const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
+            if(!toast) return;
+            setInner('toast-msg', message);
             toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
             
             const icon = toast.querySelector('i');
-            icon.className = isError ? 'fas fa-exclamation-circle text-lg' : 'fas fa-check-circle text-lg';
+            if(icon) icon.className = isError ? 'fas fa-exclamation-circle text-lg' : 'fas fa-check-circle text-lg';
 
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
@@ -966,14 +993,14 @@
         window.customConfirm = (title, message, onConfirmCallback, isDestructive = false) => {
             const modal = document.getElementById('custom-confirm-modal');
             const card = document.getElementById('custom-confirm-card');
-            const titleEl = document.getElementById('confirm-modal-title');
-            const descEl = document.getElementById('confirm-modal-desc');
             const btnOk = document.getElementById('confirm-modal-ok');
             const btnCancel = document.getElementById('confirm-modal-cancel');
             const iconEl = document.getElementById('confirm-modal-icon');
 
-            titleEl.innerText = title;
-            descEl.innerText = message;
+            if(!modal || !card) return;
+
+            setInner('confirm-modal-title', title);
+            setInner('confirm-modal-desc', message);
 
             if (isDestructive) {
                 btnOk.className = "flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-semibold transition-all";
@@ -1014,64 +1041,71 @@
 
         // --- SISTEMA LIVE CARD PREVIEW (MURAL) ---
         window.updateMuralLivePreview = () => {
-            const title = document.getElementById('mural-title').value || "Título do Recado";
-            const author = document.getElementById('mural-author').value || "Emissor";
-            const content = document.getElementById('mural-content').value || "O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...";
-            const image = document.getElementById('mural-image').value.trim();
-            const category = document.getElementById('mural-category').value;
-            const daysActive = parseInt(document.getElementById('mural-expiry').value) || 7;
+            const title = getVal('mural-title') || "Título do Recado";
+            const author = getVal('mural-author') || "Emissor";
+            const content = getVal('mural-content') || "O conteúdo inserido aparecerá aqui simulando o ecrã do telemóvel...";
+            const image = getVal('mural-image').trim();
+            const category = getVal('mural-category', 'Aviso');
+            const daysActive = parseInt(getVal('mural-expiry')) || 7;
 
-            document.getElementById('preview-title').innerText = title;
-            document.getElementById('preview-author').innerText = author;
-            document.getElementById('preview-content').innerText = content;
-            document.getElementById('preview-expiration').innerText = `Expira em ${daysActive} dia(s)`;
+            setInner('preview-title', title);
+            setInner('preview-author', author);
+            setInner('preview-content', content);
+            setInner('preview-expiration', `Expira em ${daysActive} dia(s)`);
 
             const tagEl = document.getElementById('preview-tag');
-            tagEl.innerText = category;
-            
-            tagEl.className = "text-[8px] font-black px-2 py-0.5 rounded uppercase border";
-            if (category === "Urgente") {
-                tagEl.classList.add("border-red-500", "text-red-400", "bg-red-500/10");
-            } else if (category === "Novidade") {
-                tagEl.classList.add("border-emerald-500", "text-emerald-400", "bg-emerald-500/10");
-            } else if (category === "Evento") {
-                tagEl.classList.add("border-purple-500", "text-purple-400", "bg-purple-500/10");
-            } else {
-                tagEl.classList.add("border-blue-500", "text-blue-400", "bg-blue-500/10");
+            if(tagEl) {
+                tagEl.innerText = category;
+                tagEl.className = "text-[8px] font-black px-2 py-0.5 rounded uppercase border";
+                if (category === "Urgente") {
+                    tagEl.classList.add("border-red-500", "text-red-400", "bg-red-500/10");
+                } else if (category === "Novidade") {
+                    tagEl.classList.add("border-emerald-500", "text-emerald-400", "bg-emerald-500/10");
+                } else if (category === "Evento") {
+                    tagEl.classList.add("border-purple-500", "text-purple-400", "bg-purple-500/10");
+                } else {
+                    tagEl.classList.add("border-blue-500", "text-blue-400", "bg-blue-500/10");
+                }
             }
 
             const imgContainer = document.getElementById('preview-image-container');
             const imgEl = document.getElementById('preview-img-src');
-            if (image) {
-                imgEl.src = image;
-                imgContainer.classList.remove('hidden');
-            } else {
-                imgContainer.classList.add('hidden');
+            if (imgContainer && imgEl) {
+                if (image) {
+                    imgEl.src = image;
+                    imgContainer.classList.remove('hidden');
+                } else {
+                    imgContainer.classList.add('hidden');
+                }
             }
         };
 
         // --- ESCUTAS DAS BADGES DINÂMICAS DE MANT. & MSGS ---
         window.updateMntBadge = (checked) => {
             const preview = document.getElementById('maintenance-status-preview');
-            preview.innerText = checked ? 'Ativo ⚠️' : 'Inativo';
-            preview.className = checked ? 'text-2xl font-black text-red-500' : 'text-2xl font-black text-amber-500';
+            if(preview) {
+                preview.innerText = checked ? 'Ativo ⚠️' : 'Inativo';
+                preview.className = checked ? 'text-2xl font-black text-red-500' : 'text-2xl font-black text-amber-500';
+            }
         };
 
         window.updateMsgBadge = (checked) => {
             const preview = document.getElementById('alert-status-preview');
-            preview.innerText = checked ? 'Ativado 🔔' : 'Desativado';
-            preview.className = checked ? 'text-2xl font-black text-emerald-400' : 'text-2xl font-black text-purple-400';
+            if(preview) {
+                preview.innerText = checked ? 'Ativado 🔔' : 'Desativado';
+                preview.className = checked ? 'text-2xl font-black text-emerald-400' : 'text-2xl font-black text-purple-400';
+            }
         };
 
         // --- ESCUTA DE CONTROLO DE AUTENTICAÇÃO ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 if (user.email === ALLOWED_EMAIL) {
-                    loginScreen.classList.add('hidden');
-                    mainContent.classList.remove('hidden');
-                    domainErrorMsg.classList.add('hidden');
+                    if(loginScreen) loginScreen.classList.add('hidden');
+                    if(mainContent) mainContent.classList.remove('hidden');
+                    if(domainErrorMsg) domainErrorMsg.classList.add('hidden');
                     
-                    document.getElementById('admin-display-name').innerText = user.displayName || 'Super Administrador';
+                    setInner('admin-display-name', user.displayName || 'Super Administrador');
                     writeToConsole(`Sessão segura iniciada por: ${user.email}`, "success");
                     
                     toggleActionButtons(false);
@@ -1083,51 +1117,52 @@
                     await signOut(auth);
                 }
             } else {
-                loginScreen.classList.remove('hidden');
-                mainContent.classList.add('hidden');
+                if(loginScreen) loginScreen.classList.remove('hidden');
+                if(mainContent) mainContent.classList.add('hidden');
                 toggleActionButtons(true);
             }
         });
 
         // Eventos dos botões de Login/Logout
-        btnLoginGoogle.addEventListener('click', async () => {
-            domainErrorMsg.classList.add('hidden');
-            writeToConsole("Iniciando requisição de login externo via Google...", "info");
-            try {
-                await signOut(auth);
-                await signInWithPopup(auth, provider);
-            } catch (err) {
-                console.error(err);
-                if (err.code === 'auth/unauthorized-domain') {
-                    domainErrorMsg.classList.remove('hidden');
-                    writeToConsole("Falha crítica de segurança: Domínio não autorizado no console.", "error");
-                    window.showToast("Domínio Rejeitado pelo Firebase Auth!", true);
-                } else if (err.code === 'auth/popup-closed-by-user') {
-                     window.showToast("Login cancelado pelo usuário.", true);
-                } else {
-                    window.showToast("Falha ao autenticar sessão.", true);
+        if(btnLoginGoogle) {
+            btnLoginGoogle.addEventListener('click', async () => {
+                if(domainErrorMsg) domainErrorMsg.classList.add('hidden');
+                writeToConsole("Iniciando requisição de login externo via Google...", "info");
+                try {
+                    await signOut(auth);
+                    await signInWithPopup(auth, provider);
+                } catch (err) {
+                    console.error(err);
+                    if (err.code === 'auth/unauthorized-domain') {
+                        if(domainErrorMsg) domainErrorMsg.classList.remove('hidden');
+                        writeToConsole("Falha crítica de segurança: Domínio não autorizado no console.", "error");
+                        window.showToast("Domínio Rejeitado pelo Firebase Auth!", true);
+                    } else if (err.code === 'auth/popup-closed-by-user') {
+                         window.showToast("Login cancelado pelo usuário.", true);
+                    } else {
+                        window.showToast("Falha ao autenticar sessão.", true);
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        btnLogout.addEventListener('click', async () => {
-            try {
-                writeToConsole("Finalizando conexão segura com a base de dados.", "warning");
-                await signOut(auth);
-            } catch (err) {
-                console.error(err);
-            }
-        });
+        if(btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                try {
+                    writeToConsole("Finalizando conexão segura com a base de dados.", "warning");
+                    await signOut(auth);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        }
 
         function toggleActionButtons(disabled) {
-            document.getElementById('btn-save-update').disabled = disabled;
-            document.getElementById('btn-save-maintenance').disabled = disabled;
-            document.getElementById('btn-save-messages').disabled = disabled;
-            document.getElementById('btn-save-system').disabled = disabled;
-            document.getElementById('btn-save-mural').disabled = disabled;
-            document.getElementById('btn-save-terms').disabled = disabled;
-            document.getElementById('btn-add-user-manual').disabled = disabled;
-            document.getElementById('btn-neutralize-mural').disabled = disabled;
+            const btns = ['btn-save-update', 'btn-save-maintenance', 'btn-save-messages', 'btn-save-system', 'btn-save-mural', 'btn-save-terms', 'btn-add-user-manual', 'btn-neutralize-mural'];
+            btns.forEach(id => {
+                const b = document.getElementById(id);
+                if(b) b.disabled = disabled;
+            });
         }
 
         // --- ESCUTAS EM TEMPO REAL (REALTIME LISTENERS) ---
@@ -1136,7 +1171,7 @@
             onValue(ref(db, 'dados_app/mural'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    document.getElementById('mural-enabled').checked = data.enabled || false;
+                    setCheck('mural-enabled', data.enabled || false);
                     allMuralItems = data.comunicados || {};
                     renderMuralList();
                 }
@@ -1173,96 +1208,107 @@
                     
                     // 1. Atualizações
                     if (data.update) {
-                        document.getElementById('upd-code').value = data.update.versionCode || '';
-                        document.getElementById('upd-name').value = data.update.versionName || '';
-                        document.getElementById('upd-title').value = data.update.title || '';
-                        document.getElementById('upd-desc').value = data.update.description || '';
-                        document.getElementById('upd-url').value = data.update.apkUrl || '';
-                        document.getElementById('upd-btn-text').value = data.update.buttonText || '';
-                        document.getElementById('upd-show').checked = data.update.showUpdate || false;
-                        document.getElementById('upd-force').checked = data.update.forceUpdate || false;
-                        document.getElementById('upd-cancellable').checked = data.update.cancellable !== false;
-                        document.getElementById('upd-channel').value = data.update.channel || 'stable';
-                        document.getElementById('upd-size').value = data.update.apkSize || '';
-                        document.getElementById('upd-min-sdk').value = data.update.minSdk || '';
+                        setVal('upd-code', data.update.versionCode || '');
+                        setVal('upd-name', data.update.versionName || '');
+                        setVal('upd-title', data.update.title || '');
+                        setVal('upd-desc', data.update.description || '');
+                        setVal('upd-url', data.update.apkUrl || '');
+                        setVal('upd-btn-text', data.update.buttonText || '');
+                        setCheck('upd-show', data.update.showUpdate || false);
+                        setCheck('upd-force', data.update.forceUpdate || false);
+                        setCheck('upd-cancellable', data.update.cancellable !== false);
+                        setVal('upd-channel', data.update.channel || 'stable');
+                        setVal('upd-size', data.update.apkSize || '');
+                        setVal('upd-min-sdk', data.update.minSdk || '');
                         
-                        document.getElementById('upd-rollout').value = data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100;
-                        document.getElementById('upd-rollout').nextElementSibling.innerText = (data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100) + '%';
-                        document.getElementById('upd-wifi').checked = data.update.requireWifi || false;
-
-                        document.getElementById('active-version-preview').innerText = 'v' + (data.update.versionName || '0.0.0');
+                        setVal('upd-rollout', data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100);
+                        const rolloutEl = document.getElementById('upd-rollout');
+                        if(rolloutEl && rolloutEl.nextElementSibling) {
+                            rolloutEl.nextElementSibling.innerText = (data.update.rolloutPercentage !== undefined ? data.update.rolloutPercentage : 100) + '%';
+                        }
+                        
+                        setCheck('upd-wifi', data.update.requireWifi || false);
+                        setInner('active-version-preview', 'v' + (data.update.versionName || '0.0.0'));
                     }
 
                     // 2. Manutenção
                     if (data.maintenance) {
                         const mnt = data.maintenance.enabled || false;
-                        document.getElementById('mnt-enabled').checked = mnt;
-                        document.getElementById('mnt-title').value = data.maintenance.title || '';
-                        document.getElementById('mnt-msg').value = data.maintenance.message || '';
-                        document.getElementById('mnt-eta').value = data.maintenance.eta || '';
-                        document.getElementById('mnt-bypass-admins').checked = data.maintenance.bypassAdmins !== false;
+                        setCheck('mnt-enabled', mnt);
+                        setVal('mnt-title', data.maintenance.title || '');
+                        setVal('mnt-msg', data.maintenance.message || '');
+                        setVal('mnt-eta', data.maintenance.eta || '');
+                        setCheck('mnt-bypass-admins', data.maintenance.bypassAdmins !== false);
                         updateMntBadge(mnt);
                     }
 
                     // 3. Avisos Globais
                     if (data.messages) {
                         const msg = data.messages.enabled || false;
-                        document.getElementById('msg-enabled').checked = msg;
-                        document.getElementById('msg-title').value = data.messages.title || '';
-                        document.getElementById('msg-text').value = data.messages.message || '';
-                        document.getElementById('msg-action-text').value = data.messages.actionText || '';
-                        document.getElementById('msg-action-url').value = data.messages.actionUrl || '';
-                        document.getElementById('msg-style').value = data.messages.bannerStyle || 'info';
-                        document.getElementById('msg-dismissible').checked = data.messages.dismissible !== false;
-                        document.getElementById('msg-max-views').value = data.messages.maxViews || 3;
+                        setCheck('msg-enabled', msg);
+                        setVal('msg-title', data.messages.title || '');
+                        setVal('msg-text', data.messages.message || '');
+                        setVal('msg-action-text', data.messages.actionText || '');
+                        setVal('msg-action-url', data.messages.actionUrl || '');
+                        setVal('msg-style', data.messages.bannerStyle || 'info');
+                        setCheck('msg-dismissible', data.messages.dismissible !== false);
+                        setVal('msg-max-views', data.messages.maxViews || 3);
                         updateMsgBadge(msg);
                     }
 
                     // 4. Sistema
                     if (data.system) {
-                        document.getElementById('sys-name').value = data.system.appName || '';
+                        setVal('sys-name', data.system.appName || '');
                         const serverStatus = data.system.serverStatus !== false;
-                        document.getElementById('sys-status').checked = serverStatus;
+                        setCheck('sys-status', serverStatus);
                         const allowReg = data.system.allowRegistration !== false;
-                        document.getElementById('sys-reg').checked = allowReg;
-                        document.getElementById('sys-admin-email').value = data.system.adminEmail || ALLOWED_EMAIL;
-                        document.getElementById('dash-status-reg').innerText = allowReg ? 'Aberto' : 'Bloqueado';
-                        document.getElementById('dash-status-reg').className = allowReg ? 'text-xs font-black text-emerald-400' : 'text-xs font-black text-red-400';
+                        setCheck('sys-reg', allowReg);
+                        setVal('sys-admin-email', data.system.adminEmail || ALLOWED_EMAIL);
+                        
+                        const dashReg = document.getElementById('dash-status-reg');
+                        if (dashReg) {
+                            dashReg.innerText = allowReg ? 'Aberto' : 'Bloqueado';
+                            dashReg.className = allowReg ? 'text-xs font-black text-emerald-400' : 'text-xs font-black text-red-400';
+                        }
                     }
 
                     // 5. Mural de Notícias
                     if (data.mural) {
-                        document.getElementById('mural-enabled').checked = data.mural.enabled || false;
+                        setCheck('mural-enabled', data.mural.enabled || false);
                         allMuralItems = data.mural.comunicados || {};
                         renderMuralList();
                     }
 
                     // 6. Termos
                     if (data.terms) {
-                        document.getElementById('terms-content').value = data.terms.content || '';
-                        document.getElementById('terms-version').value = data.terms.version || 'v1.0';
+                        setVal('terms-content', data.terms.content || '');
+                        setVal('terms-version', data.terms.version || 'v1.0');
                         const action = data.terms.updateAction || 'silent';
-                        if (action === 'force') document.getElementById('terms-action-force').checked = true;
-                        else if (action === 'notify') document.getElementById('terms-action-notify').checked = true;
-                        else document.getElementById('terms-action-silent').checked = true;
+                        if (action === 'force') setCheck('terms-action-force', true);
+                        else if (action === 'notify') setCheck('terms-action-notify', true);
+                        else setCheck('terms-action-silent', true);
                     }
 
                     loadedUserConfigs = data.usuarios_config || {};
 
-                    statusEl.innerHTML = '<i class="fas fa-circle-check"></i> Sincronizado com /dados_app';
-                    statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1.5 rounded-full border border-emerald-400/20";
+                    if(statusEl) {
+                        statusEl.innerHTML = '<i class="fas fa-circle-check"></i> Sincronizado com /dados_app';
+                        statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1.5 rounded-full border border-emerald-400/20";
+                    }
                     writeToConsole("Todos os dados foram descarregados com êxito.", "success");
                     
                     await fetchAndRenderUsers();
                     await fetchAndRenderSupportMessages();
                 } else {
-                    statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Nó Inicial Desprovido';
+                    if(statusEl) statusEl.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Nó Inicial Desprovido';
                     writeToConsole("A estrutura dados_app está atualmente vazia.", "warning");
                 }
             } catch (err) {
                 console.error(err);
-                statusEl.innerHTML = '<i class="fas fa-circle-xmark"></i> Erro de Comunicação';
-                statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-full border border-red-400/20";
+                if(statusEl) {
+                    statusEl.innerHTML = '<i class="fas fa-circle-xmark"></i> Erro de Comunicação';
+                    statusEl.className = "flex items-center gap-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-full border border-red-400/20";
+                }
                 window.showToast("Falha na sincronização inicial de dados.", true);
                 writeToConsole(`Impossível estabelecer conexão: ${err.message}`, "error");
             }
@@ -1281,17 +1327,19 @@
                     renderSupportMessages();
                 } else {
                     allSupportMessages = {};
-                    container.innerHTML = `
+                    if(container) container.innerHTML = `
                         <div class="p-6 bg-slate-900/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs">
                             <i class="fas fa-envelope-circle-check mr-2 text-slate-600"></i> Nenhuma mensagem de suporte recebida.
                         </div>`;
-                    sidebarBadge.classList.add('hidden');
-                    dashBadge.innerText = '0 Pendentes';
-                    dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+                    if(sidebarBadge) sidebarBadge.classList.add('hidden');
+                    if(dashBadge) {
+                        dashBadge.innerText = '0 Pendentes';
+                        dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold transition-all";
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                container.innerHTML = `<div class="p-6 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar mensagens de suporte.</div>`;
+                if(container) container.innerHTML = `<div class="p-6 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i>Erro ao carregar mensagens de suporte.</div>`;
             }
         }
 
@@ -1299,6 +1347,8 @@
             const container = document.getElementById('support-messages-container');
             const sidebarBadge = document.getElementById('support-badge-count');
             const dashBadge = document.getElementById('support-pending-badge');
+            if(!container) return;
+            
             container.innerHTML = '';
             
             const items = Object.entries(allSupportMessages);
@@ -1384,17 +1434,22 @@ Portal Escolar – Central de Ajuda e Suporte`;
                 container.appendChild(card);
             });
 
-            document.getElementById('dash-status-support').innerText = `${pendingCount} Pendentes`;
-            document.getElementById('dash-status-support').className = pendingCount > 0 ? 'text-xs font-black text-amber-400' : 'text-xs font-black text-emerald-400';
+            setInner('dash-status-support', `${pendingCount} Pendentes`);
+            const dashSupport = document.getElementById('dash-status-support');
+            if(dashSupport) dashSupport.className = pendingCount > 0 ? 'text-xs font-black text-amber-400' : 'text-xs font-black text-emerald-400';
             
-            dashBadge.innerText = `${pendingCount} Pendentes`;
-            if (pendingCount > 0) {
-                dashBadge.className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-extrabold animate-pulse";
-                sidebarBadge.classList.remove('hidden');
-                sidebarBadge.innerText = pendingCount;
-            } else {
-                dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-extrabold";
-                sidebarBadge.classList.add('hidden');
+            if(dashBadge) {
+                dashBadge.innerText = `${pendingCount} Pendentes`;
+                if (pendingCount > 0) {
+                    dashBadge.className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-extrabold animate-pulse";
+                    if(sidebarBadge) {
+                        sidebarBadge.classList.remove('hidden');
+                        sidebarBadge.innerText = pendingCount;
+                    }
+                } else {
+                    dashBadge.className = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-extrabold";
+                    if(sidebarBadge) sidebarBadge.classList.add('hidden');
+                }
             }
         }
 
@@ -1493,7 +1548,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
             if (!container) return;
             const items = Object.entries(allMuralItems);
             
-            document.getElementById('mural-count-preview').innerText = `${items.length} Itens`;
+            setInner('mural-count-preview', `${items.length} Itens`);
             
             if (items.length === 0) {
                 container.innerHTML = `
@@ -1587,7 +1642,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
         }
 
         window.filterMural = () => {
-            const query = document.getElementById('mural-search-input').value.toLowerCase();
+            const query = getVal('mural-search-input').toLowerCase();
             const rows = document.querySelectorAll('.mural-item-row');
             let visibleCount = 0;
             
@@ -1600,19 +1655,19 @@ Portal Escolar – Central de Ajuda e Suporte`;
                     row.classList.add('hidden');
                 }
             });
-            document.getElementById('mural-stats-tag').innerText = `Encontrados: ${visibleCount} recado(s)`;
+            setInner('mural-stats-tag', `Encontrados: ${visibleCount} recado(s)`);
         };
 
         window.clearMuralForm = () => {
-            document.getElementById('mural-edit-id').value = '';
-            document.getElementById('mural-title').value = '';
-            document.getElementById('mural-author').value = '';
-            document.getElementById('mural-content').value = '';
-            document.getElementById('mural-image').value = '';
-            document.getElementById('mural-action-url').value = '';
-            document.getElementById('mural-category').value = 'Aviso';
-            document.getElementById('mural-expiry').value = '7';
-            document.getElementById('mural-color').value = 'blue';
+            setVal('mural-edit-id', '');
+            setVal('mural-title', '');
+            setVal('mural-author', '');
+            setVal('mural-content', '');
+            setVal('mural-image', '');
+            setVal('mural-action-url', '');
+            setVal('mural-category', 'Aviso');
+            setVal('mural-expiry', '7');
+            setVal('mural-color', 'blue');
             
             document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-circle-plus text-cyan-400"></i> Criar Novo Recado`;
             updateMuralLivePreview();
@@ -1622,33 +1677,34 @@ Portal Escolar – Central de Ajuda e Suporte`;
             const item = allMuralItems[id];
             if (!item) return;
 
-            document.getElementById('mural-edit-id').value = id;
-            document.getElementById('mural-title').value = item.title || '';
-            document.getElementById('mural-author').value = item.author || '';
-            document.getElementById('mural-content').value = item.content || '';
-            document.getElementById('mural-image').value = item.imageUrl || '';
-            document.getElementById('mural-action-url').value = item.actionUrl || '';
-            document.getElementById('mural-category').value = item.category || 'Aviso';
-            document.getElementById('mural-expiry').value = item.daysActive || '7';
-            document.getElementById('mural-color').value = item.cardColor || 'blue';
+            setVal('mural-edit-id', id);
+            setVal('mural-title', item.title || '');
+            setVal('mural-author', item.author || '');
+            setVal('mural-content', item.content || '');
+            setVal('mural-image', item.imageUrl || '');
+            setVal('mural-action-url', item.actionUrl || '');
+            setVal('mural-category', item.category || 'Aviso');
+            setVal('mural-expiry', item.daysActive || '7');
+            setVal('mural-color', item.cardColor || 'blue');
 
             document.getElementById('mural-form-title').innerHTML = `<i class="fas fa-pen text-amber-400"></i> Editando Recado (${item.title})`;
-            document.getElementById('mural-title').focus();
+            const titleEl = document.getElementById('mural-title');
+            if(titleEl) titleEl.focus();
             
             switchTab('mural');
             updateMuralLivePreview();
         };
 
         window.saveMuralItem = async () => {
-            const id = document.getElementById('mural-edit-id').value;
-            const title = document.getElementById('mural-title').value.trim();
-            const author = document.getElementById('mural-author').value.trim();
-            const content = document.getElementById('mural-content').value.trim();
-            const imageUrl = document.getElementById('mural-image').value.trim();
-            const actionUrl = document.getElementById('mural-action-url').value.trim();
-            const category = document.getElementById('mural-category').value;
-            const daysActive = parseInt(document.getElementById('mural-expiry').value) || 7;
-            const cardColor = document.getElementById('mural-color').value;
+            const id = getVal('mural-edit-id');
+            const title = getVal('mural-title').trim();
+            const author = getVal('mural-author').trim();
+            const content = getVal('mural-content').trim();
+            const imageUrl = getVal('mural-image').trim();
+            const actionUrl = getVal('mural-action-url').trim();
+            const category = getVal('mural-category');
+            const daysActive = parseInt(getVal('mural-expiry')) || 7;
+            const cardColor = getVal('mural-color');
 
             if(!title || !content) {
                 window.showToast("Título e Conteúdo do Recado são campos mandatórios!", true);
@@ -1696,7 +1752,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
         };
 
         window.saveMuralState = async () => {
-            const enabled = document.getElementById('mural-enabled').checked;
+            const enabled = getCheck('mural-enabled');
             try {
                 await update(ref(db, 'dados_app/mural'), { enabled });
                 writeToConsole(`Visibilidade geral do mural alterada para: ${enabled}`, "success");
@@ -1787,18 +1843,20 @@ Portal Escolar – Central de Ajuda e Suporte`;
                 else activeCount++;
             });
 
-            document.getElementById('user-stats-total').innerText = totalCount;
-            document.getElementById('user-stats-active').innerText = activeCount;
-            document.getElementById('user-stats-blocked').innerText = blockedCount;
-
-            document.getElementById('dash-user-total').innerText = totalCount;
-            document.getElementById('dash-user-active').innerText = activeCount;
-            document.getElementById('dash-user-blocked').innerText = blockedCount;
+            setInner('dash-user-total', totalCount);
+            setInner('dash-user-active', activeCount);
+            setInner('dash-user-blocked', blockedCount);
 
             const ratioPercentage = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
-            document.getElementById('user-ratio-percentage').innerText = `${ratioPercentage}%`;
-            document.getElementById('user-ratio-bar-active').style.width = `${ratioPercentage}%`;
-            document.getElementById('user-ratio-bar-blocked').style.width = `${totalCount > 0 ? 100 - ratioPercentage : 0}%`;
+            setInner('user-ratio-percentage', `${ratioPercentage}%`);
+            
+            const activeBar = document.getElementById('user-ratio-bar-active');
+            if(activeBar) activeBar.style.width = `${ratioPercentage}%`;
+            
+            const blockedBar = document.getElementById('user-ratio-bar-blocked');
+            if(blockedBar) blockedBar.style.width = `${totalCount > 0 ? 100 - ratioPercentage : 0}%`;
+
+            if(!tableBody) return;
 
             if (allUIDs.size === 0) {
                 tableBody.innerHTML = `
@@ -1852,7 +1910,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
         }
 
         window.filterUsersTable = () => {
-            const query = document.getElementById('user-search-input').value.toLowerCase();
+            const query = getVal('user-search-input').toLowerCase();
             const rows = document.querySelectorAll('.user-row');
             
             rows.forEach(row => {
@@ -1867,6 +1925,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
 
         window.addUserManually = async () => {
             const uidInput = document.getElementById('new-user-uid');
+            if(!uidInput) return;
             const uid = uidInput.value.trim();
 
             if (!uid) {
@@ -1897,7 +1956,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
         };
 
         window.updateNickname = async (uid) => {
-            const nicknameVal = document.getElementById(`nickname-${uid}`).value.trim();
+            const nicknameVal = getVal(`nickname-${uid}`).trim();
             try {
                 await update(ref(db, `dados_app/usuarios_config/${uid}`), {
                     apelido: nicknameVal,
@@ -1964,6 +2023,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
 
             const btnId = `btn-save-${section}`;
             const btnEl = document.getElementById(btnId);
+            if(!btnEl) return;
             const originalContent = btnEl.innerHTML;
             btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A Sincronizar...';
             btnEl.disabled = true;
@@ -1973,60 +2033,60 @@ Portal Escolar – Central de Ajuda e Suporte`;
             try {
                 if (section === 'update') {
                     dataToSave = {
-                        versionCode: parseInt(document.getElementById('upd-code').value) || 0,
-                        versionName: document.getElementById('upd-name').value,
-                        title: document.getElementById('upd-title').value,
-                        description: document.getElementById('upd-desc').value,
-                        apkUrl: document.getElementById('upd-url').value,
-                        buttonText: document.getElementById('upd-btn-text').value,
-                        showUpdate: document.getElementById('upd-show').checked,
-                        forceUpdate: document.getElementById('upd-force').checked,
-                        cancellable: document.getElementById('upd-cancellable').checked,
-                        channel: document.getElementById('upd-channel').value,
-                        apkSize: document.getElementById('upd-size').value,
-                        minSdk: document.getElementById('upd-min-sdk').value,
-                        rolloutPercentage: parseInt(document.getElementById('upd-rollout').value) || 100,
-                        requireWifi: document.getElementById('upd-wifi').checked,
+                        versionCode: parseInt(getVal('upd-code', '0')) || 0,
+                        versionName: getVal('upd-name'),
+                        title: getVal('upd-title'),
+                        description: getVal('upd-desc'),
+                        apkUrl: getVal('upd-url'),
+                        buttonText: getVal('upd-btn-text'),
+                        showUpdate: getCheck('upd-show'),
+                        forceUpdate: getCheck('upd-force'),
+                        cancellable: getCheck('upd-cancellable', true),
+                        channel: getVal('upd-channel', 'stable'),
+                        apkSize: getVal('upd-size'),
+                        minSdk: getVal('upd-min-sdk'),
+                        rolloutPercentage: parseInt(getVal('upd-rollout', '100')) || 100,
+                        requireWifi: getCheck('upd-wifi'),
                         updatedAt: Date.now(),
                         source_url: SOURCE_URL_VALIDATION
                     };
                 } 
                 else if (section === 'maintenance') {
                     dataToSave = {
-                        enabled: document.getElementById('mnt-enabled').checked,
-                        title: document.getElementById('mnt-title').value,
-                        message: document.getElementById('mnt-msg').value,
-                        eta: document.getElementById('mnt-eta').value,
-                        bypassAdmins: document.getElementById('mnt-bypass-admins').checked,
+                        enabled: getCheck('mnt-enabled'),
+                        title: getVal('mnt-title'),
+                        message: getVal('mnt-msg'),
+                        eta: getVal('mnt-eta'),
+                        bypassAdmins: getCheck('mnt-bypass-admins', true),
                         source_url: SOURCE_URL_VALIDATION
                     };
                 }
                 else if (section === 'messages') {
                     dataToSave = {
-                        enabled: document.getElementById('msg-enabled').checked,
-                        title: document.getElementById('msg-title').value,
-                        message: document.getElementById('msg-text').value,
-                        actionText: document.getElementById('msg-action-text').value,
-                        actionUrl: document.getElementById('msg-action-url').value,
-                        bannerStyle: document.getElementById('msg-style').value,
-                        dismissible: document.getElementById('msg-dismissible').checked,
-                        maxViews: parseInt(document.getElementById('msg-max-views').value) || 3,
+                        enabled: getCheck('msg-enabled'),
+                        title: getVal('msg-title'),
+                        message: getVal('msg-text'),
+                        actionText: getVal('msg-action-text'),
+                        actionUrl: getVal('msg-action-url'),
+                        bannerStyle: getVal('msg-style', 'info'),
+                        dismissible: getCheck('msg-dismissible', true),
+                        maxViews: parseInt(getVal('msg-max-views', '3')) || 3,
                         source_url: SOURCE_URL_VALIDATION
                     };
                 }
                 else if (section === 'system') {
                     dataToSave = {
-                        appName: document.getElementById('sys-name').value,
-                        serverStatus: document.getElementById('sys-status').checked,
-                        allowRegistration: document.getElementById('sys-reg').checked,
-                        adminEmail: document.getElementById('sys-admin-email').value,
+                        appName: getVal('sys-name'),
+                        serverStatus: getCheck('sys-status', true),
+                        allowRegistration: getCheck('sys-reg', true),
+                        adminEmail: getVal('sys-admin-email', ALLOWED_EMAIL),
                         source_url: SOURCE_URL_VALIDATION
                     };
                 }
                 else if (section === 'terms') {
                     dataToSave = {
-                        content: document.getElementById('terms-content').value,
-                        version: document.getElementById('terms-version').value,
+                        content: getVal('terms-content'),
+                        version: getVal('terms-version', 'v1.0'),
                         updatedAt: Date.now(),
                         source_url: SOURCE_URL_VALIDATION
                     };
@@ -2051,7 +2111,7 @@ Portal Escolar – Central de Ajuda e Suporte`;
 
         // Executado ao finalizar carregamento do DOM
         window.onload = () => {
-            writeToConsole("Consola Administrativa Pronta.", "info");
+            writeToConsole("Consola Administrativa Pronta e Segurança Aplicada.", "info");
         };
     </script>
 </body>
