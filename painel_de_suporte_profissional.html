@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportDesk Pro - Central de Atendimento</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js para Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Inputs & Scrollbars */
+        .input-premium {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.2s;
+        }
+        .input-premium:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: rgba(15, 23, 42, 1);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+        /* Status Badges */
+        .status-pendente { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-analise { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .status-respondido { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .status-encerrado { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 300px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #6366f1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 3s forwards;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.success { border-left-color: #10b981; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-indigo-500/30">
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0b0f19]/90 backdrop-blur-md">
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+            
+            <div class="w-20 h-20 mx-auto bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                <i class="fas fa-headset text-4xl text-indigo-400"></i>
+            </div>
+            
+            <h1 class="text-2xl font-bold text-white mb-2">SupportDesk <span class="text-indigo-400">Pro</span></h1>
+            <p class="text-slate-400 text-sm mb-8">Central de Atendimento e Help Desk</p>
+
+            <div id="login-error" class="hidden mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-left">
+                <i class="fas fa-shield-halved mr-2"></i> Acesso negado. Apenas administradores autorizados.
+            </div>
+
+            <button id="btn-login" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                Entrar como Administrador
+            </button>
+            <p class="mt-6 text-xs text-slate-500"><i class="fas fa-lock mr-1"></i> Ambiente restrito e monitorizado.</p>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 glass-panel border-r border-slate-800/50 flex flex-col hidden md:flex shrink-0 relative z-20 h-full">
+        <div class="p-6 border-b border-slate-800/50">
+            <h2 class="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+                <i class="fas fa-headset text-indigo-500"></i> Support<span class="text-slate-400 font-light">Pro</span>
+            </h2>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1.5" id="main-nav">
+            <button onclick="nav('dashboard')" data-target="dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-indigo-500/20 border border-indigo-500/30 transition-all">
+                <i class="fas fa-chart-pie w-5 text-indigo-400"></i> Dashboard
+            </button>
+            <button onclick="nav('inbox')" data-target="inbox" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all relative">
+                <i class="fas fa-inbox w-5 text-slate-400"></i> Caixa de Entrada
+                <span id="badge-pending" class="absolute right-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="nav('templates')" data-target="templates" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+                <i class="fas fa-layer-group w-5 text-slate-400"></i> Templates de E-mail
+            </button>
+            <button onclick="nav('emails')" data-target="emails" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+                <i class="fas fa-paper-plane w-5 text-slate-400"></i> Central de E-mails
+            </button>
+            <button onclick="nav('settings')" data-target="settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+                <i class="fas fa-cog w-5 text-slate-400"></i> Configurações
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800/50 bg-slate-900/30">
+            <div class="flex items-center gap-3 mb-4">
+                <img id="admin-avatar" src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="w-10 h-10 rounded-full border-2 border-slate-700">
+                <div class="overflow-hidden">
+                    <p id="admin-name" class="text-sm font-bold text-white truncate">Administrador</p>
+                    <p class="text-[10px] text-emerald-400 font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
+                </div>
+            </div>
+            <button id="btn-logout" class="w-full py-2 px-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold transition-all flex items-center justify-center gap-2 border border-red-500/20">
+                <i class="fas fa-sign-out-alt"></i> Encerrar Sessão
+            </button>
+        </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col h-full relative z-10 overflow-hidden bg-[#0b0f19]/40">
+        
+        <!-- HEADER MOBILE & TOP BAR -->
+        <header class="h-16 glass-panel border-b border-slate-800/50 flex items-center justify-between px-6 shrink-0">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-slate-300 hover:text-white"><i class="fas fa-bars text-xl"></i></button>
+                <h2 id="topbar-title" class="text-lg font-bold text-white">Dashboard Estatístico</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative hidden sm:block">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <input type="text" id="global-search" placeholder="Pesquisar protocolo..." class="input-premium pl-9 pr-4 py-1.5 rounded-full text-sm w-64">
+                </div>
+                <button class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white border border-slate-700 transition">
+                    <i class="fas fa-bell"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- VIEWS CONTENT -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar relative">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="view-section space-y-6">
+                
+                <!-- Cards de Resumo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Total de Tickets</p>
+                            <h3 id="stat-total" class="text-3xl font-black text-white">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl border border-indigo-500/30"><i class="fas fa-ticket-alt"></i></div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Pendentes</p>
+                            <h3 id="stat-pending" class="text-3xl font-black text-amber-400">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl border border-amber-500/30"><i class="fas fa-clock"></i></div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Encerrados</p>
+                            <h3 id="stat-closed" class="text-3xl font-black text-emerald-400">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl border border-emerald-500/30"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">E-mails Enviados</p>
+                            <h3 id="stat-emails" class="text-3xl font-black text-sky-400">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl border border-sky-500/30"><i class="fas fa-paper-plane"></i></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Gráfico Principal -->
+                    <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2"><i class="fas fa-chart-line text-indigo-400"></i> Fluxo de Atendimentos (Últimos 7 Dias)</h3>
+                        <div class="h-72 w-full relative">
+                            <canvas id="mainChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Últimas Atividades -->
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2"><i class="fas fa-bolt text-amber-400"></i> Logs Recentes</h3>
+                            <button onclick="exportData('logs')" class="text-xs text-indigo-400 hover:text-indigo-300"><i class="fas fa-download"></i> CSV</button>
+                        </div>
+                        <div id="activity-feed" class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                            <p class="text-xs text-slate-500 text-center py-4">A carregar logs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CAIXA DE ENTRADA (TICKETS) -->
+            <div id="view-inbox" class="view-section hidden space-y-4 h-full flex flex-col">
+                <div class="flex flex-col sm:flex-row justify-between gap-4 shrink-0 glass-card p-4 rounded-2xl">
+                    <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                        <button onclick="filterTickets('all')" class="filter-btn active px-4 py-1.5 rounded-lg text-sm font-semibold bg-indigo-500 text-white border border-indigo-500 shadow-lg whitespace-nowrap">Todos</button>
+                        <button onclick="filterTickets('Pendente')" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap">Pendentes</button>
+                        <button onclick="filterTickets('Em Análise')" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap">Em Análise</button>
+                        <button onclick="filterTickets('Respondido')" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap">Respondidos</button>
+                        <button onclick="filterTickets('Encerrado')" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap">Encerrados</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportData('tickets')" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition flex items-center gap-2">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 glass-card rounded-2xl overflow-hidden flex flex-col border border-slate-800">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/80 border-b border-slate-700 text-xs text-slate-400 uppercase tracking-wider font-bold">
+                                    <th class="p-4">Protocolo</th>
+                                    <th class="p-4">Cliente</th>
+                                    <th class="p-4">Assunto / Prévia</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Data</th>
+                                    <th class="p-4 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tickets-tbody" class="divide-y divide-slate-800/50 text-sm">
+                                <tr><td colspan="6" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin mr-2"></i> Carregando tickets...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: TEMPLATES DE E-MAIL -->
+            <div id="view-templates" class="view-section hidden space-y-6">
+                <div class="flex justify-between items-center glass-card p-4 rounded-2xl">
+                    <h3 class="font-bold text-white"><i class="fas fa-layer-group text-indigo-400 mr-2"></i> Biblioteca de Templates</h3>
+                    <button onclick="openTemplateEditor()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Novo Template
+                    </button>
+                </div>
+
+                <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Templates renderizados aqui -->
+                    <div class="col-span-full text-center p-8 text-slate-500">Nenhum template encontrado.</div>
+                </div>
+            </div>
+
+            <!-- VIEW: CENTRAL DE E-MAILS -->
+            <div id="view-emails" class="view-section hidden space-y-6">
+                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col min-h-[500px]">
+                        <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Disparar E-mail Avulso</h3>
+                        
+                        <div class="space-y-4 flex-1">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Destinatário (E-mail)</label>
+                                    <input type="email" id="avulso-email" class="input-premium w-full p-2.5 rounded-xl text-sm" placeholder="cliente@email.com">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Carregar Template</label>
+                                    <select id="avulso-template" onchange="loadTemplateToAvulso()" class="input-premium w-full p-2.5 rounded-xl text-sm">
+                                        <option value="">-- Selecione um template --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Assunto do E-mail</label>
+                                <input type="text" id="avulso-subject" class="input-premium w-full p-2.5 rounded-xl text-sm" placeholder="Assunto da mensagem">
+                            </div>
+                            
+                            <div class="flex-1 flex flex-col">
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Corpo da Mensagem</label>
+                                <textarea id="avulso-body" class="input-premium w-full p-3 rounded-xl text-sm flex-1 min-h-[200px] resize-y font-mono" placeholder="Escreva a mensagem aqui..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex justify-end gap-3 pt-4 border-t border-slate-700">
+                            <button onclick="document.getElementById('avulso-body').value=''" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-600 transition">Limpar</button>
+                            <button onclick="sendAvulsoEmail()" class="px-6 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-lg transition flex items-center gap-2">
+                                <i class="fas fa-paper-plane"></i> Enviar E-mail
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl h-full flex flex-col">
+                        <h3 class="text-sm font-bold text-white mb-4 border-b border-slate-700 pb-2"><i class="fas fa-history text-slate-400 mr-2"></i> Histórico de Envios</h3>
+                        <div id="email-history-list" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                            <!-- Historico via JS -->
+                            <p class="text-xs text-slate-500 text-center py-4">Nenhum envio registrado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CONFIGURAÇÕES -->
+            <div id="view-settings" class="view-section hidden space-y-6 max-w-4xl mx-auto">
+                <div class="glass-card p-6 rounded-2xl border-l-4 border-indigo-500">
+                    <h3 class="text-lg font-bold text-white mb-2"><i class="fas fa-shield-alt text-indigo-400 mr-2"></i> Credenciais de Acesso</h3>
+                    <p class="text-xs text-slate-400 mb-6">Administre as configurações base do painel. Apenas o e-mail definido no código-fonte tem acesso raiz.</p>
+                    
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                        <label class="block text-xs font-bold text-slate-400 mb-1">E-mail Administrador Mestre (Bloqueado por Código)</label>
+                        <input type="text" id="cfg-admin-email" class="input-premium w-full p-2.5 rounded-lg text-sm text-emerald-400 font-mono" readonly value="">
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border-l-4 border-amber-500">
+                    <h3 class="text-lg font-bold text-white mb-2"><i class="fas fa-database text-amber-400 mr-2"></i> Ferramentas de Manutenção</h3>
+                    <p class="text-xs text-slate-400 mb-6">Ações diretas no Realtime Database.</p>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="generateMockData()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg transition flex items-center gap-2">
+                            <i class="fas fa-magic"></i> Gerar Dados de Teste (Tickets)
+                        </button>
+                        <button onclick="clearDatabase()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                            <i class="fas fa-trash-alt"></i> Limpar Banco de Dados
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: ATENDIMENTO DO TICKET -->
+    <div id="modal-ticket" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-[#0b0f19]/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-5xl h-[90vh] rounded-2xl flex flex-col md:flex-row overflow-hidden shadow-2xl border border-slate-700 transform scale-95 transition-transform duration-300" id="modal-ticket-card">
+            
+            <!-- Esquerda: Info do Ticket -->
+            <div class="w-full md:w-5/12 bg-slate-900/80 border-r border-slate-700 flex flex-col h-full">
+                <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/30">
+                    <div>
+                        <h3 class="font-bold text-white text-lg">Protocolo <span id="mt-id" class="text-indigo-400 font-mono text-sm ml-1">#0000</span></h3>
+                        <p class="text-xs text-slate-400 mt-1" id="mt-date">00/00/0000 00:00</p>
+                    </div>
+                    <span id="mt-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">Pendente</span>
+                </div>
+                
+                <div class="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-5">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Dados do Cliente</p>
+                        <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
+                            <p class="text-sm font-bold text-white mb-0.5"><i class="fas fa-user text-slate-500 w-4"></i> <span id="mt-nome">---</span></p>
+                            <p class="text-xs text-slate-400 mb-0.5"><i class="fas fa-envelope text-slate-500 w-4"></i> <span id="mt-email">---</span></p>
+                            <p class="text-[10px] text-slate-500 font-mono"><i class="fas fa-fingerprint text-slate-500 w-4"></i> UID: <span id="mt-uid">---</span></p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Mensagem Original</p>
+                        <div class="bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap font-medium" id="mt-msg">
+                            ---
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex justify-between">
+                            <span>Observações Internas</span>
+                            <button onclick="saveInternalNote()" class="text-indigo-400 hover:text-indigo-300">Salvar</button>
+                        </p>
+                        <textarea id="mt-notes" class="input-premium w-full p-3 rounded-xl text-xs h-24 resize-y" placeholder="Anotações visíveis apenas para a equipe..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direita: Área de Resposta -->
+            <div class="w-full md:w-7/12 bg-slate-900/40 flex flex-col h-full relative">
+                <button onclick="closeModal('modal-ticket')" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition z-10">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="p-6 border-b border-slate-700 bg-slate-800/20">
+                    <h3 class="font-bold text-white mb-4"><i class="fas fa-reply text-indigo-400 mr-2"></i> Responder Ticket</h3>
+                    <div class="flex gap-3">
+                        <div class="flex-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Usar Template Rápido</label>
+                            <select id="mt-template-select" onchange="applyTemplateToTicket()" class="input-premium w-full p-2 rounded-lg text-sm font-medium">
+                                <option value="">-- Escrever Manualmente --</option>
+                            </select>
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Alterar Status</label>
+                            <select id="mt-status-select" class="input-premium w-full p-2 rounded-lg text-sm font-medium">
+                                <option value="Pendente">Pendente</option>
+                                <option value="Em Análise">Em Análise</option>
+                                <option value="Respondido">Respondido</option>
+                                <option value="Encerrado">Encerrado</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 p-6 flex flex-col">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex justify-between items-center">
+                        Corpo da Mensagem (E-mail)
+                        <span class="text-[9px] text-slate-500 font-normal">Variáveis dinâmicas suportadas</span>
+                    </label>
+                    <textarea id="mt-reply-body" class="input-premium w-full flex-1 p-4 rounded-xl text-sm resize-none font-mono text-slate-300 leading-relaxed mb-4" placeholder="Escreva a resposta aqui... Variáveis: {{nome}}, {{protocolo}}, {{atendente}}..."></textarea>
+                    
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-700">
+                        <p class="text-xs text-slate-500"><i class="fas fa-info-circle mr-1"></i> A resposta será salva no banco e o status atualizado.</p>
+                        <button onclick="sendTicketReply()" id="btn-send-reply" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg transition flex items-center gap-2">
+                            <i class="fas fa-paper-plane"></i> Enviar Resposta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITOR DE TEMPLATES -->
+    <div id="modal-template" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-[#0b0f19]/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl border border-slate-700 transform scale-95 transition-transform duration-300" id="modal-template-card">
+            <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-800/40">
+                <h3 class="font-bold text-white text-lg"><i class="fas fa-pen-nib text-indigo-400 mr-2"></i> Editor de Template</h3>
+                <button onclick="closeModal('modal-template')" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="tpl-id">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1">Nome do Template (Uso Interno)</label>
+                        <input type="text" id="tpl-name" class="input-premium w-full p-2.5 rounded-xl text-sm" placeholder="Ex: Boas Vindas">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1">Categoria</label>
+                        <select id="tpl-category" class="input-premium w-full p-2.5 rounded-xl text-sm">
+                            <option value="Solicitação atendida">Solicitação atendida</option>
+                            <option value="Solicitação recusada">Solicitação recusada</option>
+                            <option value="Solicitação em análise">Solicitação em análise</option>
+                            <option value="Problema resolvido">Problema resolvido</option>
+                            <option value="Atualização disponível">Atualização disponível</option>
+                            <option value="Aviso geral">Aviso geral</option>
+                            <option value="Comunicado">Comunicado</option>
+                            <option value="Conta bloqueada">Conta bloqueada</option>
+                            <option value="Conta desbloqueada">Conta desbloqueada</option>
+                            <option value="Recuperação de acesso">Recuperação de acesso</option>
+                            <option value="Personalizado">Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Assunto Padrão</label>
+                    <input type="text" id="tpl-subject" class="input-premium w-full p-2.5 rounded-xl text-sm" placeholder="Assunto do E-mail">
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <label class="block text-xs font-bold text-slate-400">Corpo do Template</label>
+                        <span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 cursor-help" title="{{nome}}, {{email}}, {{uid}}, {{protocolo}}, {{mensagem_usuario}}, {{status}}, {{atendente}}, {{data}}, {{hora}}">
+                            Ver Variáveis Disponíveis <i class="fas fa-question-circle"></i>
+                        </span>
+                    </div>
+                    <textarea id="tpl-body" class="input-premium w-full p-4 rounded-xl text-sm min-h-[200px] resize-y font-mono text-slate-300" placeholder="Olá {{nome}},\n\nRecebemos seu contato através do protocolo {{protocolo}}..."></textarea>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-slate-700 bg-slate-800/20 flex justify-between">
+                <button onclick="closeModal('modal-template')" class="px-5 py-2 rounded-xl text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Cancelar</button>
+                <button onclick="saveTemplate()" id="btn-save-tpl" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg transition flex items-center gap-2">
+                    <i class="fas fa-save"></i> Salvar Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- JS PRINCIPAL -->
+    <script type="module">
+        // =========================================================
+        // BLOCO DE CONFIGURAÇÃO FIREBASE (ALTERE COM AS SUAS CREDENCIAIS)
+        // =========================================================
+        const CONFIG_FIREBASE = {
+            apiKey: "AIzaSyA4XFtP8TEFVAx272tHwNRc8aZaNx9_G8A",
+            authDomain: "painel-administrativo-suporte.firebaseapp.com",
+            databaseURL: "https://painel-administrativo-suporte-default-rtdb.firebaseio.com",
+            projectId: "painel-administrativo-suporte",
+            storageBucket: "painel-administrativo-suporte.firebasestorage.app",
+            messagingSenderId: "25141211009",
+            appId: "G-30346J4R0N"
+        };
+
+        // E-mail autorizado a aceder ao painel
+        const ADMIN_EMAIL = "geilsomcarlos93@gmail.com"; 
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const app = initializeApp(CONFIG_FIREBASE);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        // Estado Global (Dados em memória)
+        let state = {
+            tickets: {},
+            templates: {},
+            emails: {},
+            logs: [],
+            activeTicketId: null
+        };
+        let mainChart = null;
+        let currentFilter = 'all';
+
+        // Elementos DOM Iniciais
+        const loginScreen = document.getElementById('login-screen');
+        const errorLogin = document.getElementById('login-error');
+        const sidebar = document.querySelector('aside');
+        document.getElementById('cfg-admin-email').value = ADMIN_EMAIL;
+
+        // =========================================================
+        // SISTEMA DE TOAST NOTIFICATIONS
+        // =========================================================
+        window.showToast = (msg, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle text-emerald-400' : 'fa-exclamation-circle text-red-400';
+            toast.innerHTML = `<i class="fas ${icon} text-xl"></i> <div><p class="text-sm font-bold text-white">${type === 'success' ? 'Sucesso' : 'Erro'}</p><p class="text-xs text-slate-300">${msg}</p></div>`;
+            container.appendChild(toast);
+            setTimeout(() => { if(container.contains(toast)) toast.remove(); }, 3500);
+        };
+
+        // =========================================================
+        // AUTENTICAÇÃO
+        // =========================================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                if (user.email === ADMIN_EMAIL) {
+                    loginScreen.classList.add('hidden');
+                    document.getElementById('admin-name').innerText = user.displayName || 'Administrador';
+                    if(user.photoURL) document.getElementById('admin-avatar').src = user.photoURL;
+                    initSystem();
+                } else {
+                    errorLogin.classList.remove('hidden');
+                    await signOut(auth);
+                }
+            } else {
+                loginScreen.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            errorLogin.classList.add('hidden');
+            try { await signInWithPopup(auth, provider); } 
+            catch (err) { showToast("Falha na autenticação com Google.", "error"); }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        // =========================================================
+        // NAVEGAÇÃO E UI BÁSICA
+        // =========================================================
+        window.nav = (viewName) => {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all";
+                if(btn.dataset.target === viewName) {
+                    btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-indigo-500/20 border border-indigo-500/30 transition-all";
+                }
+            });
+
+            const titles = { dashboard: 'Dashboard Estatístico', inbox: 'Caixa de Entrada', templates: 'Editor de Templates', emails: 'Central de E-mails', settings: 'Configurações' };
+            document.getElementById('topbar-title').innerText = titles[viewName];
+        };
+
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id);
+            const card = document.getElementById(`${id}-card`);
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        const openModal = (id) => {
+            const modal = document.getElementById(id);
+            const card = document.getElementById(`${id}-card`);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }, 10);
+        };
+
+        // =========================================================
+        // INICIALIZAÇÃO DO SISTEMA & LISTENERS
+        // =========================================================
+        function initSystem() {
+            logAction("Login", "Sessão iniciada pelo administrador.");
+            
+            // Listeners em Tempo Real (Firebase)
+            onValue(ref(db, 'support/tickets'), (snapshot) => {
+                state.tickets = snapshot.val() || {};
+                updateDashboard();
+                renderTickets();
+            });
+
+            onValue(ref(db, 'support/templates'), (snapshot) => {
+                state.templates = snapshot.val() || {};
+                renderTemplates();
+                populateTemplateSelectors();
+            });
+
+            onValue(ref(db, 'support/email_history'), (snapshot) => {
+                state.emails = snapshot.val() || {};
+                renderEmailHistory();
+                updateDashboard();
+            });
+
+            onValue(ref(db, 'support/logs'), (snapshot) => {
+                const logsObj = snapshot.val() || {};
+                state.logs = Object.entries(logsObj).map(([id, val]) => ({id, ...val})).sort((a,b) => b.timestamp - a.timestamp);
+                renderLogs();
+            });
+            
+            nav('dashboard');
+        }
+
+        async function logAction(acao, detalhe) {
+            await push(ref(db, 'support/logs'), {
+                acao, detalhe, timestamp: Date.now(), user: auth.currentUser?.email
+            });
+        }
+
+        // =========================================================
+        // VIEW: DASHBOARD E GRÁFICOS
+        // =========================================================
+        function updateDashboard() {
+            const tickets = Object.values(state.tickets);
+            const emails = Object.values(state.emails);
+            
+            let pending = 0, closed = 0;
+            tickets.forEach(t => {
+                if(t.status === 'Encerrado') closed++;
+                else pending++; // Pendente, Em Análise, Respondido
+            });
+
+            document.getElementById('stat-total').innerText = tickets.length;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-closed').innerText = closed;
+            document.getElementById('stat-emails').innerText = emails.length;
+            
+            const badge = document.getElementById('badge-pending');
+            if(pending > 0) {
+                badge.innerText = pending;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            renderChart(tickets);
+        }
+
+        function renderChart(tickets) {
+            const ctx = document.getElementById('mainChart');
+            if(!ctx) return;
+
+            // Agrupar por data (ultimos 7 dias)
+            const last7Days = [...Array(7)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                return d.toLocaleDateString('pt-BR');
+            }).reverse();
+
+            const counts = last7Days.map(dateStr => {
+                return tickets.filter(t => new Date(t.timestamp).toLocaleDateString('pt-BR') === dateStr).length;
+            });
+
+            if(mainChart) mainChart.destroy();
+            
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'Novos Tickets',
+                        data: counts,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#818cf8',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', stepSize: 1 } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('activity-feed');
+            container.innerHTML = '';
+            
+            if(state.logs.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhuma atividade registrada.</p>';
+                return;
+            }
+
+            state.logs.slice(0, 15).forEach(log => {
+                const time = new Date(log.timestamp).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                container.innerHTML += `
+                    <div class="flex gap-3 items-start p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 border border-slate-700 text-xs">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-300 mb-0.5">${log.acao} <span class="text-[10px] text-slate-500 font-normal ml-2">${time}</span></p>
+                            <p class="text-[11px] text-slate-400">${log.detalhe}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // =========================================================
+        // VIEW: CAIXA DE ENTRADA (TICKETS)
+        // =========================================================
+        window.filterTickets = (status) => {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-4 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 whitespace-nowrap";
+            });
+            event.currentTarget.className = "filter-btn active px-4 py-1.5 rounded-lg text-sm font-semibold bg-indigo-500 text-white border border-indigo-500 shadow-lg whitespace-nowrap";
+            renderTickets();
+        };
+
+        document.getElementById('global-search').addEventListener('input', (e) => {
+            renderTickets(e.target.value.toLowerCase());
+        });
+
+        function renderTickets(searchQuery = '') {
+            const tbody = document.getElementById('tickets-tbody');
+            tbody.innerHTML = '';
+            
+            let tickets = Object.entries(state.tickets).map(([id, val]) => ({id, ...val}));
+            tickets.sort((a, b) => b.timestamp - a.timestamp); // Mais recentes primeiro
+
+            if(currentFilter !== 'all') {
+                tickets = tickets.filter(t => t.status === currentFilter);
+            }
+            if(searchQuery) {
+                tickets = tickets.filter(t => 
+                    t.id.toLowerCase().includes(searchQuery) || 
+                    (t.nome && t.nome.toLowerCase().includes(searchQuery)) ||
+                    (t.email && t.email.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if(tickets.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Nenhum ticket encontrado.</td></tr>`;
+                return;
+            }
+
+            tickets.forEach(t => {
+                const date = new Date(t.timestamp).toLocaleDateString('pt-BR');
+                const statusClass = t.status === 'Pendente' ? 'status-pendente' : 
+                                  t.status === 'Em Análise' ? 'status-analise' :
+                                  t.status === 'Respondido' ? 'status-respondido' : 'status-encerrado';
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/30 transition cursor-pointer group";
+                tr.onclick = () => openTicketModal(t.id);
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-xs text-indigo-400">#${t.id.substring(1, 8).toUpperCase()}</td>
+                    <td class="p-4">
+                        <p class="font-bold text-slate-200 text-sm truncate max-w-[150px]">${t.nome || 'Desconhecido'}</p>
+                        <p class="text-[10px] text-slate-500 truncate max-w-[150px]">${t.email || 'N/A'}</p>
+                    </td>
+                    <td class="p-4 text-xs text-slate-400">
+                        <p class="truncate max-w-[250px]">${t.mensagem || 'Sem mensagem'}</p>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusClass}">${t.status || 'Pendente'}</span>
+                    </td>
+                    <td class="p-4 text-xs text-slate-500">${date}</td>
+                    <td class="p-4 text-right">
+                        <button class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition shadow">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================================================
+        // LÓGICA DO MODAL DO TICKET
+        // =========================================================
+        window.openTicketModal = (id) => {
+            const t = state.tickets[id];
+            if(!t) return;
+            state.activeTicketId = id;
+
+            document.getElementById('mt-id').innerText = '#' + id.substring(1, 8).toUpperCase();
+            document.getElementById('mt-date').innerText = new Date(t.timestamp).toLocaleString('pt-BR');
+            document.getElementById('mt-nome').innerText = t.nome || 'N/A';
+            document.getElementById('mt-email').innerText = t.email || 'N/A';
+            document.getElementById('mt-uid').innerText = t.uid || 'Não Fornecido';
+            document.getElementById('mt-msg').innerText = t.mensagem || '';
+            document.getElementById('mt-notes').value = t.notas_internas || '';
+            document.getElementById('mt-status-select').value = t.status || 'Pendente';
+            document.getElementById('mt-reply-body').value = '';
+            document.getElementById('mt-template-select').value = '';
+
+            const badge = document.getElementById('mt-badge');
+            badge.innerText = t.status || 'Pendente';
+            badge.className = `px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                t.status === 'Pendente' ? 'status-pendente' : t.status === 'Em Análise' ? 'status-analise' : t.status === 'Respondido' ? 'status-respondido' : 'status-encerrado'
+            }`;
+
+            openModal('modal-ticket');
+        };
+
+        window.saveInternalNote = async () => {
+            if(!state.activeTicketId) return;
+            const notas = document.getElementById('mt-notes').value;
+            try {
+                await update(ref(db, `support/tickets/${state.activeTicketId}`), { notas_internas: notas });
+                showToast("Notas internas salvas!");
+                logAction("Nota Adicionada", `Ticket #${state.activeTicketId}`);
+            } catch (err) { showToast("Erro ao salvar nota.", "error"); }
+        };
+
+        window.applyTemplateToTicket = () => {
+            const tplId = document.getElementById('mt-template-select').value;
+            if(!tplId || !state.templates[tplId]) return;
+            const ticket = state.tickets[state.activeTicketId];
+            
+            const rawBody = state.templates[tplId].body;
+            document.getElementById('mt-reply-body').value = processDynamicVariables(rawBody, ticket);
+            
+            // Sugere mudança de status baseado na categoria
+            const cat = state.templates[tplId].category;
+            const statusSelect = document.getElementById('mt-status-select');
+            if(cat.includes('resolvido') || cat.includes('atendida')) statusSelect.value = 'Encerrado';
+            else statusSelect.value = 'Respondido';
+        };
+
+        function processDynamicVariables(text, ticket) {
+            const data = {
+                nome: ticket.nome || 'Prezado(a)',
+                email: ticket.email || '',
+                uid: ticket.uid || '',
+                protocolo: '#' + (ticket.id ? ticket.id.substring(1, 8).toUpperCase() : '000'),
+                mensagem_usuario: ticket.mensagem || '',
+                status: ticket.status || '',
+                atendente: auth.currentUser?.displayName || 'Equipe de Suporte',
+                data: new Date().toLocaleDateString('pt-BR'),
+                hora: new Date().toLocaleTimeString('pt-BR')
+            };
+            return text.replace(/\{\{(.*?)\}\}/g, (match, key) => data[key.trim()] || match);
+        }
+
+        window.sendTicketReply = async () => {
+            if(!state.activeTicketId) return;
+            const ticket = state.tickets[state.activeTicketId];
+            const msgBody = document.getElementById('mt-reply-body').value.trim();
+            const newStatus = document.getElementById('mt-status-select').value;
+            const btn = document.getElementById('btn-send-reply');
+
+            if(!msgBody && newStatus === ticket.status) {
+                showToast("Escreva uma resposta ou altere o status.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            try {
+                // Atualiza status do ticket
+                const updates = { status: newStatus, updatedAt: Date.now() };
+                await update(ref(db, `support/tickets/${state.activeTicketId}`), updates);
+
+                // Se houver mensagem, simula o envio salvando no email_history e responses
+                if(msgBody) {
+                    const emailData = {
+                        ticketId: state.activeTicketId,
+                        to: ticket.email,
+                        subject: `Atualização Chamado #${state.activeTicketId.substring(1, 8).toUpperCase()}`,
+                        body: msgBody,
+                        timestamp: Date.now(),
+                        sender: auth.currentUser.email
+                    };
+                    await push(ref(db, `support/email_history`), emailData);
+                    await push(ref(db, `support/responses/${state.activeTicketId}`), emailData);
+                    logAction("Ticket Respondido", `E-mail enviado para ${ticket.email} (Ticket #${state.activeTicketId})`);
+                } else {
+                    logAction("Status Alterado", `Ticket #${state.activeTicketId} -> ${newStatus}`);
+                }
+
+                showToast("Atendimento registrado com sucesso!");
+                closeModal('modal-ticket');
+            } catch (err) {
+                showToast("Erro ao processar resposta.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Resposta';
+            }
+        };
+
+        // =========================================================
+        // VIEW: TEMPLATES DE E-MAIL
+        // =========================================================
+        function renderTemplates() {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = '';
+            
+            const tpls = Object.entries(state.templates).map(([id, val]) => ({id, ...val}));
+            if(tpls.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center p-8 text-slate-500 border border-dashed border-slate-700 rounded-2xl">Nenhum template cadastrado.</div>';
+                return;
+            }
+
+            tpls.forEach(t => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-5 rounded-2xl flex flex-col justify-between border border-slate-800";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">${t.category}</span>
+                            <div class="flex gap-2">
+                                <button onclick="editTemplate('${t.id}')" class="text-slate-400 hover:text-indigo-400 transition" title="Editar"><i class="fas fa-pen text-xs"></i></button>
+                                <button onclick="deleteTemplate('${t.id}')" class="text-slate-400 hover:text-red-400 transition" title="Excluir"><i class="fas fa-trash text-xs"></i></button>
+                            </div>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1 truncate">${t.name}</h4>
+                        <p class="text-xs text-slate-400 truncate mb-3"><i class="fas fa-envelope-open-text mr-1"></i> ${t.subject}</p>
+                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-500 h-20 overflow-hidden relative">
+                            ${t.body.replace(/\n/g, '<br>')}
+                            <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-slate-900/90 to-transparent"></div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.openTemplateEditor = () => {
+            document.getElementById('tpl-id').value = '';
+            document.getElementById('tpl-name').value = '';
+            document.getElementById('tpl-category').value = 'Personalizado';
+            document.getElementById('tpl-subject').value = '';
+            document.getElementById('tpl-body').value = '';
+            openModal('modal-template');
+        };
+
+        window.editTemplate = (id) => {
+            const t = state.templates[id];
+            if(!t) return;
+            document.getElementById('tpl-id').value = id;
+            document.getElementById('tpl-name').value = t.name;
+            document.getElementById('tpl-category').value = t.category;
+            document.getElementById('tpl-subject').value = t.subject;
+            document.getElementById('tpl-body').value = t.body;
+            openModal('modal-template');
+        };
+
+        window.saveTemplate = async () => {
+            const id = document.getElementById('tpl-id').value;
+            const tplData = {
+                name: document.getElementById('tpl-name').value.trim(),
+                category: document.getElementById('tpl-category').value,
+                subject: document.getElementById('tpl-subject').value.trim(),
+                body: document.getElementById('tpl-body').value.trim(),
+                timestamp: Date.now()
+            };
+
+            if(!tplData.name || !tplData.body) {
+                showToast("Nome e Corpo do template são obrigatórios.", "error");
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-tpl');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                if(id) {
+                    await update(ref(db, `support/templates/${id}`), tplData);
+                    logAction("Template Atualizado", `Nome: ${tplData.name}`);
+                } else {
+                    await push(ref(db, 'support/templates'), tplData);
+                    logAction("Template Criado", `Nome: ${tplData.name}`);
+                }
+                showToast("Template salvo com sucesso!");
+                closeModal('modal-template');
+            } catch(e) { showToast("Erro ao salvar template.", "error"); }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Salvar Template';
+            }
+        };
+
+        window.deleteTemplate = async (id) => {
+            if(confirm("Tem certeza que deseja excluir este template permanentemente?")) {
+                try {
+                    await remove(ref(db, `support/templates/${id}`));
+                    showToast("Template excluído.");
+                    logAction("Template Excluído", `ID: ${id}`);
+                } catch(e) { showToast("Erro ao excluir.", "error"); }
+            }
+        };
+
+        function populateTemplateSelectors() {
+            const selectors = [document.getElementById('mt-template-select'), document.getElementById('avulso-template')];
+            const tpls = Object.entries(state.templates).map(([id, val]) => ({id, ...val}));
+            
+            selectors.forEach(sel => {
+                if(!sel) return;
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">-- Selecione um template --</option>';
+                tpls.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.innerText = `[${t.category}] ${t.name}`;
+                    sel.appendChild(opt);
+                });
+                sel.value = currentVal; // mantem selecao
+            });
+        }
+
+        // =========================================================
+        // VIEW: CENTRAL DE E-MAILS (AVULSO E HISTÓRICO)
+        // =========================================================
+        window.loadTemplateToAvulso = () => {
+            const tplId = document.getElementById('avulso-template').value;
+            if(!tplId || !state.templates[tplId]) return;
+            const t = state.templates[tplId];
+            document.getElementById('avulso-subject').value = t.subject;
+            // Fake ticket para preencher variaveis que derem match com admin info
+            const fakeTicket = { nome: 'Cliente' }; 
+            document.getElementById('avulso-body').value = processDynamicVariables(t.body, fakeTicket);
+        };
+
+        window.sendAvulsoEmail = async () => {
+            const to = document.getElementById('avulso-email').value.trim();
+            const subject = document.getElementById('avulso-subject').value.trim();
+            const body = document.getElementById('avulso-body').value.trim();
+
+            if(!to || !subject || !body) {
+                showToast("Preencha todos os campos para enviar.", "error");
+                return;
+            }
+
+            try {
+                const emailData = { to, subject, body, timestamp: Date.now(), sender: auth.currentUser.email, tipo: 'Avulso' };
+                await push(ref(db, `support/email_history`), emailData);
+                showToast("E-mail adicionado à fila / histórico!");
+                logAction("E-mail Avulso", `Enviado para: ${to}`);
+                
+                document.getElementById('avulso-email').value = '';
+                document.getElementById('avulso-subject').value = '';
+                document.getElementById('avulso-body').value = '';
+                document.getElementById('avulso-template').value = '';
+            } catch(e) { showToast("Erro ao registrar e-mail.", "error"); }
+        };
+
+        function renderEmailHistory() {
+            const list = document.getElementById('email-history-list');
+            list.innerHTML = '';
+            
+            const emails = Object.values(state.emails).sort((a,b) => b.timestamp - a.timestamp).slice(0, 50); // Ultimos 50
+            if(emails.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum envio registrado.</p>';
+                return;
+            }
+
+            emails.forEach(e => {
+                const date = new Date(e.timestamp).toLocaleString('pt-BR');
+                const tag = e.tipo === 'Avulso' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+                
+                list.innerHTML += `
+                    <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 text-sm">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-slate-200 truncate pr-2"><i class="fas fa-envelope text-slate-500 text-xs mr-1"></i> ${e.to}</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded uppercase font-bold border ${tag}">${e.tipo || 'Ticket'}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium truncate mb-2">${e.subject}</p>
+                        <div class="text-[10px] text-slate-500 flex justify-between">
+                            <span><i class="fas fa-user-tie"></i> ${e.sender.split('@')[0]}</span>
+                            <span>${date}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // =========================================================
+        // UTILITÁRIOS E EXPORTAÇÃO
+        // =========================================================
+        window.exportData = (type) => {
+            let data = [];
+            let filename = '';
+            
+            if(type === 'tickets') {
+                filename = 'tickets_export.csv';
+                data.push(['ID', 'Nome', 'Email', 'UID', 'Status', 'Data', 'Mensagem']);
+                Object.entries(state.tickets).forEach(([id, t]) => {
+                    data.push([id, `"${t.nome||''}"`, `"${t.email||''}"`, `"${t.uid||''}"`, t.status, new Date(t.timestamp).toLocaleString('pt-BR'), `"${(t.mensagem||'').replace(/"/g, '""')}"`]);
+                });
+            } else if (type === 'logs') {
+                filename = 'admin_logs.csv';
+                data.push(['Data', 'Acao', 'Detalhe', 'Usuario']);
+                state.logs.forEach(l => {
+                    data.push([new Date(l.timestamp).toLocaleString('pt-BR'), `"${l.acao}"`, `"${l.detalhe}"`, l.user]);
+                });
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            showToast(`Exportação CSV gerada: ${filename}`);
+            logAction("Exportação Dados", `Tabela: ${type}`);
+        };
+
+        // Geração de Dados Falsos (Apenas para demonstração inicial)
+        window.generateMockData = async () => {
+            if(!confirm("Gerar dados falsos vai adicionar tickets no banco. Continuar?")) return;
+            const names = ["Ana Silva", "Carlos Souza", "Beatriz Lima", "Daniel Costa", "Eduardo Mendes"];
+            const msgs = ["Não consigo acessar minha conta.", "O aplicativo fecha sozinho no módulo de notas.", "Dúvida sobre mensalidade atrasada.", "Como altero minha senha?"];
+            
+            for(let i=0; i<3; i++) {
+                await push(ref(db, 'support/tickets'), {
+                    nome: names[Math.floor(Math.random()*names.length)],
+                    email: `user${Math.floor(Math.random()*999)}@escola.com`,
+                    uid: `UID${Math.floor(Math.random()*999999)}`,
+                    mensagem: msgs[Math.floor(Math.random()*msgs.length)],
+                    status: 'Pendente',
+                    timestamp: Date.now() - (Math.random() * 86400000 * 3)
+                });
+            }
+            showToast("Dados de teste gerados!");
+            logAction("Manutenção", "Mock data gerado no banco.");
+        };
+
+        window.clearDatabase = async () => {
+            if(prompt("Atenção! Isso apagará TODOS OS TICKETS E EMAILS. Digite 'APAGAR' para confirmar:") === "APAGAR") {
+                await remove(ref(db, 'support/tickets'));
+                await remove(ref(db, 'support/email_history'));
+                await remove(ref(db, 'support/responses'));
+                showToast("Banco de dados limpo.", "success");
+                logAction("Manutenção Crítica", "Banco de dados formatado pelo admin.");
+            }
+        };
+
+    </script>
+</body>
+</html>
